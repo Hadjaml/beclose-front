@@ -105,6 +105,13 @@ export const workspaceNavigation = [
     availability: "available",
   },
   {
+    id: "appointments",
+    label: "Rendez-vous",
+    area: "primary",
+    href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/appointments`,
+    availability: "available",
+  },
+  {
     id: "performance",
     label: "Performance",
     area: "primary",

@@ -28,7 +28,10 @@ export {
 export {
   contactChannelSchema,
   contactStrategySchema,
+  prospectCompanySchema,
+  prospectContactSchema,
   prospectListSchema,
+  prospectScoreSchema,
   prospectSchema,
   prospectStatusSchema,
   strategyValidationStatusSchema,
