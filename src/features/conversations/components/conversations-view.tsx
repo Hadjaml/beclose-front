@@ -17,9 +17,9 @@ type ConversationsViewProps =
   | {
       items: readonly ConversationInboxItem[];
       formatTimestamp: (timestamp: string) => string;
-      onTakeOver: (conversationId: string) => void;
-      onLetSystemContinue: (conversationId: string) => void;
-      onReturnToSystem: (conversationId: string) => void;
+      onTakeOver?: (conversationId: string) => void;
+      onLetSystemContinue?: (conversationId: string) => void;
+      onReturnToSystem?: (conversationId: string) => void;
     };
 
 function matchesFilter(item: ConversationInboxItem, filter: ConversationFilter) {
@@ -76,9 +76,21 @@ export function ConversationsView(props: ConversationsViewProps) {
           <div className="lg:col-span-2 xl:col-span-1">
             <ConversationContextPanel
               item={activeItem}
-              onTakeOver={() => props.onTakeOver(activeItem.conversation.id)}
-              onLetSystemContinue={() => props.onLetSystemContinue(activeItem.conversation.id)}
-              onReturnToSystem={() => props.onReturnToSystem(activeItem.conversation.id)}
+              {...(props.onTakeOver === undefined
+                ? {}
+                : { onTakeOver: () => props.onTakeOver?.(activeItem.conversation.id) })}
+              {...(props.onLetSystemContinue === undefined
+                ? {}
+                : {
+                    onLetSystemContinue: () =>
+                      props.onLetSystemContinue?.(activeItem.conversation.id),
+                  })}
+              {...(props.onReturnToSystem === undefined
+                ? {}
+                : {
+                    onReturnToSystem: () =>
+                      props.onReturnToSystem?.(activeItem.conversation.id),
+                  })}
             />
           </div>
         </div>

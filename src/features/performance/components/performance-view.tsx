@@ -9,12 +9,30 @@ import { PerformanceFunnel } from "./performance-funnel";
 import { PerformanceInsightCard } from "./performance-insight";
 import { PerformanceMetricCard } from "./performance-metric-card";
 
-type PerformanceViewProps =
+export interface PerformanceVisibility {
+  showBreakdowns: boolean;
+  showInsights: boolean;
+}
+
+export const backofficePerformanceVisibility: PerformanceVisibility = {
+  showBreakdowns: true,
+  showInsights: true,
+};
+
+export const portalPerformanceVisibility: PerformanceVisibility = {
+  showBreakdowns: false,
+  showInsights: false,
+};
+
+type PerformanceViewProps = {
+  visibility?: PerformanceVisibility;
+} & (
   | { performance: null }
   | {
       performance: WorkspacePerformance;
       renderInsightAction?: (insight: PerformanceInsight) => ReactNode;
-    };
+    }
+);
 
 export function PerformanceView(props: PerformanceViewProps) {
   if (props.performance === null) {
@@ -26,11 +44,13 @@ export function PerformanceView(props: PerformanceViewProps) {
     );
   }
 
+  const visibility = props.visibility ?? backofficePerformanceVisibility;
+
   const hasContent =
     props.performance.metrics.length > 0 ||
     props.performance.funnel.length > 0 ||
-    props.performance.breakdowns.length > 0 ||
-    props.performance.insights.length > 0;
+    (visibility.showBreakdowns && props.performance.breakdowns.length > 0) ||
+    (visibility.showInsights && props.performance.insights.length > 0);
 
   if (!hasContent) {
     return (
@@ -69,10 +89,12 @@ export function PerformanceView(props: PerformanceViewProps) {
           <PerformanceFunnel stages={props.performance.funnel} />
         </section>
       )}
-      {props.performance.breakdowns.map((breakdown) => (
-        <PerformanceBreakdownTable key={breakdown.id} breakdown={breakdown} />
-      ))}
-      {props.performance.insights.length === 0 ? null : (
+      {visibility.showBreakdowns
+        ? props.performance.breakdowns.map((breakdown) => (
+            <PerformanceBreakdownTable key={breakdown.id} breakdown={breakdown} />
+          ))
+        : null}
+      {!visibility.showInsights || props.performance.insights.length === 0 ? null : (
         <section className="space-y-3" aria-labelledby="performance-insights-title">
           <h2 id="performance-insights-title" className="text-lg font-semibold text-zinc-950">
             Observations et améliorations

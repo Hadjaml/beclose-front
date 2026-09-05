@@ -12,6 +12,9 @@ interface ProspectDetailPanelProps {
   onClose?: () => void;
   targetingActions?: ReactNode;
   strategyActions?: ReactNode;
+  showScoringAnalysis?: boolean;
+  showContactStrategy?: boolean;
+  showHistory?: boolean;
 }
 
 function DetailList({
@@ -39,6 +42,9 @@ export function ProspectDetailPanel({
   onClose,
   targetingActions,
   strategyActions,
+  showScoringAnalysis = true,
+  showContactStrategy = true,
+  showHistory = true,
 }: ProspectDetailPanelProps) {
   if (prospect === null) {
     return null;
@@ -115,7 +121,7 @@ export function ProspectDetailPanel({
           {targetingActions === undefined ? null : <div className="mt-4">{targetingActions}</div>}
         </section>
 
-        {prospect.score === undefined ? null : (
+        {!showScoringAnalysis || prospect.score === undefined ? null : (
           <section>
             <h3 className="text-sm font-semibold text-zinc-950">Analyse du ciblage</h3>
             <p className="mt-2 text-2xl font-semibold text-zinc-950">{prospect.score.value}</p>
@@ -124,11 +130,15 @@ export function ProspectDetailPanel({
             )}
           </section>
         )}
-        <DetailList title="Raisons du score" values={prospect.score?.reasons} />
-        <DetailList title="Critères correspondants" values={prospect.score?.matchedCriteria} />
-        <DetailList title="Incertitudes à vérifier" values={prospect.score?.uncertainties} />
+        {showScoringAnalysis ? (
+          <>
+            <DetailList title="Raisons du score" values={prospect.score?.reasons} />
+            <DetailList title="Critères correspondants" values={prospect.score?.matchedCriteria} />
+            <DetailList title="Incertitudes à vérifier" values={prospect.score?.uncertainties} />
+          </>
+        ) : null}
 
-        {strategy === undefined ? null : (
+        {!showContactStrategy || strategy === undefined ? null : (
           <section className="rounded-xl border border-zinc-200 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h3 className="text-base font-semibold text-zinc-950">Stratégie de contact</h3>
@@ -152,7 +162,7 @@ export function ProspectDetailPanel({
           </section>
         )}
 
-        {prospect.history?.length ? (
+        {showHistory && prospect.history?.length ? (
           <section>
             <h3 className="text-sm font-semibold text-zinc-950">Historique connu</h3>
             <ol className="mt-3 space-y-3">

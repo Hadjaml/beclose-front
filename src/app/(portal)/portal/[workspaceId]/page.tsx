@@ -1,13 +1,18 @@
+import { WorkspaceOverviewView } from "@/features/supervision";
+
 export default function PortalPage() {
   return (
-    <section aria-labelledby="portal-title" className="max-w-3xl">
-      <p className="text-sm font-semibold text-zinc-500">Intervention client</p>
-      <h2 id="portal-title" className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950">
-        Éléments à valider
-      </h2>
-      <p className="mt-3 text-sm leading-6 text-zinc-600">
-        Les éléments nécessitant une intervention humaine apparaîtront ici dès qu’ils seront disponibles.
-      </p>
-    </section>
+    <div className="space-y-8">
+      <header className="max-w-3xl">
+        <p className="text-sm font-semibold text-zinc-500">Votre espace Bewise</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950">
+          Vue d’ensemble
+        </h1>
+        <p className="mt-3 text-base leading-7 text-zinc-600">
+          Retrouvez ce qui nécessite votre attention, l’activité récente et les résultats disponibles.
+        </p>
+      </header>
+      <WorkspaceOverviewView supervision={null} />
+    </div>
   );
 }

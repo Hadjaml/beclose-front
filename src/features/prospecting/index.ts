@@ -6,7 +6,12 @@ export { ProspectDetailPanel } from "./components/prospect-detail-panel";
 export { ProspectTable } from "./components/prospect-table";
 export { ProspectingEmptyState } from "./components/prospecting-empty-state";
 export { ProspectingToolbar } from "./components/prospecting-toolbar";
-export { ProspectingView } from "./components/prospecting-view";
+export {
+  backofficeProspectingVisibility,
+  portalProspectingVisibility,
+  ProspectingView,
+  type ProspectingVisibility,
+} from "./components/prospecting-view";
 export { TargetingDecisionActions } from "./components/targeting-decision-actions";
 export {
   contactChannelLabels,

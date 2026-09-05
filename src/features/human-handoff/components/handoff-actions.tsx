@@ -8,9 +8,9 @@ import type {
 interface HandoffActionsProps {
   ownership: ConversationOwnership;
   recommendation?: HandoffRecommendation;
-  onTakeOver: () => void;
-  onLetSystemContinue: () => void;
-  onReturnToSystem: () => void;
+  onTakeOver?: () => void;
+  onLetSystemContinue?: () => void;
+  onReturnToSystem?: () => void;
 }
 
 export function HandoffActions({
@@ -21,6 +21,7 @@ export function HandoffActions({
   onReturnToSystem,
 }: HandoffActionsProps) {
   if (ownership.owner === "HUMAN") {
+    if (onReturnToSystem === undefined) return null;
     return (
       <button
         type="button"
@@ -32,16 +33,18 @@ export function HandoffActions({
     );
   }
 
+  if (onTakeOver === undefined && onLetSystemContinue === undefined) return null;
+
   return (
     <div className="flex flex-wrap gap-2">
-      <button
+      {onTakeOver === undefined ? null : <button
         type="button"
         onClick={onTakeOver}
         className="min-h-10 rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800"
       >
         Reprendre la conversation
-      </button>
-      {recommendation?.recommended ? (
+      </button>}
+      {recommendation?.recommended && onLetSystemContinue !== undefined ? (
         <button
           type="button"
           onClick={onLetSystemContinue}

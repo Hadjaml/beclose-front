@@ -22,6 +22,7 @@ export {
   activityActorSchema,
   activityEventSchema,
   globalSupervisionSchema,
+  linkedResourceSchema,
   requiredActionSchema,
   requiredActionTypeSchema,
   supervisionPrioritySchema,

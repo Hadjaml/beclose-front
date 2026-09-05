@@ -9,9 +9,9 @@ import { RecommendedActionCard } from "./recommended-action-card";
 
 interface ConversationContextPanelProps {
   item: ConversationInboxItem;
-  onTakeOver: () => void;
-  onLetSystemContinue: () => void;
-  onReturnToSystem: () => void;
+  onTakeOver?: () => void;
+  onLetSystemContinue?: () => void;
+  onReturnToSystem?: () => void;
 }
 
 export function ConversationContextPanel({
@@ -42,9 +42,9 @@ export function ConversationContextPanel({
         {...(conversation.handoffRecommendation === undefined
           ? {}
           : { recommendation: conversation.handoffRecommendation })}
-        onTakeOver={onTakeOver}
-        onLetSystemContinue={onLetSystemContinue}
-        onReturnToSystem={onReturnToSystem}
+        {...(onTakeOver === undefined ? {} : { onTakeOver })}
+        {...(onLetSystemContinue === undefined ? {} : { onLetSystemContinue })}
+        {...(onReturnToSystem === undefined ? {} : { onReturnToSystem })}
       />
 
       {conversation.summary === undefined ? null : (

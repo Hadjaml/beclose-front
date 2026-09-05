@@ -3,7 +3,12 @@ export { PerformanceBreakdownTable } from "./components/performance-breakdown-ta
 export { PerformanceFunnel } from "./components/performance-funnel";
 export { PerformanceInsightCard } from "./components/performance-insight";
 export { PerformanceMetricCard } from "./components/performance-metric-card";
-export { PerformanceView } from "./components/performance-view";
+export {
+  backofficePerformanceVisibility,
+  PerformanceView,
+  portalPerformanceVisibility,
+  type PerformanceVisibility,
+} from "./components/performance-view";
 export type {
   BreakdownDimension,
   FunnelStage,

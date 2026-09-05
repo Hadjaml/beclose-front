@@ -40,7 +40,7 @@ type AppointmentsViewProps =
       onFilterChange: (filter: AppointmentFilter) => void;
       formatDateTime: (timestamp: string, timezone?: string) => string;
       formatDuration: (minutes: number) => string;
-      resolveActions: (item: AppointmentListItem) => AppointmentActionCallbacks;
+      resolveActions?: (item: AppointmentListItem) => AppointmentActionCallbacks;
     };
 
 export function AppointmentsView(props: AppointmentsViewProps) {
@@ -72,7 +72,7 @@ export function AppointmentsView(props: AppointmentsViewProps) {
     fallbackItem;
   const detail = props.details.find(({ appointmentId }) => appointmentId === activeItem.appointment.id);
   const scheduling = detail?.scheduling;
-  const actions = props.resolveActions(activeItem);
+  const actions = props.resolveActions?.(activeItem) ?? {};
 
   return (
     <div className="space-y-4">

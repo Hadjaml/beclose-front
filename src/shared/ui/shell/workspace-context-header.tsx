@@ -13,15 +13,27 @@ export function WorkspaceSwitcherPlaceholder() {
   );
 }
 
-export function WorkspaceContextHeader({ workspaceId }: { workspaceId: WorkspaceId }) {
+interface WorkspaceContextHeaderProps {
+  workspaceId: WorkspaceId;
+  showSwitcher?: boolean;
+  label?: string;
+  description?: string;
+}
+
+export function WorkspaceContextHeader({
+  workspaceId,
+  showSwitcher = true,
+  label = "Workspace actif",
+  description = "Vous travaillez actuellement dans l’environnement de ce client.",
+}: WorkspaceContextHeaderProps) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 pb-5">
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-zinc-600">Workspace actif</p>
+        <p className="text-sm font-semibold text-zinc-600">{label}</p>
         <h1 className="mt-1 break-all text-xl font-semibold tracking-tight text-zinc-950">{workspaceId}</h1>
-        <p className="mt-1 text-sm text-zinc-600">Vous travaillez actuellement dans l’environnement de ce client.</p>
+        <p className="mt-1 text-sm text-zinc-600">{description}</p>
       </div>
-      <WorkspaceSwitcherPlaceholder />
+      {showSwitcher ? <WorkspaceSwitcherPlaceholder /> : null}
     </header>
   );
 }

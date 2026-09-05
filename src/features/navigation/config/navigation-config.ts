@@ -123,7 +123,7 @@ export const workspaceNavigation = [
     label: "Intégrations",
     area: "secondary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/integrations`,
-    availability: "planned",
+    availability: "available",
   },
   {
     id: "subscription",
@@ -136,40 +136,47 @@ export const workspaceNavigation = [
 
 export const portalNavigation = [
   {
-    id: "review",
-    label: "À valider",
+    id: "overview",
+    label: "Vue d’ensemble",
     area: "primary",
     href: (workspaceId) => `/portal/${workspaceId}`,
     availability: "available",
     exact: true,
   },
   {
+    id: "approvals",
+    label: "À valider",
+    area: "primary",
+    href: (workspaceId) => `/portal/${workspaceId}/approvals`,
+    availability: "available",
+  },
+  {
     id: "prospects",
     label: "Prospects",
     area: "primary",
     href: (workspaceId) => `/portal/${workspaceId}/prospects`,
-    availability: "planned",
+    availability: "available",
   },
   {
     id: "conversations",
     label: "Conversations",
     area: "primary",
     href: (workspaceId) => `/portal/${workspaceId}/conversations`,
-    availability: "planned",
+    availability: "available",
   },
   {
     id: "appointments",
     label: "Rendez-vous",
     area: "primary",
     href: (workspaceId) => `/portal/${workspaceId}/appointments`,
-    availability: "planned",
+    availability: "available",
   },
   {
     id: "performance",
     label: "Performance",
     area: "primary",
     href: (workspaceId) => `/portal/${workspaceId}/performance`,
-    availability: "planned",
+    availability: "available",
   },
   {
     id: "settings",

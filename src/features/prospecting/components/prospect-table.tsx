@@ -12,6 +12,10 @@ interface ProspectTableProps {
   selectedIds: ReadonlySet<string>;
   onSelectionChange: (selectedIds: ReadonlySet<string>) => void;
   onOpenProspect: (prospect: Prospect) => void;
+  showSelection?: boolean;
+  showScore?: boolean;
+  showRecommendation?: boolean;
+  showRecommendedChannel?: boolean;
 }
 
 export function ProspectTable({
@@ -19,6 +23,10 @@ export function ProspectTable({
   selectedIds,
   onSelectionChange,
   onOpenProspect,
+  showSelection = true,
+  showScore = true,
+  showRecommendation = true,
+  showRecommendedChannel = true,
 }: ProspectTableProps) {
   const allSelected = prospects.length > 0 && prospects.every(({ id }) => selectedIds.has(id));
 
@@ -41,7 +49,7 @@ export function ProspectTable({
       <table className="min-w-full border-collapse text-left text-sm">
         <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-600">
           <tr>
-            <th className="w-12 px-4 py-3">
+            {showSelection ? <th className="w-12 px-4 py-3">
               <input
                 type="checkbox"
                 checked={allSelected}
@@ -49,19 +57,19 @@ export function ProspectTable({
                 aria-label="Sélectionner tous les prospects"
                 className="size-4 rounded border-zinc-300"
               />
-            </th>
+            </th> : null}
             <th className="px-4 py-3">Prospect / entreprise</th>
             <th className="px-4 py-3">Interlocuteur</th>
-            <th className="px-4 py-3">Score</th>
-            <th className="px-4 py-3">Recommandation</th>
-            <th className="px-4 py-3">Canal</th>
+            {showScore ? <th className="px-4 py-3">Score</th> : null}
+            {showRecommendation ? <th className="px-4 py-3">Recommandation</th> : null}
+            {showRecommendedChannel ? <th className="px-4 py-3">Canal</th> : null}
             <th className="px-4 py-3">Statut</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-100">
           {prospects.map((prospect) => (
             <tr key={prospect.id} className="text-zinc-700 hover:bg-zinc-50">
-              <td className="px-4 py-4">
+              {showSelection ? <td className="px-4 py-4">
                 <input
                   type="checkbox"
                   checked={selectedIds.has(prospect.id)}
@@ -69,7 +77,7 @@ export function ProspectTable({
                   aria-label={`Sélectionner ${prospect.company.name}`}
                   className="size-4 rounded border-zinc-300"
                 />
-              </td>
+              </td> : null}
               <td className="px-4 py-4">
                 <button
                   type="button"
@@ -80,17 +88,17 @@ export function ProspectTable({
                 </button>
               </td>
               <td className="px-4 py-4">{prospect.contact?.fullName ?? "—"}</td>
-              <td className="px-4 py-4">{prospect.score?.value ?? "—"}</td>
-              <td className="px-4 py-4">
+              {showScore ? <td className="px-4 py-4">{prospect.score?.value ?? "—"}</td> : null}
+              {showRecommendation ? <td className="px-4 py-4">
                 {prospect.recommendation === undefined
                   ? "—"
                   : targetingDecisionLabels[prospect.recommendation]}
-              </td>
-              <td className="px-4 py-4">
+              </td> : null}
+              {showRecommendedChannel ? <td className="px-4 py-4">
                 {prospect.contactStrategy?.recommendedChannel === undefined
                   ? "—"
                   : contactChannelLabels[prospect.contactStrategy.recommendedChannel]}
-              </td>
+              </td> : null}
               <td className="px-4 py-4">{prospectStatusLabels[prospect.status]}</td>
             </tr>
           ))}
