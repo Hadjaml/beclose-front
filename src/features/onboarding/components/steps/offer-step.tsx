@@ -1,0 +1,42 @@
+"use client";
+
+import type { FormEvent } from "react";
+import { useStepForm } from "../../hooks/use-step-form";
+import type { OfferStepData } from "../../model/onboarding";
+import { offerStepSchema } from "../../schemas/onboarding-schemas";
+import { TextAreaField, TextField } from "../form-fields";
+import { StepFormLayout } from "../step-form-layout";
+
+interface OfferStepProps {
+  initialData: OfferStepData;
+  onBack: (data: OfferStepData) => void;
+  onComplete: (data: OfferStepData) => void;
+}
+
+export function OfferStep({ initialData, onBack, onComplete }: OfferStepProps) {
+  const form = useStepForm(initialData, offerStepSchema);
+  const { draft, errors, updateField } = form;
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = form.validate();
+    if (data !== null) onComplete(data);
+  }
+
+  return (
+    <StepFormLayout title="Que doit-on aider le client à vendre ?" description="Concentrez-vous sur une offre principale. Il sera possible d’en gérer plusieurs plus tard." onSubmit={handleSubmit} onBack={() => onBack(draft)}>
+      <TextField id="offer-name" label="Nom de l’offre" value={draft.offerName} onChange={(event) => updateField("offerName", event.target.value)} error={errors.offerName} />
+      <TextAreaField id="offer-description" label="Description" value={draft.description} onChange={(event) => updateField("description", event.target.value)} error={errors.description} />
+      <div className="grid gap-6 sm:grid-cols-2">
+        <TextAreaField id="offer-value" label="Proposition de valeur" value={draft.valueProposition} onChange={(event) => updateField("valueProposition", event.target.value)} error={errors.valueProposition} placeholder="Pourquoi cette offre mérite-t-elle l’attention ?" />
+        <TextAreaField id="offer-problem" label="Problème résolu" value={draft.problemSolved} onChange={(event) => updateField("problemSolved", event.target.value)} error={errors.problemSolved} />
+      </div>
+      <TextAreaField id="offer-target" label="Cible de cette offre" value={draft.targetCustomer} onChange={(event) => updateField("targetCustomer", event.target.value)} error={errors.targetCustomer} />
+      <div className="grid gap-6 sm:grid-cols-2">
+        <TextField id="offer-price" label="Prix ou fourchette" value={draft.priceRange} onChange={(event) => updateField("priceRange", event.target.value)} optional />
+        <TextAreaField id="offer-evidence" label="Éléments de preuve" value={draft.evidence} onChange={(event) => updateField("evidence", event.target.value)} optional placeholder="Résultats, références, certifications…" />
+      </div>
+      <TextAreaField id="offer-notes" label="Informations commerciales importantes" value={draft.salesNotes} onChange={(event) => updateField("salesNotes", event.target.value)} optional />
+    </StepFormLayout>
+  );
+}

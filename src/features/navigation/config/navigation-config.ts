@@ -13,8 +13,8 @@ export const backofficeNavigation = [
     id: "clients",
     label: "Clients",
     area: "primary",
-    href: "/backoffice/workspaces",
-    availability: "planned",
+    href: "/backoffice/clients",
+    availability: "available",
   },
   {
     id: "prospecting",
