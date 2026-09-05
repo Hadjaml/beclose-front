@@ -1,0 +1,30 @@
+"use client";
+
+interface ContactStrategyActionsProps {
+  onValidate: () => void;
+  onModify: () => void;
+}
+
+export function ContactStrategyActions({
+  onValidate,
+  onModify,
+}: ContactStrategyActionsProps) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <button
+        type="button"
+        onClick={onValidate}
+        className="min-h-10 rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"
+      >
+        Valider la stratégie
+      </button>
+      <button
+        type="button"
+        onClick={onModify}
+        className="min-h-10 rounded-lg border border-zinc-300 px-4 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+      >
+        Modifier
+      </button>
+    </div>
+  );
+}

@@ -95,7 +95,7 @@ export const workspaceNavigation = [
     label: "Prospection",
     area: "primary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/prospecting`,
-    availability: "planned",
+    availability: "available",
   },
   {
     id: "conversations",
