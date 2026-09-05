@@ -16,13 +16,13 @@ function FieldFrame({ id, label, hint, error, optional, children }: FieldFramePr
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-3">
         <label htmlFor={id} className="text-sm font-semibold text-zinc-900">{label}</label>
-        {optional ? <span className="text-xs text-zinc-400">Facultatif</span> : null}
+        {optional ? <span className="text-sm text-zinc-500">Facultatif</span> : null}
       </div>
       {children}
       {error !== undefined ? (
         <p id={`${id}-error`} className="text-sm text-red-700" role="alert">{error}</p>
       ) : hint !== undefined ? (
-        <p id={`${id}-hint`} className="text-xs leading-5 text-zinc-500">{hint}</p>
+        <p id={`${id}-hint`} className="text-sm leading-5 text-zinc-600">{hint}</p>
       ) : null}
     </div>
   );
@@ -81,7 +81,7 @@ export function TextAreaField({
   hint,
   error,
   optional,
-  rows = 4,
+  rows = 3,
 }: TextAreaFieldProps) {
   return (
     <FieldFrame id={id} label={label} hint={hint} error={error} optional={optional}>

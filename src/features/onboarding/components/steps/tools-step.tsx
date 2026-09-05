@@ -24,7 +24,7 @@ export function ToolsStep({ initialData, onBack, onComplete }: ToolsStepProps) {
   }
 
   return (
-    <StepFormLayout title="Où le client travaillera-t-il ?" description="Choisissez l’expérience principale. Les connexions seront configurées lorsque le backend d’intégration sera disponible." onSubmit={handleSubmit} onBack={() => onBack(draft)}>
+    <StepFormLayout title="Où le client travaillera-t-il ?" description="Choisissez l’expérience principale. Les connexions seront préparées ensuite avec les outils sélectionnés." onSubmit={handleSubmit} onBack={() => onBack(draft)}>
       <fieldset className="space-y-3">
         <legend className="text-sm font-semibold text-zinc-900">Mode de travail</legend>
         <label className={`flex cursor-pointer gap-4 rounded-xl border p-4 transition ${draft.operatingMode === "client_tools" ? "border-zinc-950 bg-zinc-50 ring-1 ring-zinc-950" : "border-zinc-200 bg-white"}`}>
@@ -39,12 +39,12 @@ export function ToolsStep({ initialData, onBack, onComplete }: ToolsStepProps) {
       </fieldset>
       <section aria-labelledby="integration-categories">
         <h2 id="integration-categories" className="text-sm font-semibold text-zinc-900">Connexions à préparer</h2>
-        <p className="mt-1 text-sm text-zinc-500">Aucune connexion n’est simulée dans ce parcours.</p>
+        <p className="mt-1 text-sm text-zinc-600">Les outils seront connectés dans une prochaine étape.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {integrationCategories.map((category) => (
             <div key={category} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
               <p className="text-sm font-semibold text-zinc-900">{category}</p>
-              <p className="mt-2 text-xs text-zinc-500">{integrationStatusLabels.not_connected}</p>
+              <p className="mt-2 text-sm text-zinc-600">{integrationStatusLabels.not_connected}</p>
             </div>
           ))}
         </div>

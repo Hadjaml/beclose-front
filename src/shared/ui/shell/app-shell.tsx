@@ -5,7 +5,6 @@ import { Topbar } from "./topbar";
 
 interface AppShellProps {
   children: ReactNode;
-  eyebrow: string;
   navigation: readonly ResolvedNavigationItem[];
   title: string;
   context?: ReactNode;
@@ -16,7 +15,6 @@ interface AppShellProps {
 
 export function AppShell({
   children,
-  eyebrow,
   navigation,
   title,
   context,
@@ -26,7 +24,7 @@ export function AppShell({
 }: AppShellProps) {
   return (
     <div className="min-h-dvh bg-zinc-50 text-zinc-950 lg:flex">
-      <Sidebar eyebrow={eyebrow} title={title} items={navigation} />
+      <Sidebar title={title} items={navigation} />
       <div className="min-w-0 flex-1">
         {banner}
         <Topbar

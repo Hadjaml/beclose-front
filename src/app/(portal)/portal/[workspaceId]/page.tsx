@@ -6,7 +6,7 @@ export default function PortalPage() {
         Éléments à valider
       </h2>
       <p className="mt-3 text-sm leading-6 text-zinc-600">
-        Les éléments nécessitant une intervention humaine apparaîtront ici lorsqu’ils seront fournis par le backend.
+        Les éléments nécessitant une intervention humaine apparaîtront ici dès qu’ils seront disponibles.
       </p>
     </section>
   );

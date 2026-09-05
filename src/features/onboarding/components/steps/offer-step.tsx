@@ -32,11 +32,22 @@ export function OfferStep({ initialData, onBack, onComplete }: OfferStepProps) {
         <TextAreaField id="offer-problem" label="Problème résolu" value={draft.problemSolved} onChange={(event) => updateField("problemSolved", event.target.value)} error={errors.problemSolved} />
       </div>
       <TextAreaField id="offer-target" label="Cible de cette offre" value={draft.targetCustomer} onChange={(event) => updateField("targetCustomer", event.target.value)} error={errors.targetCustomer} />
-      <div className="grid gap-6 sm:grid-cols-2">
-        <TextField id="offer-price" label="Prix ou fourchette" value={draft.priceRange} onChange={(event) => updateField("priceRange", event.target.value)} optional />
-        <TextAreaField id="offer-evidence" label="Éléments de preuve" value={draft.evidence} onChange={(event) => updateField("evidence", event.target.value)} optional placeholder="Résultats, références, certifications…" />
-      </div>
-      <TextAreaField id="offer-notes" label="Informations commerciales importantes" value={draft.salesNotes} onChange={(event) => updateField("salesNotes", event.target.value)} optional />
+      <details className="group rounded-xl border border-zinc-200 bg-zinc-50/70">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-zinc-800 marker:hidden">
+          <span>
+            Informations commerciales complémentaires
+            <span className="mt-1 block text-sm font-normal text-zinc-600">Prix, preuves et précisions utiles à la vente</span>
+          </span>
+          <span className="text-lg text-zinc-500 transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+        </summary>
+        <div className="space-y-6 border-t border-zinc-200 bg-white px-5 py-5">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <TextField id="offer-price" label="Prix ou fourchette" value={draft.priceRange} onChange={(event) => updateField("priceRange", event.target.value)} optional />
+            <TextAreaField id="offer-evidence" label="Éléments de preuve" value={draft.evidence} onChange={(event) => updateField("evidence", event.target.value)} optional placeholder="Résultats, références, certifications…" />
+          </div>
+          <TextAreaField id="offer-notes" label="Informations commerciales importantes" value={draft.salesNotes} onChange={(event) => updateField("salesNotes", event.target.value)} optional />
+        </div>
+      </details>
     </StepFormLayout>
   );
 }

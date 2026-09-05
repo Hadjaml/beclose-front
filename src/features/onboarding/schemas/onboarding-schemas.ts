@@ -33,6 +33,12 @@ export const offerStepSchema = z.object({
   salesNotes: z.string().trim(),
 });
 
+/**
+ * The current form collects these criteria as free text for a lightweight first
+ * experience. The future API contract should expose industries, geographies,
+ * and decision makers as structured multi-value collections; the UI adapter
+ * can then replace these inputs without changing the wizard boundary.
+ */
 export const targetSegmentSchema = z.object({
   name: z.string().trim(),
   industries: requiredText("les secteurs recherchés"),

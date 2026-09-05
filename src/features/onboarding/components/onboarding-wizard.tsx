@@ -86,10 +86,7 @@ export function OnboardingWizard({ initialSnapshot }: OnboardingWizardProps) {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Nouveau client</p>
-          <p className="mt-1 text-sm text-zinc-600">Brouillon temporaire — aucune donnée n’est encore enregistrée.</p>
-        </div>
+        <p className="text-lg font-semibold text-zinc-950">Nouveau client</p>
         <Link href="/backoffice/clients" className="rounded-lg px-4 py-2 text-sm font-semibold text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950">Quitter l’onboarding</Link>
       </div>
       <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start">

@@ -26,7 +26,7 @@ export function StepFormLayout({
         <p className="mt-3 text-sm leading-6 text-zinc-600 sm:text-base">{description}</p>
       </header>
       <div className="space-y-6">{children}</div>
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200 pt-6">
+      <footer className="sticky bottom-0 z-10 -mx-5 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200 bg-white/95 px-5 py-4 backdrop-blur sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10">
         {onBack === null ? <span /> : (
           <button
             type="button"

@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useStepForm } from "../../hooks/use-step-form";
 import type { ApproachStepData } from "../../model/onboarding";
 import { approachStepSchema } from "../../schemas/onboarding-schemas";
@@ -16,10 +16,15 @@ interface ApproachStepProps {
 export function ApproachStep({ initialData, onBack, onComplete }: ApproachStepProps) {
   const form = useStepForm(initialData, approachStepSchema);
   const { draft, errors, updateField } = form;
+  const [guardrailsOpen, setGuardrailsOpen] = useState(false);
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = form.validate();
-    if (data !== null) onComplete(data);
+    if (data !== null) {
+      onComplete(data);
+      return;
+    }
+    setGuardrailsOpen(true);
   }
 
   return (
@@ -37,15 +42,30 @@ export function ApproachStep({ initialData, onBack, onComplete }: ApproachStepPr
         </div>
       </div>
       <TextAreaField id="approach-positioning" label="Positionnement" value={draft.positioning} onChange={(event) => updateField("positioning", event.target.value)} error={errors.positioning} />
-      <div className="grid gap-6 sm:grid-cols-2">
-        <TextAreaField id="approach-arguments" label="Arguments clés" value={draft.keyArguments} onChange={(event) => updateField("keyArguments", event.target.value)} error={errors.keyArguments} />
-        <TextAreaField id="approach-evidence" label="Preuves à utiliser" value={draft.evidence} onChange={(event) => updateField("evidence", event.target.value)} optional />
-        <TextAreaField id="approach-objections" label="Objections connues" value={draft.knownObjections} onChange={(event) => updateField("knownObjections", event.target.value)} optional />
-        <TextAreaField id="approach-answers" label="Réponses possibles" value={draft.possibleAnswers} onChange={(event) => updateField("possibleAnswers", event.target.value)} optional />
-      </div>
-      <TextAreaField id="approach-forbidden" label="Éléments à ne jamais dire" value={draft.forbiddenTopics} onChange={(event) => updateField("forbiddenTopics", event.target.value)} error={errors.forbiddenTopics} />
+      <TextAreaField id="approach-arguments" label="Arguments clés" value={draft.keyArguments} onChange={(event) => updateField("keyArguments", event.target.value)} error={errors.keyArguments} />
       <TextField id="approach-cta" label="Action à proposer" value={draft.preferredCta} onChange={(event) => updateField("preferredCta", event.target.value)} error={errors.preferredCta} placeholder="Ex. proposer un échange de 20 minutes" />
-      <TextAreaField id="approach-examples" label="Exemples utiles" value={draft.examples} onChange={(event) => updateField("examples", event.target.value)} optional />
+      <details
+        open={guardrailsOpen}
+        onToggle={(event) => setGuardrailsOpen(event.currentTarget.open)}
+        className="group rounded-xl border border-zinc-200 bg-zinc-50/70"
+      >
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-zinc-800 marker:hidden">
+          <span>
+            Objections, preuves et garde-fous
+            <span className="mt-1 block text-sm font-normal text-zinc-600">Précisez les situations sensibles et les réponses utiles</span>
+          </span>
+          <span className="text-lg text-zinc-500 transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+        </summary>
+        <div className="space-y-6 border-t border-zinc-200 bg-white px-5 py-5">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <TextAreaField id="approach-evidence" label="Preuves à utiliser" value={draft.evidence} onChange={(event) => updateField("evidence", event.target.value)} optional />
+            <TextAreaField id="approach-objections" label="Objections connues" value={draft.knownObjections} onChange={(event) => updateField("knownObjections", event.target.value)} optional />
+            <TextAreaField id="approach-answers" label="Réponses possibles" value={draft.possibleAnswers} onChange={(event) => updateField("possibleAnswers", event.target.value)} optional />
+            <TextAreaField id="approach-examples" label="Exemples utiles" value={draft.examples} onChange={(event) => updateField("examples", event.target.value)} optional />
+          </div>
+          <TextAreaField id="approach-forbidden" label="Éléments à ne jamais dire" value={draft.forbiddenTopics} onChange={(event) => updateField("forbiddenTopics", event.target.value)} error={errors.forbiddenTopics} />
+        </div>
+      </details>
     </StepFormLayout>
   );
 }

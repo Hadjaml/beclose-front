@@ -85,7 +85,7 @@ export const workspaceNavigation = [
   },
   {
     id: "training",
-    label: "Entraînement",
+    label: "Apprentissage",
     area: "primary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/training`,
     availability: "planned",

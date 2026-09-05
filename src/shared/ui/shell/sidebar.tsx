@@ -2,7 +2,6 @@ import type { ResolvedNavigationItem } from "@/features/navigation";
 import { NavigationItem } from "./navigation-item";
 
 interface SidebarProps {
-  eyebrow: string;
   title: string;
   items: readonly ResolvedNavigationItem[];
 }
@@ -18,7 +17,7 @@ function NavigationGroup({
 
   return (
     <div className="min-w-max lg:min-w-0">
-      <p className="mb-2 hidden px-3 text-xs font-semibold uppercase tracking-wider text-zinc-400 lg:block">
+      <p className="mb-2 hidden px-3 text-sm font-medium text-zinc-500 lg:block">
         {label}
       </p>
       <div className="flex gap-1 lg:flex-col">
@@ -28,7 +27,7 @@ function NavigationGroup({
   );
 }
 
-export function Sidebar({ eyebrow, title, items }: SidebarProps) {
+export function Sidebar({ title, items }: SidebarProps) {
   const primary = items.filter((item) => item.area === "primary");
   const secondary = items.filter((item) => item.area === "secondary");
 
@@ -39,8 +38,8 @@ export function Sidebar({ eyebrow, title, items }: SidebarProps) {
           B
         </span>
         <div className="min-w-0">
-          <p className="truncate text-xs font-medium uppercase tracking-wider text-zinc-500">{eyebrow}</p>
-          <p className="truncate text-sm font-semibold text-zinc-950">{title}</p>
+          <p className="truncate text-sm font-semibold text-zinc-950">Bewise</p>
+          <p className="truncate text-sm text-zinc-600">{title}</p>
         </div>
       </div>
       <nav

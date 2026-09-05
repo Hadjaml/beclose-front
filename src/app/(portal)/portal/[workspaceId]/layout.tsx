@@ -19,7 +19,7 @@ export default async function PortalLayout({
 
   return (
     <WorkspaceProvider key={workspaceId} initialWorkspaceId={workspaceId}>
-      <AppShell eyebrow="Expérience client" title="Client Portal" navigation={navigation}>
+      <AppShell title="Client Portal" navigation={navigation}>
         <div className="space-y-6">
           <WorkspaceContextHeader workspaceId={workspaceId} />
           {children}

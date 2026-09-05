@@ -25,11 +25,11 @@ export function TrainingStep({ initialData, onBack, onComplete }: TrainingStepPr
   }
 
   return (
-    <StepFormLayout title="Préparer l’apprentissage progressif" description="Bewise gagnera en autonomie à mesure que les recommandations seront validées ou corrigées par des humains." onSubmit={handleSubmit} onBack={() => onBack(draft)} submitLabel="Voir le récapitulatif">
+    <StepFormLayout title="Préparer l’apprentissage progressif" description="Bewise gagnera en autonomie à mesure que les recommandations seront validées ou corrigées par des humains." onSubmit={handleSubmit} onBack={() => onBack(draft)} submitLabel="Passer à la validation finale">
       <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {learningFlow.map((item, index) => (
           <li key={item} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-            <span className="text-xs font-semibold text-zinc-400">0{index + 1}</span>
+            <span className="text-sm font-semibold text-zinc-500">0{index + 1}</span>
             <p className="mt-2 text-sm font-semibold leading-5 text-zinc-900">{item}</p>
           </li>
         ))}

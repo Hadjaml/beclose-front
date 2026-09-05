@@ -43,6 +43,6 @@ export const onboardingSteps: readonly OnboardingStepDefinition[] = [
   { id: "qualification", label: "Qualification", description: "Reconnaître une vraie opportunité" },
   { id: "approach", label: "Approche", description: "Adopter la bonne manière de communiquer" },
   { id: "tools", label: "Outils", description: "Choisir l’environnement de travail" },
-  { id: "training", label: "Entraînement", description: "Préparer la validation humaine" },
-  { id: "launch", label: "Lancement", description: "Vérifier avant de préparer" },
+  { id: "training", label: "Apprentissage", description: "Préparer la validation humaine" },
+  { id: "launch", label: "Validation finale", description: "Vérifier avant de préparer" },
 ];

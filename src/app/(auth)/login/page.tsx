@@ -4,7 +4,7 @@ export default function LoginPage() {
       <p className="text-sm font-semibold text-zinc-500">Bewise</p>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950">Accès à l’application</h1>
       <p className="mt-3 text-sm leading-6 text-zinc-600">
-        La connexion sera disponible lorsque le fournisseur d’authentification backend aura été défini.
+        La connexion sera disponible dès que le mode d’accès à Bewise aura été défini.
       </p>
     </section>
   );
