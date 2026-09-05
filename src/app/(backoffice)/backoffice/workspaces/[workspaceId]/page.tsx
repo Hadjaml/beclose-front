@@ -1,19 +1,22 @@
-interface BackofficeWorkspacePageProps {
-  params: Promise<{ workspaceId: string }>;
-}
+import { EmptyState } from "@/shared/ui/states";
 
-export default async function BackofficeWorkspacePage({ params }: BackofficeWorkspacePageProps) {
-  const { workspaceId } = await params;
-
+export default function BackofficeWorkspacePage() {
   return (
-    <section aria-labelledby="workspace-title" className="max-w-3xl py-2">
-      <p className="text-sm font-semibold text-zinc-500">Vue opérateur Bewise</p>
-      <h2 id="workspace-title" className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950">
-        Espace du workspace {workspaceId}
-      </h2>
-      <p className="mt-3 text-sm leading-6 text-zinc-600">
-        Les informations métier de ce workspace seront ajoutées dans une phase ultérieure.
-      </p>
-    </section>
+    <div className="space-y-8">
+      <header className="max-w-3xl">
+        <p className="text-sm font-semibold text-zinc-500">Supervision</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950">
+          Vue d’ensemble
+        </h1>
+        <p className="mt-3 text-base leading-7 text-zinc-600">
+          Retrouvez ici l’état du système et les prochaines interventions utiles.
+        </p>
+      </header>
+
+      <EmptyState
+        title="Aucun état disponible pour le moment"
+        description="L’état de la configuration, de l’apprentissage et les actions à traiter apparaîtront ici dès qu’ils seront fournis."
+      />
+    </div>
   );
 }

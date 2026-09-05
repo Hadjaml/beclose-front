@@ -81,14 +81,14 @@ export const workspaceNavigation = [
     label: "Configuration",
     area: "primary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/configuration`,
-    availability: "planned",
+    availability: "available",
   },
   {
-    id: "training",
+    id: "learning",
     label: "Apprentissage",
     area: "primary",
-    href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/training`,
-    availability: "planned",
+    href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/learning`,
+    availability: "available",
   },
   {
     id: "prospecting",
