@@ -116,7 +116,7 @@ export const workspaceNavigation = [
     label: "Performance",
     area: "primary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/performance`,
-    availability: "planned",
+    availability: "available",
   },
   {
     id: "integrations",

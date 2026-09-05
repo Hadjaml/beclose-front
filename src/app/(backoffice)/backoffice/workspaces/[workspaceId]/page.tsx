@@ -1,4 +1,4 @@
-import { EmptyState } from "@/shared/ui/states";
+import { WorkspaceOverviewView } from "@/features/supervision";
 
 export default function BackofficeWorkspacePage() {
   return (
@@ -13,10 +13,7 @@ export default function BackofficeWorkspacePage() {
         </p>
       </header>
 
-      <EmptyState
-        title="Aucun état disponible pour le moment"
-        description="L’état de la configuration, de l’apprentissage et les actions à traiter apparaîtront ici dès qu’ils seront fournis."
-      />
+      <WorkspaceOverviewView supervision={null} />
     </div>
   );
 }
