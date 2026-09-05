@@ -70,6 +70,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Realtime events must remain workspace-scoped and should update or invalidate TanStack Query data.
 - Unit tests may be colocated with source. Integration tests belong in `tests/integration` and E2E tests in `tests/e2e` when those suites are introduced.
 - Keep mocks behind injectable interfaces, isolated from production code paths, and never mock business data silently.
+- Run pure/schema/component tests with Vitest and Testing Library. Keep browser journeys in `tests/e2e` and avoid backend dependencies.
+
+## Backend-driven capabilities and actions
+
+- Never infer permissions, integration capabilities, subscription entitlements, quotas, or plan behavior from a role, provider name, or plan name.
+- Render a mutation action only when both the backend data exposes it and the composition layer supplies a real callback.
+- Reuse domain components across Back Office and Portal through explicit visibility profiles and permission-aware composition; do not fork business features.
+- Keep authentication secrets and access tokens out of browser storage and all `NEXT_PUBLIC_*` variables. Prefer a backend-managed HttpOnly session cookie.
 
 ## Verification
 

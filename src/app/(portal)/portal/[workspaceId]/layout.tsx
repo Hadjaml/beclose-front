@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { ViewAsClientBanner } from "@/features/access-control";
+import { CurrentSessionMenu } from "@/features/auth";
 import { portalNavigation, resolveNavigation } from "@/features/navigation";
+import { NotificationCenter } from "@/features/notifications";
 import { AppShell, WorkspaceContextHeader } from "@/shared/ui/shell";
 import { WorkspaceProvider } from "@/shared/workspace/workspace-context";
 import { parseWorkspaceId } from "@/shared/workspace/workspace";
@@ -24,6 +26,8 @@ export default async function PortalLayout({
         title="Espace client"
         navigation={navigation}
         banner={<ViewAsClientBanner context={null} />}
+        notifications={<NotificationCenter notifications={null} />}
+        account={<CurrentSessionMenu />}
       >
         <div className="space-y-6">
           <WorkspaceContextHeader

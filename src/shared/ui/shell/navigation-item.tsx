@@ -8,7 +8,7 @@ export function NavigationItem({ item }: { item: ResolvedNavigationItem }) {
   const pathname = usePathname();
   const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
   const className =
-    "flex min-h-10 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors";
+    "flex min-h-10 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950";
 
   if (item.availability === "planned") {
     return (

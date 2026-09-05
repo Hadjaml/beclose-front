@@ -1,4 +1,5 @@
 import type { NavigationItemDefinition } from "../model/navigation";
+import { permissions } from "@/features/access-control";
 
 export const backofficeNavigation = [
   {
@@ -8,6 +9,7 @@ export const backofficeNavigation = [
     href: "/backoffice",
     availability: "available",
     exact: true,
+    requiredPermissions: [permissions.dashboardRead],
   },
   {
     id: "clients",
@@ -15,6 +17,7 @@ export const backofficeNavigation = [
     area: "primary",
     href: "/backoffice/clients",
     availability: "available",
+    requiredPermissions: [permissions.clientRead],
   },
   {
     id: "prospecting",
@@ -49,21 +52,24 @@ export const backofficeNavigation = [
     label: "Abonnements",
     area: "secondary",
     href: "/backoffice/subscriptions",
-    availability: "planned",
+    availability: "available",
+    requiredPermissions: [permissions.subscriptionRead],
   },
   {
     id: "team",
     label: "Équipe",
     area: "secondary",
     href: "/backoffice/team",
-    availability: "planned",
+    availability: "available",
+    requiredPermissions: [permissions.teamRead],
   },
   {
     id: "settings",
     label: "Paramètres",
     area: "secondary",
     href: "/backoffice/settings",
-    availability: "planned",
+    availability: "available",
+    requiredPermissions: [permissions.settingsRead],
   },
 ] as const satisfies readonly NavigationItemDefinition[];
 
@@ -75,6 +81,7 @@ export const workspaceNavigation = [
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}`,
     availability: "available",
     exact: true,
+    requiredPermissions: [permissions.dashboardRead],
   },
   {
     id: "configuration",
@@ -82,6 +89,7 @@ export const workspaceNavigation = [
     area: "primary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/configuration`,
     availability: "available",
+    requiredPermissions: [permissions.configurationRead],
   },
   {
     id: "learning",
@@ -89,6 +97,7 @@ export const workspaceNavigation = [
     area: "primary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/learning`,
     availability: "available",
+    requiredPermissions: [permissions.learningRead],
   },
   {
     id: "prospecting",
@@ -96,6 +105,7 @@ export const workspaceNavigation = [
     area: "primary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/prospecting`,
     availability: "available",
+    requiredPermissions: [permissions.prospectRead],
   },
   {
     id: "conversations",
@@ -103,6 +113,7 @@ export const workspaceNavigation = [
     area: "primary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/conversations`,
     availability: "available",
+    requiredPermissions: [permissions.conversationRead],
   },
   {
     id: "appointments",
@@ -110,6 +121,7 @@ export const workspaceNavigation = [
     area: "primary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/appointments`,
     availability: "available",
+    requiredPermissions: [permissions.appointmentRead],
   },
   {
     id: "performance",
@@ -117,6 +129,7 @@ export const workspaceNavigation = [
     area: "primary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/performance`,
     availability: "available",
+    requiredPermissions: [permissions.performanceRead],
   },
   {
     id: "integrations",
@@ -124,13 +137,15 @@ export const workspaceNavigation = [
     area: "secondary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/integrations`,
     availability: "available",
+    requiredPermissions: [permissions.integrationRead],
   },
   {
     id: "subscription",
     label: "Abonnement",
     area: "secondary",
     href: (workspaceId) => `/backoffice/workspaces/${workspaceId}/subscription`,
-    availability: "planned",
+    availability: "available",
+    requiredPermissions: [permissions.subscriptionRead],
   },
 ] as const satisfies readonly NavigationItemDefinition[];
 
@@ -142,6 +157,7 @@ export const portalNavigation = [
     href: (workspaceId) => `/portal/${workspaceId}`,
     availability: "available",
     exact: true,
+    requiredPermissions: [permissions.dashboardRead],
   },
   {
     id: "approvals",
@@ -149,6 +165,7 @@ export const portalNavigation = [
     area: "primary",
     href: (workspaceId) => `/portal/${workspaceId}/approvals`,
     availability: "available",
+    requiredPermissions: [permissions.approvalRead],
   },
   {
     id: "prospects",
@@ -156,6 +173,7 @@ export const portalNavigation = [
     area: "primary",
     href: (workspaceId) => `/portal/${workspaceId}/prospects`,
     availability: "available",
+    requiredPermissions: [permissions.prospectRead],
   },
   {
     id: "conversations",
@@ -163,6 +181,7 @@ export const portalNavigation = [
     area: "primary",
     href: (workspaceId) => `/portal/${workspaceId}/conversations`,
     availability: "available",
+    requiredPermissions: [permissions.conversationRead],
   },
   {
     id: "appointments",
@@ -170,6 +189,7 @@ export const portalNavigation = [
     area: "primary",
     href: (workspaceId) => `/portal/${workspaceId}/appointments`,
     availability: "available",
+    requiredPermissions: [permissions.appointmentRead],
   },
   {
     id: "performance",
@@ -177,12 +197,22 @@ export const portalNavigation = [
     area: "primary",
     href: (workspaceId) => `/portal/${workspaceId}/performance`,
     availability: "available",
+    requiredPermissions: [permissions.performanceRead],
+  },
+  {
+    id: "subscription",
+    label: "Abonnement",
+    area: "secondary",
+    href: (workspaceId) => `/portal/${workspaceId}/subscription`,
+    availability: "available",
+    requiredPermissions: [permissions.subscriptionRead],
   },
   {
     id: "settings",
-    label: "Abonnement et paramètres",
+    label: "Paramètres",
     area: "secondary",
     href: (workspaceId) => `/portal/${workspaceId}/settings`,
-    availability: "planned",
+    availability: "available",
+    requiredPermissions: [permissions.settingsRead],
   },
 ] as const satisfies readonly NavigationItemDefinition[];

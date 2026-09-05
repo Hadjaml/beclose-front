@@ -92,11 +92,16 @@ export function createApiClient({ baseUrl, fetchImplementation = fetch, resolveH
         );
         const responseBody = await readResponseBody(response);
         if (!response.ok) {
+          const requestId =
+            response.headers.get("x-request-id") ??
+            response.headers.get("x-correlation-id") ??
+            undefined;
           throw new ApiError({
             kind: "http",
             message: `The API request failed with status ${response.status}.`,
             status: response.status,
             details: responseBody,
+            ...(requestId === undefined ? {} : { requestId }),
           });
         }
         return options.schema.parse(responseBody);

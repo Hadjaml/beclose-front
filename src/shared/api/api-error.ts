@@ -15,19 +15,92 @@ interface ApiErrorOptions {
   cause?: unknown;
   status?: number;
   details?: unknown;
+  requestId?: string;
 }
 
 export class ApiError extends Error {
   readonly kind: ApiErrorKind;
   readonly status: number | undefined;
   readonly details: unknown;
+  readonly requestId: string | undefined;
 
-  constructor({ kind, message, cause, status, details }: ApiErrorOptions) {
+  constructor({ kind, message, cause, status, details, requestId }: ApiErrorOptions) {
     super(message, { cause });
     this.name = "ApiError";
     this.kind = kind;
     this.status = status;
     this.details = details;
+    this.requestId = requestId;
+  }
+}
+
+export interface ApiErrorPresentation {
+  title: string;
+  description: string;
+  requestId?: string;
+  sessionExpired?: boolean;
+}
+
+export function getApiErrorPresentation(error: ApiError): ApiErrorPresentation {
+  const base = error.requestId === undefined ? {} : { requestId: error.requestId };
+  if (error.kind === "network") {
+    return {
+      title: "Connexion impossible",
+      description: "Vérifiez votre connexion puis réessayez.",
+      ...base,
+    };
+  }
+  switch (error.status) {
+    case 401:
+      return {
+        title: "Session expirée",
+        description: "Reconnectez-vous pour continuer.",
+        sessionExpired: true,
+        ...base,
+      };
+    case 403:
+      return {
+        title: "Accès non autorisé",
+        description: "Vous ne disposez pas des permissions nécessaires.",
+        ...base,
+      };
+    case 404:
+      return {
+        title: "Ressource introuvable",
+        description: "Cette ressource n’existe pas ou n’est plus disponible.",
+        ...base,
+      };
+    case 409:
+      return {
+        title: "Modification impossible",
+        description: "Les données ont changé. Actualisez la page avant de réessayer.",
+        ...base,
+      };
+    case 422:
+      return {
+        title: "Informations à corriger",
+        description: "Vérifiez les informations indiquées puis réessayez.",
+        ...base,
+      };
+    case 429:
+      return {
+        title: "Trop de demandes",
+        description: "Patientez quelques instants avant de réessayer.",
+        ...base,
+      };
+    default:
+      if (error.status !== undefined && error.status >= 500) {
+        return {
+          title: "Service temporairement indisponible",
+          description: "Réessayez dans quelques instants.",
+          ...base,
+        };
+      }
+      return {
+        title: "Une erreur est survenue",
+        description: "Réessayez dans quelques instants.",
+        ...base,
+      };
   }
 }
 

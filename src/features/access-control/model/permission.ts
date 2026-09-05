@@ -8,6 +8,10 @@ export function definePermission(value: string): Permission {
 }
 
 export const permissions = {
+  dashboardRead: definePermission("dashboard:read"),
+  clientRead: definePermission("client:read"),
+  configurationRead: definePermission("configuration:read"),
+  learningRead: definePermission("learning:read"),
   prospectRead: definePermission("prospect:read"),
   prospectReview: definePermission("prospect:review"),
   conversationRead: definePermission("conversation:read"),
@@ -19,4 +23,11 @@ export const permissions = {
   approvalDecide: definePermission("approval:decide"),
   integrationRead: definePermission("integration:read"),
   integrationManage: definePermission("integration:manage"),
+  subscriptionRead: definePermission("subscription:read"),
+  subscriptionManage: definePermission("subscription:manage"),
+  teamRead: definePermission("team:read"),
+  teamManage: definePermission("team:manage"),
+  notificationRead: definePermission("notification:read"),
+  settingsRead: definePermission("settings:read"),
+  settingsManage: definePermission("settings:manage"),
 } as const satisfies Record<string, Permission>;

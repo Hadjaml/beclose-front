@@ -1,20 +1,16 @@
-import type { Permission } from "@/features/access-control";
-import type { WorkspaceId } from "@/shared/workspace/workspace";
+import type { z } from "zod";
+import type {
+  authenticatedUserSchema,
+  loginCredentialsSchema,
+  passwordResetRequestSchema,
+  passwordResetSchema,
+  sessionSchema,
+  workspaceMembershipSchema,
+} from "../schemas/session-schemas";
 
-export interface AuthenticatedUser {
-  id: string;
-  email: string;
-  displayName: string;
-}
-
-export interface Session {
-  id: string;
-  user: AuthenticatedUser;
-  expiresAt: string;
-}
-
-export interface WorkspaceMembership {
-  workspaceId: WorkspaceId;
-  roleIds: readonly string[];
-  effectivePermissions: readonly Permission[];
-}
+export type AuthenticatedUser = z.infer<typeof authenticatedUserSchema>;
+export type Session = z.infer<typeof sessionSchema>;
+export type WorkspaceMembership = z.infer<typeof workspaceMembershipSchema>;
+export type LoginCredentials = z.infer<typeof loginCredentialsSchema>;
+export type PasswordResetRequest = z.infer<typeof passwordResetRequestSchema>;
+export type PasswordReset = z.infer<typeof passwordResetSchema>;

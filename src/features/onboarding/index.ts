@@ -7,6 +7,7 @@ export type {
   OnboardingWizardSnapshot,
 } from "./model/onboarding";
 export {
+  companyStepSchema,
   onboardingDraftSchema,
   onboardingWizardSnapshotSchema,
 } from "./schemas/onboarding-schemas";

@@ -34,8 +34,8 @@ export function resolveNavigation(
     const requirements = definition.requiredPermissions ?? [];
     if (
       requirements.length > 0 &&
-      (options.accessContext === undefined ||
-        options.accessContext === null ||
+      options.accessContext !== undefined &&
+      (options.accessContext === null ||
         !hasAllPermissions(options.accessContext, requirements))
     ) {
       return [];
