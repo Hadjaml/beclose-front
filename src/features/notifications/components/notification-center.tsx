@@ -20,12 +20,12 @@ export function NotificationCenter({
 
   return (
     <details className="relative">
-      <summary className="flex min-h-10 cursor-pointer list-none items-center rounded-lg border border-zinc-300 px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950">
+      <summary className="flex min-h-10 cursor-pointer list-none items-center rounded-app-md border border-border-strong px-3 text-sm font-semibold text-text-primary hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet">
         Notifications{unreadCount === 0 ? "" : ` (${unreadCount})`}
       </summary>
-      <div className="absolute right-0 z-40 mt-2 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl">
-        <div className="border-b border-zinc-100 px-4 py-3">
-          <h2 className="text-sm font-semibold text-zinc-950">Notifications</h2>
+      <div className="absolute right-0 z-40 mt-2 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-app-lg border border-border bg-surface shadow-xl">
+        <div className="border-b border-border px-4 py-3">
+          <h2 className="text-sm font-semibold text-text-primary">Notifications</h2>
         </div>
         <div className="max-h-[70vh] overflow-y-auto">
           <NotificationList

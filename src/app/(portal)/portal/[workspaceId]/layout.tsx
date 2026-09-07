@@ -24,6 +24,7 @@ export default async function PortalLayout({
     <WorkspaceProvider key={workspaceId} initialWorkspaceId={workspaceId}>
       <AppShell
         title="Espace client"
+        brandTone="subtle"
         navigation={navigation}
         banner={<ViewAsClientBanner context={null} />}
         notifications={<NotificationCenter notifications={null} />}

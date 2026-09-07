@@ -25,16 +25,16 @@ export function LaunchStep({ statuses, completed, onBack, onComplete }: LaunchSt
   return (
     <section className="space-y-8">
       <header className="max-w-2xl">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl">Validation finale</h1>
-        <p className="mt-3 text-sm leading-6 text-zinc-600 sm:text-base">Ce récapitulatif reflète uniquement les étapes réellement validées dans ce formulaire.</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">Validation finale</h1>
+        <p className="mt-3 text-sm leading-6 text-text-secondary sm:text-base">Ce récapitulatif reflète uniquement les étapes réellement validées dans ce formulaire.</p>
       </header>
-      <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white">
+      <ul className="divide-y divide-border rounded-app-lg border border-border bg-surface">
         {checklist.map((item) => {
           const itemCompleted = statuses[item.id] === "COMPLETED";
           return (
             <li key={item.id} className="flex items-center justify-between gap-4 px-4 py-3.5">
-              <span className="text-sm font-medium text-zinc-800">{item.label}</span>
-              <span className={`rounded-full px-2.5 py-1 text-sm font-semibold ${itemCompleted ? "bg-emerald-100 text-emerald-800" : "bg-zinc-100 text-zinc-600"}`}>
+              <span className="text-sm font-medium text-text-primary">{item.label}</span>
+              <span className={`rounded-full px-2.5 py-1 text-sm font-semibold ${itemCompleted ? "bg-emerald-100 text-emerald-800" : "bg-surface-muted text-text-secondary"}`}>
                 {itemCompleted ? "Terminé" : "À compléter"}
               </span>
             </li>
@@ -42,14 +42,14 @@ export function LaunchStep({ statuses, completed, onBack, onComplete }: LaunchSt
         })}
       </ul>
       {completed ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5" role="status">
+        <div className="rounded-app-lg border border-emerald-200 bg-emerald-50 p-5" role="status">
           <p className="font-semibold text-emerald-950">Préparation terminée</p>
           <p className="mt-1 text-sm text-emerald-800">La configuration est prête pour la prochaine étape.</p>
         </div>
       ) : null}
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200 pt-6">
-        <button type="button" onClick={() => onBack({ readyForPreparation: false })} className="rounded-lg px-4 py-2.5 text-sm font-semibold text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950">Étape précédente</button>
-        <button type="button" disabled={!ready || completed} onClick={() => onComplete({ readyForPreparation: true })} className="rounded-lg bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300">
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
+        <button type="button" onClick={() => onBack({ readyForPreparation: false })} className="rounded-app-md px-4 py-2.5 text-sm font-semibold text-text-secondary hover:bg-surface-muted hover:text-text-primary">Étape précédente</button>
+        <button type="button" disabled={!ready || completed} onClick={() => onComplete({ readyForPreparation: true })} className="rounded-app-md bg-brand-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-navy-hover disabled:cursor-not-allowed disabled:bg-border-strong">
           {completed ? "Prêt" : "Finaliser la préparation"}
         </button>
       </footer>

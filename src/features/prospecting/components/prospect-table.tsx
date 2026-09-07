@@ -45,9 +45,9 @@ export function ProspectTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+    <div className="overflow-x-auto rounded-app-lg border border-border bg-surface">
       <table className="min-w-full border-collapse text-left text-sm">
-        <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-600">
+        <thead className="bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-secondary">
           <tr>
             {showSelection ? <th className="w-12 px-4 py-3">
               <input
@@ -55,7 +55,7 @@ export function ProspectTable({
                 checked={allSelected}
                 onChange={toggleAll}
                 aria-label="Sélectionner tous les prospects"
-                className="size-4 rounded border-zinc-300"
+                className="size-4 rounded border-border-strong"
               />
             </th> : null}
             <th className="px-4 py-3">Prospect / entreprise</th>
@@ -66,23 +66,23 @@ export function ProspectTable({
             <th className="px-4 py-3">Statut</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-100">
+        <tbody className="divide-y divide-border">
           {prospects.map((prospect) => (
-            <tr key={prospect.id} className="text-zinc-700 hover:bg-zinc-50">
+            <tr key={prospect.id} className="text-text-secondary hover:bg-surface-muted">
               {showSelection ? <td className="px-4 py-4">
                 <input
                   type="checkbox"
                   checked={selectedIds.has(prospect.id)}
                   onChange={() => toggleProspect(prospect.id)}
                   aria-label={`Sélectionner ${prospect.company.name}`}
-                  className="size-4 rounded border-zinc-300"
+                  className="size-4 rounded border-border-strong"
                 />
               </td> : null}
               <td className="px-4 py-4">
                 <button
                   type="button"
                   onClick={() => onOpenProspect(prospect)}
-                  className="font-semibold text-zinc-950 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"
+                  className="font-semibold text-text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet"
                 >
                   {prospect.company.name}
                 </button>

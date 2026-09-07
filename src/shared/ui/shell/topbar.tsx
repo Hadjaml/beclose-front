@@ -11,11 +11,11 @@ export function Topbar({ title, context, notifications, account }: TopbarProps) 
   const hasActions = notifications !== undefined || account !== undefined;
 
   return (
-    <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-zinc-200 bg-white px-4 py-3 sm:px-6">
+    <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-border bg-surface/95 px-4 py-3 backdrop-blur sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
         <div>
-          <p className="text-sm font-medium text-zinc-600">Contexte</p>
-          <p className="truncate text-sm font-semibold text-zinc-950">{title}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-tertiary">Contexte</p>
+          <p className="truncate text-sm font-semibold text-brand-navy">{title}</p>
         </div>
         {context}
       </div>

@@ -29,8 +29,8 @@ export function ConversationFilters({ value, onChange }: ConversationFiltersProp
           aria-pressed={value === filter}
           className={
             value === filter
-              ? "min-h-10 shrink-0 rounded-full bg-zinc-950 px-4 text-sm font-semibold text-white"
-              : "min-h-10 shrink-0 rounded-full border border-zinc-300 bg-white px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+              ? "min-h-10 shrink-0 rounded-full bg-brand-navy px-4 text-sm font-semibold text-white"
+              : "min-h-10 shrink-0 rounded-full border border-border-strong bg-surface px-4 text-sm font-medium text-text-secondary hover:bg-surface-muted"
           }
         >
           {label}

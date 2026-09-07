@@ -12,12 +12,12 @@ export function PerformanceFunnel({ stages }: PerformanceFunnelProps) {
   return (
     <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {stages.map((stage, index) => (
-        <li key={stage.stage} className="rounded-xl border border-zinc-200 bg-white p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        <li key={stage.stage} className="rounded-app-lg border border-border bg-surface p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-tertiary">
             Étape {index + 1}
           </p>
-          <h3 className="mt-2 text-sm font-semibold text-zinc-950">{stage.label}</h3>
-          <p className="mt-3 text-2xl font-semibold text-zinc-950">
+          <h3 className="mt-2 text-sm font-semibold text-text-primary">{stage.label}</h3>
+          <p className="mt-3 text-2xl font-semibold text-text-primary">
             {stage.metric.formattedValue ??
               (stage.metric.value === undefined ? "Non disponible" : String(stage.metric.value))}
           </p>

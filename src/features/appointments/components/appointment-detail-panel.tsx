@@ -46,52 +46,52 @@ export function AppointmentDetailPanel({
 
   return (
     <div className="space-y-5">
-      <article className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <header className="flex flex-wrap items-start justify-between gap-4 border-b border-zinc-100 pb-5">
+      <article className="rounded-2xl border border-border bg-surface p-6">
+        <header className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-5">
           <div>
-            <p className="text-sm font-medium text-zinc-600">
+            <p className="text-sm font-medium text-text-secondary">
               {prospect.contact?.fullName ?? prospect.contact?.role ?? "Prospect"}
             </p>
-            <h2 className="mt-1 text-2xl font-semibold text-zinc-950">{prospect.company.name}</h2>
+            <h2 className="mt-1 text-2xl font-semibold text-text-primary">{prospect.company.name}</h2>
           </div>
-          <span className="rounded-full bg-zinc-100 px-3 py-1 text-sm font-semibold text-zinc-700">
+          <span className="rounded-full bg-surface-muted px-3 py-1 text-sm font-semibold text-text-secondary">
             {appointmentStatusLabels[appointment.status]}
           </span>
         </header>
 
         <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-zinc-500">Date et heure</dt>
-            <dd className="mt-1 font-medium text-zinc-950">
+            <dt className="text-text-tertiary">Date et heure</dt>
+            <dd className="mt-1 font-medium text-text-primary">
               {appointment.startsAt === undefined
                 ? "À confirmer"
                 : formatDateTime(appointment.startsAt, appointment.timezone)}
             </dd>
           </div>
           <div>
-            <dt className="text-zinc-500">Durée</dt>
-            <dd className="mt-1 font-medium text-zinc-950">
+            <dt className="text-text-tertiary">Durée</dt>
+            <dd className="mt-1 font-medium text-text-primary">
               {appointment.durationMinutes === undefined
                 ? "Inconnue"
                 : formatDuration(appointment.durationMinutes)}
             </dd>
           </div>
           <div>
-            <dt className="text-zinc-500">Origine</dt>
-            <dd className="mt-1 font-medium text-zinc-950">
+            <dt className="text-text-tertiary">Origine</dt>
+            <dd className="mt-1 font-medium text-text-primary">
               {appointmentOriginLabels[appointment.origin]}
             </dd>
           </div>
           {appointment.location?.label === undefined ? null : (
             <div>
-              <dt className="text-zinc-500">Lieu ou canal</dt>
-              <dd className="mt-1 font-medium text-zinc-950">{appointment.location.label}</dd>
+              <dt className="text-text-tertiary">Lieu ou canal</dt>
+              <dd className="mt-1 font-medium text-text-primary">{appointment.location.label}</dd>
             </div>
           )}
           {appointment.crmSyncStatus === undefined ? null : (
             <div>
-              <dt className="text-zinc-500">Synchronisation CRM</dt>
-              <dd className="mt-1 font-medium text-zinc-950">
+              <dt className="text-text-tertiary">Synchronisation CRM</dt>
+              <dd className="mt-1 font-medium text-text-primary">
                 {crmSyncStatusLabels[appointment.crmSyncStatus]}
               </dd>
             </div>
@@ -100,8 +100,8 @@ export function AppointmentDetailPanel({
 
         {appointment.participants.length === 0 ? null : (
           <section className="mt-5">
-            <h3 className="text-sm font-semibold text-zinc-950">Participants</h3>
-            <ul className="mt-2 space-y-1 text-sm text-zinc-700">
+            <h3 className="text-sm font-semibold text-text-primary">Participants</h3>
+            <ul className="mt-2 space-y-1 text-sm text-text-secondary">
               {appointment.participants.map((participant, index) => (
                 <li key={participant.id ?? participant.referenceId ?? `${participant.kind}-${index}`}>
                   {participant.displayName ?? participant.email ?? "Identité non disponible"}
@@ -116,26 +116,26 @@ export function AppointmentDetailPanel({
             href={appointment.location.videoUrl}
             target="_blank"
             rel="noreferrer"
-            className="mt-5 inline-flex text-sm font-semibold text-zinc-900 underline underline-offset-4"
+            className="mt-5 inline-flex text-sm font-semibold text-text-primary underline underline-offset-4"
           >
             Ouvrir le lien de visioconférence
           </a>
         )}
 
         {appointment.cancellation === undefined ? null : (
-          <section className="mt-5 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-            <h3 className="text-sm font-semibold text-zinc-950">Annulation</h3>
+          <section className="mt-5 rounded-app-md border border-border bg-surface-muted p-4">
+            <h3 className="text-sm font-semibold text-text-primary">Annulation</h3>
             {appointment.cancellation.reasonLabel === undefined ? null : (
-              <p className="mt-1 text-sm text-zinc-700">{appointment.cancellation.reasonLabel}</p>
+              <p className="mt-1 text-sm text-text-secondary">{appointment.cancellation.reasonLabel}</p>
             )}
             {appointment.cancellation.comment === undefined ? null : (
-              <p className="mt-1 text-sm leading-6 text-zinc-600">{appointment.cancellation.comment}</p>
+              <p className="mt-1 text-sm leading-6 text-text-secondary">{appointment.cancellation.comment}</p>
             )}
           </section>
         )}
 
         {appointment.reschedule === undefined ? null : (
-          <section className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <section className="mt-5 rounded-app-md border border-amber-200 bg-amber-50 p-4">
             <h3 className="text-sm font-semibold text-amber-950">Report demandé</h3>
             {appointment.reschedule.reason === undefined ? null : (
               <p className="mt-1 text-sm text-amber-900">{appointment.reschedule.reason}</p>
@@ -178,7 +178,7 @@ export function AppointmentDetailPanel({
       )}
 
       {brief === undefined ? null : (
-        <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
+        <section className="rounded-2xl border border-border bg-surface-muted p-6">
           <CommercialBriefView
             brief={brief}
             {...(onViewConversation === undefined ? {} : { onViewConversation })}

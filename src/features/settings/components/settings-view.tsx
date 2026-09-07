@@ -34,26 +34,26 @@ export function SettingsView({
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {settings.account === undefined ? null : (
-        <section className="rounded-xl border border-zinc-200 bg-white p-5">
-          <h2 className="text-lg font-semibold text-zinc-950">Compte</h2>
-          <p className="mt-3 text-sm font-medium text-zinc-900">{settings.account.displayName}</p>
-          <p className="mt-1 text-sm text-zinc-600">{settings.account.email}</p>
+        <section className="rounded-app-lg border border-border bg-surface p-5">
+          <h2 className="text-lg font-semibold text-text-primary">Compte</h2>
+          <p className="mt-3 text-sm font-medium text-text-primary">{settings.account.displayName}</p>
+          <p className="mt-1 text-sm text-text-secondary">{settings.account.email}</p>
         </section>
       )}
       {settings.preferences === undefined ? null : (
-        <section className="rounded-xl border border-zinc-200 bg-white p-5">
-          <h2 className="text-lg font-semibold text-zinc-950">Préférences</h2>
+        <section className="rounded-app-lg border border-border bg-surface p-5">
+          <h2 className="text-lg font-semibold text-text-primary">Préférences</h2>
           <dl className="mt-3 space-y-2 text-sm">
             {settings.preferences.locale === undefined ? null : (
               <div>
-                <dt className="text-zinc-600">Langue</dt>
-                <dd className="font-medium text-zinc-950">{settings.preferences.locale}</dd>
+                <dt className="text-text-secondary">Langue</dt>
+                <dd className="font-medium text-text-primary">{settings.preferences.locale}</dd>
               </div>
             )}
             {settings.preferences.timezone === undefined ? null : (
               <div>
-                <dt className="text-zinc-600">Fuseau horaire</dt>
-                <dd className="font-medium text-zinc-950">{settings.preferences.timezone}</dd>
+                <dt className="text-text-secondary">Fuseau horaire</dt>
+                <dd className="font-medium text-text-primary">{settings.preferences.timezone}</dd>
               </div>
             )}
           </dl>
@@ -66,7 +66,7 @@ export function SettingsView({
               key={action.id}
               type="button"
               onClick={() => onAction(action)}
-              className="min-h-10 rounded-lg border border-zinc-300 px-4 text-sm font-semibold text-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"
+              className="min-h-10 rounded-app-md border border-border-strong px-4 text-sm font-semibold text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet"
             >
               {action.label}
             </button>

@@ -17,7 +17,7 @@ export function ErrorState({
   const retryAction = onRetry === undefined ? undefined : (
     <button
       type="button"
-      className="mt-2 rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white"
+      className="mt-2 rounded-app-sm bg-brand-navy px-4 py-2 text-sm font-medium text-white"
       onClick={onRetry}
     >
       Réessayer

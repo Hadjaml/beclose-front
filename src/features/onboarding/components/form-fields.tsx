@@ -15,14 +15,14 @@ function FieldFrame({ id, label, hint, error, optional, children }: FieldFramePr
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-sm font-semibold text-zinc-900">{label}</label>
-        {optional ? <span className="text-sm text-zinc-500">Facultatif</span> : null}
+        <label htmlFor={id} className="text-sm font-semibold text-text-primary">{label}</label>
+        {optional ? <span className="text-sm text-text-tertiary">Facultatif</span> : null}
       </div>
       {children}
       {error !== undefined ? (
         <p id={`${id}-error`} className="text-sm text-red-700" role="alert">{error}</p>
       ) : hint !== undefined ? (
-        <p id={`${id}-hint`} className="text-sm leading-5 text-zinc-600">{hint}</p>
+        <p id={`${id}-hint`} className="text-sm leading-5 text-text-secondary">{hint}</p>
       ) : null}
     </div>
   );
@@ -61,7 +61,7 @@ export function TextField({
         placeholder={placeholder}
         aria-invalid={error !== undefined}
         aria-describedby={error !== undefined ? `${id}-error` : hint !== undefined ? `${id}-hint` : undefined}
-        className="min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-zinc-950 focus:ring-2 focus:ring-zinc-950/10"
+        className="min-h-11 w-full rounded-app-md border border-border bg-surface px-3.5 py-2.5 text-sm text-text-primary outline-none transition placeholder:text-text-muted hover:border-border-strong focus:border-brand-blue-violet focus:ring-2 focus:ring-brand-blue-violet/15"
       />
     </FieldFrame>
   );
@@ -93,7 +93,7 @@ export function TextAreaField({
         rows={rows}
         aria-invalid={error !== undefined}
         aria-describedby={error !== undefined ? `${id}-error` : hint !== undefined ? `${id}-hint` : undefined}
-        className="w-full resize-y rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm leading-6 text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-zinc-950 focus:ring-2 focus:ring-zinc-950/10"
+        className="w-full resize-y rounded-app-md border border-border bg-surface px-3.5 py-2.5 text-sm leading-6 text-text-primary outline-none transition placeholder:text-text-muted hover:border-border-strong focus:border-brand-blue-violet focus:ring-2 focus:ring-brand-blue-violet/15"
       />
     </FieldFrame>
   );

@@ -16,10 +16,10 @@ export function BatchActionBar({
   }
 
   const buttonClassName =
-    "min-h-10 rounded-lg border border-zinc-300 bg-white px-3 text-sm font-semibold text-zinc-800 transition hover:border-zinc-400 hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950";
+    "min-h-10 rounded-app-md border border-border-strong bg-surface px-3 text-sm font-semibold text-text-primary transition hover:border-border-strong hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet";
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-xl bg-zinc-950 p-3 text-white">
+    <div className="flex flex-wrap items-center gap-2 rounded-app-lg bg-brand-navy p-3 text-white">
       <p className="mr-auto px-1 text-sm font-medium">
         {selectionCount} prospect{selectionCount > 1 ? "s" : ""} sélectionné{selectionCount > 1 ? "s" : ""}
       </p>

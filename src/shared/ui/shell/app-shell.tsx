@@ -11,6 +11,7 @@ interface AppShellProps {
   banner?: ReactNode;
   notifications?: ReactNode;
   account?: ReactNode;
+  brandTone?: "standard" | "subtle";
 }
 
 export function AppShell({
@@ -21,10 +22,11 @@ export function AppShell({
   banner,
   notifications,
   account,
+  brandTone = "standard",
 }: AppShellProps) {
   return (
-    <div className="min-h-dvh bg-zinc-50 text-zinc-950 lg:flex">
-      <Sidebar title={title} items={navigation} />
+    <div className="min-h-dvh bg-surface-muted text-text-primary lg:flex">
+      <Sidebar title={title} items={navigation} brandTone={brandTone} />
       <div className="min-w-0 flex-1">
         {banner}
         <Topbar

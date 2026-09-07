@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand-navy: #082c5c;
+  --brand-navy-hover: #061f42;
+  --brand-blue: #1084ff;
+  --brand-blue-violet: #4946ff;
+  --brand-violet: #9138ff;
+  --brand-soft: #f1f3ff;
+  --surface: #ffffff;
+  --surface-muted: #f7f8fc;
+  --border: #e2e8f2;
+  --border-strong: #cbd5e1;
+  --text-primary: #082c5c;
+  --text-secondary: #52647a;
+  --text-tertiary: #627286;
+  --text-muted: #627286;
+  --app-radius-sm: 0.375rem;
+  --app-radius-md: 0.5625rem;
+  --app-radius-lg: 0.75rem;
+  --brand-gradient: linear-gradient(105deg, #1084ff 0%, #4946ff 52%, #9138ff 100%);
+  --brand-gradient-action: linear-gradient(105deg, #0873de 0%, #4946ff 52%, #7f2be0 100%);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--surface-muted);
+  --color-foreground: var(--text-primary);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-hover: var(--brand-navy-hover);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-violet: var(--brand-blue-violet);
+  --color-brand-violet: var(--brand-violet);
+  --color-brand-soft: var(--brand-soft);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --radius-app-sm: var(--app-radius-sm);
+  --radius-app-md: var(--app-radius-md);
+  --radius-app-lg: var(--app-radius-lg);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface-muted);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--brand-blue-violet) 22%, white);
+  color: var(--brand-navy);
+}
+
+:where(a, button, input, textarea, select, summary):focus-visible {
+  outline-color: var(--brand-blue-violet);
+}
+
+.brand-gradient {
+  background-image: var(--brand-gradient);
+}
+
+.brand-gradient-action {
+  background-image: var(--brand-gradient-action);
+}
+
+.brand-gradient-hover {
+  transition: filter 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.brand-gradient-hover:hover {
+  filter: brightness(0.94) saturate(1.08);
+}
+
+.brand-gradient-hover:active {
+  transform: translateY(1px);
 }

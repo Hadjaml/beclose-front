@@ -23,15 +23,15 @@ export function NotificationList({
   }
 
   return (
-    <ul className="divide-y divide-zinc-100">
+    <ul className="divide-y divide-border">
       {notifications.map((notification) => (
         <li key={notification.id} className="p-4">
           <div className="flex items-start gap-3">
             <span
               className={
                 notification.state === "UNREAD"
-                  ? "mt-1.5 size-2 shrink-0 rounded-full bg-zinc-950"
-                  : "mt-1.5 size-2 shrink-0 rounded-full bg-zinc-300"
+                  ? "mt-1.5 size-2 shrink-0 rounded-full bg-brand-navy"
+                  : "mt-1.5 size-2 shrink-0 rounded-full bg-border-strong"
               }
               aria-hidden="true"
             />
@@ -39,11 +39,11 @@ export function NotificationList({
               <span className="sr-only">
                 {notification.state === "UNREAD" ? "Notification non lue. " : "Notification lue. "}
               </span>
-              <p className="text-sm font-semibold text-zinc-950">{notification.title}</p>
+              <p className="text-sm font-semibold text-text-primary">{notification.title}</p>
               {notification.summary === undefined ? null : (
-                <p className="mt-1 text-sm leading-6 text-zinc-600">{notification.summary}</p>
+                <p className="mt-1 text-sm leading-6 text-text-secondary">{notification.summary}</p>
               )}
-              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-zinc-500">
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-tertiary">
                 <time dateTime={notification.occurredAt}>
                   {formatTimestamp?.(notification.occurredAt) ?? notification.occurredAt}
                 </time>
@@ -52,7 +52,7 @@ export function NotificationList({
                   <button
                     type="button"
                     onClick={() => onMarkAsRead(notification)}
-                    className="font-semibold text-zinc-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"
+                    className="font-semibold text-text-secondary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet"
                   >
                     Marquer comme lue
                   </button>

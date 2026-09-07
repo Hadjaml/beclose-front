@@ -29,22 +29,22 @@ export function WorkspaceOverviewView(props: WorkspaceOverviewViewProps) {
 
   return (
     <div className="grid gap-5 xl:grid-cols-2">
-      <section className="rounded-xl border border-zinc-200 bg-white p-5">
-        <h2 className="text-sm font-semibold text-zinc-950">État du système</h2>
+      <section className="rounded-app-lg border border-border bg-surface p-5">
+        <h2 className="text-sm font-semibold text-text-primary">État du système</h2>
         <div className="mt-3"><SystemStatusBadge status={props.supervision.systemStatus} /></div>
         {props.supervision.statusReason === undefined ? null : (
-          <p className="mt-3 text-sm leading-6 text-zinc-600">{props.supervision.statusReason}</p>
+          <p className="mt-3 text-sm leading-6 text-text-secondary">{props.supervision.statusReason}</p>
         )}
       </section>
 
       {props.supervision.nextRecommendation === undefined ? null : (
-        <section className="rounded-xl border border-zinc-200 bg-white p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Prochaine étape</p>
-          <h2 className="mt-2 text-base font-semibold text-zinc-950">
+        <section className="rounded-app-lg border border-border bg-surface p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-tertiary">Prochaine étape</p>
+          <h2 className="mt-2 text-base font-semibold text-text-primary">
             {props.supervision.nextRecommendation.title}
           </h2>
           {props.supervision.nextRecommendation.reason === undefined ? null : (
-            <p className="mt-2 text-sm leading-6 text-zinc-600">
+            <p className="mt-2 text-sm leading-6 text-text-secondary">
               {props.supervision.nextRecommendation.reason}
             </p>
           )}
@@ -55,7 +55,7 @@ export function WorkspaceOverviewView(props: WorkspaceOverviewViewProps) {
       )}
 
       <section className="space-y-3 xl:col-span-2" aria-labelledby="workspace-actions-title">
-        <h2 id="workspace-actions-title" className="text-lg font-semibold text-zinc-950">
+        <h2 id="workspace-actions-title" className="text-lg font-semibold text-text-primary">
           Interventions en attente
         </h2>
         <RequiredActionsList
@@ -69,18 +69,18 @@ export function WorkspaceOverviewView(props: WorkspaceOverviewViewProps) {
 
       {props.supervision.resultSummaries?.length ? (
         <section className="space-y-3 xl:col-span-2" aria-labelledby="workspace-results-title">
-          <h2 id="workspace-results-title" className="text-lg font-semibold text-zinc-950">
+          <h2 id="workspace-results-title" className="text-lg font-semibold text-text-primary">
             Résultats synthétiques
           </h2>
           <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {props.supervision.resultSummaries.map((result) => (
-              <div key={result.id} className="rounded-xl border border-zinc-200 bg-white p-5">
-                <dt className="text-sm text-zinc-600">{result.label}</dt>
+              <div key={result.id} className="rounded-app-lg border border-border bg-surface p-5">
+                <dt className="text-sm text-text-secondary">{result.label}</dt>
                 {result.formattedValue === undefined ? null : (
-                  <dd className="mt-2 text-2xl font-semibold text-zinc-950">{result.formattedValue}</dd>
+                  <dd className="mt-2 text-2xl font-semibold text-text-primary">{result.formattedValue}</dd>
                 )}
                 {result.description === undefined ? null : (
-                  <dd className="mt-2 text-sm leading-6 text-zinc-600">{result.description}</dd>
+                  <dd className="mt-2 text-sm leading-6 text-text-secondary">{result.description}</dd>
                 )}
               </div>
             ))}
@@ -89,7 +89,7 @@ export function WorkspaceOverviewView(props: WorkspaceOverviewViewProps) {
       ) : null}
 
       <section className="space-y-3 xl:col-span-2" aria-labelledby="workspace-activity-title">
-        <h2 id="workspace-activity-title" className="text-lg font-semibold text-zinc-950">
+        <h2 id="workspace-activity-title" className="text-lg font-semibold text-text-primary">
           Activité récente
         </h2>
         <ActivityList

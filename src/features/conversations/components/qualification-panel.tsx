@@ -12,15 +12,15 @@ function QualificationRow({
   field: QualificationField;
 }) {
   return (
-    <div className="border-b border-zinc-100 py-3 last:border-0">
+    <div className="border-b border-border py-3 last:border-0">
       <div className="flex items-center justify-between gap-3">
-        <dt className="text-sm font-medium text-zinc-900">{label}</dt>
-        <dd className="text-sm font-semibold text-zinc-600">
+        <dt className="text-sm font-medium text-text-primary">{label}</dt>
+        <dd className="text-sm font-semibold text-text-secondary">
           {qualificationKnowledgeLabels[field.state]}
         </dd>
       </div>
       {field.information === undefined ? null : (
-        <dd className="mt-1 text-sm leading-6 text-zinc-600">{field.information}</dd>
+        <dd className="mt-1 text-sm leading-6 text-text-secondary">{field.information}</dd>
       )}
     </div>
   );
@@ -33,8 +33,8 @@ interface QualificationPanelProps {
 export function QualificationPanel({ qualification }: QualificationPanelProps) {
   return (
     <section>
-      <h3 className="text-sm font-semibold text-zinc-950">Qualification progressive</h3>
-      <p className="mt-1 text-sm leading-6 text-zinc-600">
+      <h3 className="text-sm font-semibold text-text-primary">Qualification progressive</h3>
+      <p className="mt-1 text-sm leading-6 text-text-secondary">
         Ces repères résument ce qui est connu, inconnu ou reste à confirmer.
       </p>
       <dl className="mt-3">
@@ -51,7 +51,7 @@ export function QualificationPanel({ qualification }: QualificationPanelProps) {
         ))}
       </dl>
       {qualification.interestLevel === undefined ? null : (
-        <p className="mt-3 text-sm text-zinc-700">
+        <p className="mt-3 text-sm text-text-secondary">
           Niveau d’intérêt : <strong>{qualification.interestLevel}</strong>
         </p>
       )}

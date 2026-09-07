@@ -26,7 +26,7 @@ export function HandoffActions({
       <button
         type="button"
         onClick={onReturnToSystem}
-        className="min-h-10 rounded-lg border border-zinc-300 px-4 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+        className="min-h-10 rounded-app-md border border-border-strong px-4 text-sm font-semibold text-text-primary hover:bg-surface-muted"
       >
         Rendre la main au système
       </button>
@@ -40,7 +40,7 @@ export function HandoffActions({
       {onTakeOver === undefined ? null : <button
         type="button"
         onClick={onTakeOver}
-        className="min-h-10 rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800"
+        className="min-h-10 rounded-app-md bg-brand-navy px-4 text-sm font-semibold text-white hover:bg-brand-navy-hover"
       >
         Reprendre la conversation
       </button>}
@@ -48,7 +48,7 @@ export function HandoffActions({
         <button
           type="button"
           onClick={onLetSystemContinue}
-          className="min-h-10 rounded-lg border border-zinc-300 px-4 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+          className="min-h-10 rounded-app-md border border-border-strong px-4 text-sm font-semibold text-text-primary hover:bg-surface-muted"
         >
           Laisser le système poursuivre
         </button>

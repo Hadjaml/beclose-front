@@ -18,12 +18,12 @@ export function LearningDomainCard({ snapshot, historyAction }: LearningDomainCa
   ] as const;
 
   return (
-    <article className="rounded-2xl border border-zinc-200 bg-white p-6">
+    <article className="rounded-2xl border border-border bg-surface p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="text-lg font-semibold text-zinc-950">
+        <h2 className="text-lg font-semibold text-text-primary">
           {learningDomainLabels[snapshot.domain]}
         </h2>
-        <span className="rounded-full bg-zinc-100 px-3 py-1 text-sm font-medium text-zinc-700">
+        <span className="rounded-full bg-surface-muted px-3 py-1 text-sm font-medium text-text-secondary">
           {autonomyStateLabels[snapshot.autonomyState]}
         </span>
       </div>
@@ -33,8 +33,8 @@ export function LearningDomainCard({ snapshot, historyAction }: LearningDomainCa
           {facts.map(([label, value]) =>
             value === undefined ? null : (
               <div key={label}>
-                <dt className="text-sm text-zinc-600">{label}</dt>
-                <dd className="mt-1 text-xl font-semibold text-zinc-950">{value}</dd>
+                <dt className="text-sm text-text-secondary">{label}</dt>
+                <dd className="mt-1 text-xl font-semibold text-text-primary">{value}</dd>
               </div>
             ),
           )}
@@ -43,8 +43,8 @@ export function LearningDomainCard({ snapshot, historyAction }: LearningDomainCa
 
       {snapshot.insights?.length ? (
         <section className="mt-6" aria-label="Enseignements identifiés">
-          <h3 className="text-sm font-semibold text-zinc-900">Enseignements identifiés</h3>
-          <ul className="mt-2 space-y-2 text-sm leading-6 text-zinc-700">
+          <h3 className="text-sm font-semibold text-text-primary">Enseignements identifiés</h3>
+          <ul className="mt-2 space-y-2 text-sm leading-6 text-text-secondary">
             {snapshot.insights.map((insight) => (
               <li key={insight}>{insight}</li>
             ))}
@@ -54,8 +54,8 @@ export function LearningDomainCard({ snapshot, historyAction }: LearningDomainCa
 
       {snapshot.proposedRules?.length ? (
         <section className="mt-6" aria-label="Règles proposées">
-          <h3 className="text-sm font-semibold text-zinc-900">Règles à confirmer</h3>
-          <ul className="mt-2 space-y-2 text-sm leading-6 text-zinc-700">
+          <h3 className="text-sm font-semibold text-text-primary">Règles à confirmer</h3>
+          <ul className="mt-2 space-y-2 text-sm leading-6 text-text-secondary">
             {snapshot.proposedRules.map((rule) => (
               <li key={rule.id ?? rule.statement}>{rule.statement}</li>
             ))}
@@ -64,7 +64,7 @@ export function LearningDomainCard({ snapshot, historyAction }: LearningDomainCa
       ) : null}
 
       {snapshot.validationHistoryAvailable && historyAction ? (
-        <div className="mt-6 border-t border-zinc-100 pt-5">{historyAction}</div>
+        <div className="mt-6 border-t border-border pt-5">{historyAction}</div>
       ) : null}
     </article>
   );

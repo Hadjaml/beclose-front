@@ -22,9 +22,9 @@ export function WorkspaceSupervisionList({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+    <div className="overflow-x-auto rounded-app-lg border border-border bg-surface">
       <table className="min-w-full border-collapse text-left text-sm">
-        <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-600">
+        <thead className="bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-secondary">
           <tr>
             <th className="px-4 py-3">Client</th>
             <th className="px-4 py-3">État</th>
@@ -34,23 +34,23 @@ export function WorkspaceSupervisionList({
             <th className="px-4 py-3"><span className="sr-only">Action</span></th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-100">
+        <tbody className="divide-y divide-border">
           {workspaces.map((workspace) => (
             <tr key={workspace.workspaceId}>
-              <td className="px-4 py-4 font-semibold text-zinc-950">{workspace.workspaceName}</td>
+              <td className="px-4 py-4 font-semibold text-text-primary">{workspace.workspaceName}</td>
               <td className="px-4 py-4"><SystemStatusBadge status={workspace.systemStatus} /></td>
-              <td className="px-4 py-4 text-zinc-700">
+              <td className="px-4 py-4 text-text-secondary">
                 {workspace.attentionPriority === undefined
                   ? "—"
                   : supervisionPriorityLabels[workspace.attentionPriority]}
               </td>
-              <td className="px-4 py-4 text-zinc-700">
+              <td className="px-4 py-4 text-text-secondary">
                 {workspace.progressSummary ??
                   (workspace.lastActivityAt === undefined
                     ? "—"
                     : formatTimestamp(workspace.lastActivityAt))}
               </td>
-              <td className="px-4 py-4 text-zinc-700">{workspace.primaryResult ?? "—"}</td>
+              <td className="px-4 py-4 text-text-secondary">{workspace.primaryResult ?? "—"}</td>
               <td className="px-4 py-4 text-right">{renderAction?.(workspace)}</td>
             </tr>
           ))}

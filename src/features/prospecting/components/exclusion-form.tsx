@@ -39,8 +39,8 @@ export function ExclusionForm({ reasons, onSubmit, onCancel }: ExclusionFormProp
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <fieldset>
-        <legend className="text-sm font-semibold text-zinc-900">Durée de l’exclusion</legend>
-        <div className="mt-3 flex flex-wrap gap-4 text-sm text-zinc-700">
+        <legend className="text-sm font-semibold text-text-primary">Durée de l’exclusion</legend>
+        <div className="mt-3 flex flex-wrap gap-4 text-sm text-text-secondary">
           <label className="flex items-center gap-2">
             <input type="radio" name="type" value="TEMPORARY" defaultChecked />
             Temporaire
@@ -52,11 +52,11 @@ export function ExclusionForm({ reasons, onSubmit, onCancel }: ExclusionFormProp
         </div>
       </fieldset>
       <label className="block space-y-2">
-        <span className="text-sm font-semibold text-zinc-900">Motif</span>
+        <span className="text-sm font-semibold text-text-primary">Motif</span>
         <select
           name="reasonCode"
           defaultValue=""
-          className="min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-3.5 text-sm text-zinc-900"
+          className="min-h-11 w-full rounded-app-md border border-border-strong bg-surface px-3.5 text-sm text-text-primary"
         >
           <option value="" disabled>Choisir un motif</option>
           {reasons.map((reason) => (
@@ -65,21 +65,21 @@ export function ExclusionForm({ reasons, onSubmit, onCancel }: ExclusionFormProp
         </select>
       </label>
       <label className="block space-y-2">
-        <span className="text-sm font-semibold text-zinc-900">
-          Commentaire <span className="font-normal text-zinc-500">— facultatif</span>
+        <span className="text-sm font-semibold text-text-primary">
+          Commentaire <span className="font-normal text-text-tertiary">— facultatif</span>
         </span>
         <textarea
           name="comment"
           rows={3}
-          className="w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm leading-6 text-zinc-900"
+          className="w-full rounded-app-md border border-border-strong px-3.5 py-2.5 text-sm leading-6 text-text-primary"
         />
       </label>
       {error === undefined ? null : <p role="alert" className="text-sm text-red-700">{error}</p>}
       <div className="flex flex-wrap justify-end gap-2">
-        <button type="button" onClick={onCancel} className="min-h-10 rounded-lg px-4 text-sm font-semibold text-zinc-700">
+        <button type="button" onClick={onCancel} className="min-h-10 rounded-app-md px-4 text-sm font-semibold text-text-secondary">
           Annuler
         </button>
-        <button type="submit" className="min-h-10 rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white">
+        <button type="submit" className="min-h-10 rounded-app-md bg-brand-navy px-4 text-sm font-semibold text-white">
           Confirmer l’exclusion
         </button>
       </div>

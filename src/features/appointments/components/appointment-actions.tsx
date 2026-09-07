@@ -31,7 +31,7 @@ export function AppointmentActions({
             key={label}
             type="button"
             onClick={callback}
-            className="min-h-10 rounded-lg border border-zinc-300 px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+            className="min-h-10 rounded-app-md border border-border-strong px-3 text-sm font-semibold text-text-primary hover:bg-surface-muted"
           >
             {label}
           </button>

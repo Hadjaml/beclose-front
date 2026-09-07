@@ -28,21 +28,21 @@ export function TrainingStep({ initialData, onBack, onComplete }: TrainingStepPr
     <StepFormLayout title="Préparer l’apprentissage progressif" description="Bewise gagnera en autonomie à mesure que les recommandations seront validées ou corrigées par des humains." onSubmit={handleSubmit} onBack={() => onBack(draft)} submitLabel="Passer à la validation finale">
       <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {learningFlow.map((item, index) => (
-          <li key={item} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-            <span className="text-sm font-semibold text-zinc-500">0{index + 1}</span>
-            <p className="mt-2 text-sm font-semibold leading-5 text-zinc-900">{item}</p>
+          <li key={item} className="rounded-app-lg border border-border bg-surface-muted p-4">
+            <span className="text-sm font-semibold text-text-tertiary">0{index + 1}</span>
+            <p className="mt-2 text-sm font-semibold leading-5 text-text-primary">{item}</p>
           </li>
         ))}
       </ol>
       <section>
-        <h2 className="text-sm font-semibold text-zinc-900">Les validations concerneront progressivement</h2>
+        <h2 className="text-sm font-semibold text-text-primary">Les validations concerneront progressivement</h2>
         <ul className="mt-3 flex flex-wrap gap-2">
-          {learningAreas.map((area) => <li key={area} className="rounded-full bg-zinc-100 px-3 py-1.5 text-sm text-zinc-700">{area}</li>)}
+          {learningAreas.map((area) => <li key={area} className="rounded-full bg-surface-muted px-3 py-1.5 text-sm text-text-secondary">{area}</li>)}
         </ul>
       </section>
-      <label className="flex cursor-pointer gap-3 rounded-xl border border-zinc-200 p-4">
+      <label className="flex cursor-pointer gap-3 rounded-app-lg border border-border p-4">
         <input type="checkbox" checked={draft.principleAcknowledged} onChange={(event) => updateField("principleAcknowledged", event.target.checked)} className="mt-1 size-4" />
-        <span className="text-sm leading-6 text-zinc-700">J’ai compris que l’autonomie augmentera progressivement à partir des validations humaines.</span>
+        <span className="text-sm leading-6 text-text-secondary">J’ai compris que l’autonomie augmentera progressivement à partir des validations humaines.</span>
       </label>
       {errors.principleAcknowledged === undefined ? null : <p className="text-sm text-red-700" role="alert">{errors.principleAcknowledged}</p>}
     </StepFormLayout>

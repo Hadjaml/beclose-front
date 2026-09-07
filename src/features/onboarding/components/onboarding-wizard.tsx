@@ -86,12 +86,12 @@ export function OnboardingWizard({ initialSnapshot }: OnboardingWizardProps) {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-lg font-semibold text-zinc-950">Nouveau client</p>
-        <Link href="/backoffice/clients" className="rounded-lg px-4 py-2 text-sm font-semibold text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950">Quitter l’onboarding</Link>
+        <p className="text-lg font-semibold text-text-primary">Nouveau client</p>
+        <Link href="/backoffice/clients" className="rounded-app-md px-4 py-2 text-sm font-semibold text-text-secondary hover:bg-surface-muted hover:text-text-primary">Quitter l’onboarding</Link>
       </div>
       <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start">
         <WizardProgress currentStep={snapshot.currentStep} statuses={snapshot.statuses} />
-        <div className="min-w-0 rounded-xl border border-zinc-200 bg-white p-5 sm:p-8 lg:p-10">{renderCurrentStep()}</div>
+        <div className="min-w-0 rounded-app-lg border border-border bg-surface p-5 sm:p-8 lg:p-10">{renderCurrentStep()}</div>
       </div>
     </div>
   );

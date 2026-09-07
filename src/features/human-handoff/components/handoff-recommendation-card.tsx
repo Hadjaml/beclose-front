@@ -15,7 +15,7 @@ export function HandoffRecommendationCard({
   }
 
   return (
-    <section className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+    <section className="rounded-app-md border border-amber-200 bg-amber-50 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-amber-950">
           Intervention humaine recommandée

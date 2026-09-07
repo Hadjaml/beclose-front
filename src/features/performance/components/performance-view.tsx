@@ -64,11 +64,11 @@ export function PerformanceView(props: PerformanceViewProps) {
   return (
     <div className="space-y-9">
       {props.performance.period.label === undefined ? null : (
-        <p className="text-sm font-medium text-zinc-600">{props.performance.period.label}</p>
+        <p className="text-sm font-medium text-text-secondary">{props.performance.period.label}</p>
       )}
       {props.performance.metrics.length === 0 ? null : (
         <section className="space-y-3" aria-labelledby="performance-metrics-title">
-          <h2 id="performance-metrics-title" className="text-lg font-semibold text-zinc-950">Résultats</h2>
+          <h2 id="performance-metrics-title" className="text-lg font-semibold text-text-primary">Résultats</h2>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {props.performance.metrics.map((metric) => (
               <PerformanceMetricCard key={metric.id} metric={metric} />
@@ -79,10 +79,10 @@ export function PerformanceView(props: PerformanceViewProps) {
       {props.performance.funnel.length === 0 ? null : (
         <section className="space-y-3" aria-labelledby="performance-funnel-title">
           <div>
-            <h2 id="performance-funnel-title" className="text-lg font-semibold text-zinc-950">
+            <h2 id="performance-funnel-title" className="text-lg font-semibold text-text-primary">
               Parcours de conversion
             </h2>
-            <p className="mt-1 text-sm text-zinc-600">
+            <p className="mt-1 text-sm text-text-secondary">
               Seules les étapes disposant de résultats sont affichées.
             </p>
           </div>
@@ -96,7 +96,7 @@ export function PerformanceView(props: PerformanceViewProps) {
         : null}
       {!visibility.showInsights || props.performance.insights.length === 0 ? null : (
         <section className="space-y-3" aria-labelledby="performance-insights-title">
-          <h2 id="performance-insights-title" className="text-lg font-semibold text-zinc-950">
+          <h2 id="performance-insights-title" className="text-lg font-semibold text-text-primary">
             Observations et améliorations
           </h2>
           <div className="grid gap-3 lg:grid-cols-2">

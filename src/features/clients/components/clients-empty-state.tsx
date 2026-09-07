@@ -7,7 +7,7 @@ export function ClientsEmptyState() {
       title="Aucun client pour le moment"
       description="Commencez par rassembler les informations nécessaires pour préparer un premier workspace client."
       action={
-        <Link href="/backoffice/clients/new" className="mt-2 rounded-lg bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950">
+        <Link href="/backoffice/clients/new" className="brand-gradient-action brand-gradient-hover mt-2 rounded-app-md px-5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet">
           Onboarder un client
         </Link>
       }

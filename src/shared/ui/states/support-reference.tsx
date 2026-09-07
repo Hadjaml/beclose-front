@@ -17,14 +17,14 @@ export function SupportReference({ requestId }: { requestId: string }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-zinc-500">
+    <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-text-tertiary">
       <span>
         Référence support : <code className="select-all">{requestId}</code>
       </span>
       <button
         type="button"
         onClick={() => void copyReference()}
-        className="font-semibold text-zinc-700 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"
+        className="font-semibold text-text-secondary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet"
       >
         Copier
       </button>

@@ -10,12 +10,12 @@ interface BriefSectionProps {
 
 function BriefSection({ title, children }: BriefSectionProps) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5">
-      <h3 className="text-sm font-semibold text-zinc-950">{title}</h3>
+    <section className="rounded-app-lg border border-border bg-surface p-5">
+      <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
       {children === undefined ? (
-        <p className="mt-2 text-sm text-zinc-500">Information non disponible.</p>
+        <p className="mt-2 text-sm text-text-tertiary">Information non disponible.</p>
       ) : (
-        <div className="mt-3 text-sm leading-6 text-zinc-700">{children}</div>
+        <div className="mt-3 text-sm leading-6 text-text-secondary">{children}</div>
       )}
     </section>
   );
@@ -52,8 +52,8 @@ export function CommercialBriefView({
     <article aria-labelledby="commercial-brief-title" className="space-y-5">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-zinc-500">Préparation commerciale</p>
-          <h2 id="commercial-brief-title" className="mt-1 text-2xl font-semibold text-zinc-950">
+          <p className="text-sm font-semibold text-text-tertiary">Préparation commerciale</p>
+          <h2 id="commercial-brief-title" className="mt-1 text-2xl font-semibold text-text-primary">
             Brief du rendez-vous
           </h2>
         </div>
@@ -61,7 +61,7 @@ export function CommercialBriefView({
           <button
             type="button"
             onClick={onViewConversation}
-            className="min-h-10 rounded-lg border border-zinc-300 px-4 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+            className="min-h-10 rounded-app-md border border-border-strong px-4 text-sm font-semibold text-text-primary hover:bg-surface-muted"
           >
             Voir la conversation
           </button>
@@ -77,7 +77,7 @@ export function CommercialBriefView({
         <BriefSection title="Qui est cette personne ?">
           {identity === undefined ? undefined : (
             <div className="space-y-1">
-              <p className="font-semibold text-zinc-950">{identity.company.name}</p>
+              <p className="font-semibold text-text-primary">{identity.company.name}</p>
               {identity.contact?.fullName === undefined ? null : <p>{identity.contact.fullName}</p>}
               {identity.contact?.role === undefined ? null : <p>{identity.contact.role}</p>}
               {identity.usefulInformation?.length ? <TextItems items={identity.usefulInformation} /> : null}
@@ -135,7 +135,7 @@ export function CommercialBriefView({
         <BriefSection title="Angle commercial">
           {angle === undefined ? undefined : (
             <div className="space-y-2">
-              {angle.angle === undefined ? null : <p className="font-medium text-zinc-900">{angle.angle}</p>}
+              {angle.angle === undefined ? null : <p className="font-medium text-text-primary">{angle.angle}</p>}
               {angle.rationale === undefined ? null : <p>{angle.rationale}</p>}
             </div>
           )}
@@ -145,7 +145,7 @@ export function CommercialBriefView({
       {brief.qualificationSnapshot === undefined ? (
         <BriefSection title="Qualification" />
       ) : (
-        <section className="rounded-xl border border-zinc-200 bg-white p-5">
+        <section className="rounded-app-lg border border-border bg-surface p-5">
           <QualificationPanel qualification={brief.qualificationSnapshot} />
         </section>
       )}

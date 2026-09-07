@@ -11,11 +11,11 @@ export function PerformanceBreakdownTable({
 
   return (
     <section className="space-y-3">
-      <h3 className="text-base font-semibold text-zinc-950">{breakdown.label}</h3>
+      <h3 className="text-base font-semibold text-text-primary">{breakdown.label}</h3>
       {breakdown.rows.length === 0 ? null : (
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-app-lg border border-border bg-surface">
           <table className="min-w-full border-collapse text-left text-sm">
-            <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-600">
+            <thead className="bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-secondary">
               <tr>
                 <th className="px-4 py-3">Dimension</th>
                 {metricColumns.map((metric) => (
@@ -23,14 +23,14 @@ export function PerformanceBreakdownTable({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-border">
               {breakdown.rows.map((row) => (
                 <tr key={row.id}>
-                  <th scope="row" className="px-4 py-4 font-semibold text-zinc-950">{row.label}</th>
+                  <th scope="row" className="px-4 py-4 font-semibold text-text-primary">{row.label}</th>
                   {metricColumns.map((column) => {
                     const metric = row.metrics.find(({ id }) => id === column.id);
                     return (
-                      <td key={column.id} className="px-4 py-4 text-zinc-700">
+                      <td key={column.id} className="px-4 py-4 text-text-secondary">
                         {metric?.formattedValue ??
                           (metric?.value === undefined ? "—" : String(metric.value))}
                       </td>

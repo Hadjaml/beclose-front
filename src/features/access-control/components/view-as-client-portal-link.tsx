@@ -22,7 +22,7 @@ export function ViewAsClientPortalLink({
   return (
     <Link
       href={`/portal/${encodeURIComponent(context.workspaceId)}`}
-      className="inline-flex min-h-10 items-center rounded-lg border border-zinc-300 px-4 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+      className="inline-flex min-h-10 items-center rounded-app-md border border-border-strong px-4 text-sm font-semibold text-text-primary hover:bg-surface-muted"
     >
       {label}
     </Link>

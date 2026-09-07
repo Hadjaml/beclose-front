@@ -21,7 +21,7 @@ export function TargetingDecisionActions({
         <button
           type="button"
           onClick={onValidate}
-          className="min-h-10 rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"
+          className="brand-gradient-action brand-gradient-hover min-h-10 rounded-app-md px-4 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet"
         >
           Valider la recommandation
         </button>
@@ -29,14 +29,14 @@ export function TargetingDecisionActions({
       <button
         type="button"
         onClick={onModify}
-        className="min-h-10 rounded-lg border border-zinc-300 px-4 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+        className="min-h-10 rounded-app-md border border-border-strong px-4 text-sm font-semibold text-text-primary hover:bg-surface-muted"
       >
         Modifier la décision
       </button>
       <button
         type="button"
         onClick={onExclude}
-        className="min-h-10 rounded-lg border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50"
+        className="min-h-10 rounded-app-md border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50"
       >
         Exclure
       </button>

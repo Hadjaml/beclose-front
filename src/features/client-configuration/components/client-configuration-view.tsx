@@ -44,7 +44,7 @@ export function ClientConfigurationView({
           saveStatus={renderSaveStatus?.(section.id)}
         >
           {renderSummary?.(section.id, configuration[section.id]) ?? (
-            <p className="text-sm leading-6 text-zinc-600">
+            <p className="text-sm leading-6 text-text-secondary">
               Les informations de cette section sont disponibles.
             </p>
           )}

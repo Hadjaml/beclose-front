@@ -35,8 +35,8 @@ export function CompanyStep({ initialData, onComplete }: CompanyStepProps) {
     >
       <section aria-labelledby="essential-company-information" className="space-y-6">
         <div>
-          <h2 id="essential-company-information" className="text-base font-semibold text-zinc-950">L’essentiel</h2>
-          <p className="mt-1 text-sm leading-6 text-zinc-600">Les informations nécessaires pour comprendre rapidement l’activité.</p>
+          <h2 id="essential-company-information" className="text-base font-semibold text-text-primary">L’essentiel</h2>
+          <p className="mt-1 text-sm leading-6 text-text-secondary">Les informations nécessaires pour comprendre rapidement l’activité.</p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2">
         <TextField id="company-name" label="Nom de l’entreprise" value={draft.companyName} onChange={(event) => updateField("companyName", event.target.value)} error={errors.companyName} />
@@ -48,16 +48,16 @@ export function CompanyStep({ initialData, onComplete }: CompanyStepProps) {
       <details
         open={additionalInformationOpen}
         onToggle={(event) => setAdditionalInformationOpen(event.currentTarget.open)}
-        className="group rounded-xl border border-zinc-200 bg-zinc-50/70"
+        className="group rounded-app-lg border border-border bg-surface-muted/70"
       >
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-zinc-800 marker:hidden">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-text-primary marker:hidden">
           <span>
             Informations complémentaires
-            <span className="mt-1 block text-sm font-normal text-zinc-600">Contexte commercial et interlocuteur de référence</span>
+            <span className="mt-1 block text-sm font-normal text-text-secondary">Contexte commercial et interlocuteur de référence</span>
           </span>
-          <span className="text-lg text-zinc-500 transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+          <span className="text-lg text-text-tertiary transition-transform group-open:rotate-45" aria-hidden="true">+</span>
         </summary>
-        <div className="grid gap-6 border-t border-zinc-200 bg-white px-5 py-5 sm:grid-cols-2">
+        <div className="grid gap-6 border-t border-border bg-surface px-5 py-5 sm:grid-cols-2">
           <TextField id="company-market" label="Pays ou zone principale" value={draft.primaryMarket} onChange={(event) => updateField("primaryMarket", event.target.value)} optional />
           <TextField id="company-size" label="Taille de l’entreprise" value={draft.companySize} onChange={(event) => updateField("companySize", event.target.value)} optional placeholder="Ex. 20 à 50 personnes" />
           <TextField id="contact-name" label="Interlocuteur principal" value={draft.primaryContactName} onChange={(event) => updateField("primaryContactName", event.target.value)} error={errors.primaryContactName} />

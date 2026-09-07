@@ -1,9 +1,11 @@
 import type { ResolvedNavigationItem } from "@/features/navigation";
+import { BrandLogo } from "./brand-logo";
 import { NavigationItem } from "./navigation-item";
 
 interface SidebarProps {
   title: string;
   items: readonly ResolvedNavigationItem[];
+  brandTone?: "standard" | "subtle";
 }
 
 function NavigationGroup({
@@ -17,7 +19,7 @@ function NavigationGroup({
 
   return (
     <div className="min-w-max lg:min-w-0">
-      <p className="mb-2 hidden px-3 text-sm font-medium text-zinc-500 lg:block">
+      <p className="mb-2 hidden px-3 text-xs font-semibold uppercase tracking-[0.12em] text-text-tertiary lg:block">
         {label}
       </p>
       <div className="flex gap-1 lg:flex-col">
@@ -27,20 +29,19 @@ function NavigationGroup({
   );
 }
 
-export function Sidebar({ title, items }: SidebarProps) {
+export function Sidebar({ title, items, brandTone = "standard" }: SidebarProps) {
   const primary = items.filter((item) => item.area === "primary");
   const secondary = items.filter((item) => item.area === "secondary");
 
   return (
-    <aside className="border-b border-zinc-200 bg-white lg:sticky lg:top-0 lg:flex lg:h-dvh lg:w-64 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r">
-      <div className="flex h-16 items-center gap-3 border-b border-zinc-200 px-5">
-        <span className="flex size-9 items-center justify-center rounded-lg bg-zinc-950 text-sm font-bold text-white">
-          B
-        </span>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-zinc-950">Bewise</p>
-          <p className="truncate text-sm text-zinc-600">{title}</p>
-        </div>
+    <aside className="border-b border-border bg-surface lg:sticky lg:top-0 lg:flex lg:h-dvh lg:w-66 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r">
+      <div className="flex h-16 items-center gap-3 border-b border-border px-4 lg:h-20 lg:px-5">
+        <BrandLogo compact subtle={brandTone === "subtle"} priority className="lg:hidden" />
+        <BrandLogo subtle={brandTone === "subtle"} priority className="hidden max-w-24 lg:block" />
+        <span className="h-7 w-px bg-border" aria-hidden="true" />
+        <p className="min-w-0 truncate text-xs font-semibold uppercase tracking-wide text-text-tertiary">
+          {title}
+        </p>
       </div>
       <nav
         aria-label="Navigation principale"

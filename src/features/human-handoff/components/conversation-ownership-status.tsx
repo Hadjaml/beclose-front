@@ -9,7 +9,7 @@ export function ConversationOwnershipStatus({
 }: ConversationOwnershipStatusProps) {
   if (ownership.owner === "HUMAN") {
     return (
-      <section className="rounded-lg border border-blue-200 bg-blue-50 p-4" aria-label="Propriété de la conversation">
+      <section className="rounded-app-md border border-blue-200 bg-blue-50 p-4" aria-label="Propriété de la conversation">
         <p className="text-sm font-semibold text-blue-950">
           Conversation reprise par un humain
         </p>
@@ -24,9 +24,9 @@ export function ConversationOwnershipStatus({
   }
 
   return (
-    <section className="rounded-lg border border-zinc-200 bg-zinc-50 p-4" aria-label="Propriété de la conversation">
-      <p className="text-sm font-semibold text-zinc-950">Le système poursuit la conversation</p>
-      <p className="mt-1 text-sm text-zinc-600">Supervision humaine disponible.</p>
+    <section className="rounded-app-md border border-border bg-surface-muted p-4" aria-label="Propriété de la conversation">
+      <p className="text-sm font-semibold text-text-primary">Le système poursuit la conversation</p>
+      <p className="mt-1 text-sm text-text-secondary">Supervision humaine disponible.</p>
     </section>
   );
 }

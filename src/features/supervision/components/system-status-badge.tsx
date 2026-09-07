@@ -15,7 +15,7 @@ export function SystemStatusBadge({ status }: SystemStatusBadgeProps) {
         ? "bg-amber-50 text-amber-900"
         : status === "ACTIVE"
           ? "bg-emerald-50 text-emerald-800"
-          : "bg-zinc-100 text-zinc-700";
+          : "bg-surface-muted text-text-secondary";
 
   return (
     <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${tone}`}>

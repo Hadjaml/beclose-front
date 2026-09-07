@@ -19,9 +19,9 @@ export function AppointmentList({
   onSelect,
 }: AppointmentListProps) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+    <div className="overflow-x-auto rounded-app-lg border border-border bg-surface">
       <table className="min-w-full border-collapse text-left text-sm">
-        <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-600">
+        <thead className="bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-secondary">
           <tr>
             <th className="px-4 py-3">Prospect / entreprise</th>
             <th className="px-4 py-3">Date et heure</th>
@@ -31,38 +31,38 @@ export function AppointmentList({
             <th className="px-4 py-3"><span className="sr-only">Action</span></th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-100">
+        <tbody className="divide-y divide-border">
           {items.map(({ appointment, prospect }) => (
             <tr
               key={appointment.id}
-              className={activeAppointmentId === appointment.id ? "bg-zinc-50" : ""}
+              className={activeAppointmentId === appointment.id ? "bg-surface-muted" : ""}
             >
               <td className="px-4 py-4">
-                <p className="font-semibold text-zinc-950">
+                <p className="font-semibold text-text-primary">
                   {prospect.contact?.fullName ?? prospect.company.name}
                 </p>
-                <p className="mt-1 text-sm text-zinc-600">{prospect.company.name}</p>
+                <p className="mt-1 text-sm text-text-secondary">{prospect.company.name}</p>
               </td>
-              <td className="px-4 py-4 text-zinc-700">
+              <td className="px-4 py-4 text-text-secondary">
                 {appointment.startsAt === undefined
                   ? "Date à confirmer"
                   : formatDateTime(appointment.startsAt, appointment.timezone)}
               </td>
-              <td className="px-4 py-4 text-zinc-700">
+              <td className="px-4 py-4 text-text-secondary">
                 {appointment.assignment.commercial?.displayName ??
                   commercialAssignmentStatusLabels[appointment.assignment.status]}
               </td>
-              <td className="px-4 py-4 text-zinc-700">
+              <td className="px-4 py-4 text-text-secondary">
                 {appointmentStatusLabels[appointment.status]}
               </td>
-              <td className="px-4 py-4 text-zinc-700">
+              <td className="px-4 py-4 text-text-secondary">
                 {appointmentOriginLabels[appointment.origin]}
               </td>
               <td className="px-4 py-4 text-right">
                 <button
                   type="button"
                   onClick={() => onSelect(appointment.id)}
-                  className="min-h-10 rounded-lg px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-100"
+                  className="min-h-10 rounded-app-md px-3 text-sm font-semibold text-text-primary hover:bg-surface-muted"
                 >
                   Voir le détail
                 </button>

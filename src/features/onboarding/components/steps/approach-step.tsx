@@ -32,8 +32,8 @@ export function ApproachStep({ initialData, onBack, onComplete }: ApproachStepPr
       <div className="grid gap-6 sm:grid-cols-2">
         <TextField id="approach-tone" label="Ton" value={draft.tone} onChange={(event) => updateField("tone", event.target.value)} error={errors.tone} placeholder="Ex. direct, rassurant et concret" />
         <div className="space-y-2">
-          <label htmlFor="approach-formality" className="text-sm font-semibold text-zinc-900">Niveau de formalité</label>
-          <select id="approach-formality" value={draft.formality} onChange={(event) => updateField("formality", event.target.value as ApproachStepData["formality"])} className="min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-3.5 text-sm outline-none focus:border-zinc-950 focus:ring-2 focus:ring-zinc-950/10">
+          <label htmlFor="approach-formality" className="text-sm font-semibold text-text-primary">Niveau de formalité</label>
+          <select id="approach-formality" value={draft.formality} onChange={(event) => updateField("formality", event.target.value as ApproachStepData["formality"])} className="min-h-11 w-full rounded-app-md border border-border-strong bg-surface px-3.5 text-sm outline-none focus:border-brand-blue-violet focus:ring-2 focus:ring-brand-blue-violet/15">
             <option value="" disabled>Choisir un niveau</option>
             <option value="casual">Simple et conversationnel</option>
             <option value="balanced">Professionnel et naturel</option>
@@ -47,16 +47,16 @@ export function ApproachStep({ initialData, onBack, onComplete }: ApproachStepPr
       <details
         open={guardrailsOpen}
         onToggle={(event) => setGuardrailsOpen(event.currentTarget.open)}
-        className="group rounded-xl border border-zinc-200 bg-zinc-50/70"
+        className="group rounded-app-lg border border-border bg-surface-muted/70"
       >
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-zinc-800 marker:hidden">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-text-primary marker:hidden">
           <span>
             Objections, preuves et garde-fous
-            <span className="mt-1 block text-sm font-normal text-zinc-600">Précisez les situations sensibles et les réponses utiles</span>
+            <span className="mt-1 block text-sm font-normal text-text-secondary">Précisez les situations sensibles et les réponses utiles</span>
           </span>
-          <span className="text-lg text-zinc-500 transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+          <span className="text-lg text-text-tertiary transition-transform group-open:rotate-45" aria-hidden="true">+</span>
         </summary>
-        <div className="space-y-6 border-t border-zinc-200 bg-white px-5 py-5">
+        <div className="space-y-6 border-t border-border bg-surface px-5 py-5">
           <div className="grid gap-6 sm:grid-cols-2">
             <TextAreaField id="approach-evidence" label="Preuves à utiliser" value={draft.evidence} onChange={(event) => updateField("evidence", event.target.value)} optional />
             <TextAreaField id="approach-objections" label="Objections connues" value={draft.knownObjections} onChange={(event) => updateField("knownObjections", event.target.value)} optional />

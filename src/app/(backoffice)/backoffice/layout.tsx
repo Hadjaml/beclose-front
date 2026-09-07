@@ -11,7 +11,7 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
     <AppShell
       title="Back Office"
       navigation={navigation}
-      context={<span className="hidden text-sm text-zinc-500 sm:inline">Tous les workspaces</span>}
+      context={<span className="hidden text-sm text-text-tertiary sm:inline">Tous les workspaces</span>}
       notifications={<NotificationCenter notifications={null} />}
       account={<CurrentSessionMenu />}
     >

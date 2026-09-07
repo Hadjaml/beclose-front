@@ -18,41 +18,41 @@ export function OutreachSequenceTimeline({
   formatDuration,
 }: OutreachSequenceTimelineProps) {
   return (
-    <section aria-labelledby="outreach-sequence-title" className="rounded-xl border border-zinc-200 bg-white p-5">
+    <section aria-labelledby="outreach-sequence-title" className="rounded-app-lg border border-border bg-surface p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="outreach-sequence-title" className="text-base font-semibold text-zinc-950">
+        <h2 id="outreach-sequence-title" className="text-base font-semibold text-text-primary">
           Prises de contact
         </h2>
-        <span className="text-sm font-medium text-zinc-600">
+        <span className="text-sm font-medium text-text-secondary">
           {outreachSequenceStatusLabels[sequence.status]}
         </span>
       </div>
 
       {sequence.attempts.length === 0 ? (
-        <p className="mt-4 text-sm text-zinc-600">Aucune tentative enregistrée.</p>
+        <p className="mt-4 text-sm text-text-secondary">Aucune tentative enregistrée.</p>
       ) : (
-        <ol className="mt-5 space-y-4 border-l border-zinc-200 pl-5">
+        <ol className="mt-5 space-y-4 border-l border-border pl-5">
           {sequence.attempts.map((attempt) => (
             <li key={attempt.id} className="relative">
-              <span aria-hidden className="absolute -left-[1.55rem] top-1.5 size-2 rounded-full bg-zinc-400" />
+              <span aria-hidden className="absolute -left-[1.55rem] top-1.5 size-2 rounded-full bg-text-muted" />
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <h3 className="text-sm font-semibold text-zinc-950">
+                <h3 className="text-sm font-semibold text-text-primary">
                   {contactAttemptKindLabels[attempt.kind]}
                 </h3>
-                <span className="text-sm text-zinc-500">
+                <span className="text-sm text-text-tertiary">
                   {contactChannelLabels[attempt.channel]}
                 </span>
               </div>
-              <p className="mt-1 text-sm text-zinc-700">
+              <p className="mt-1 text-sm text-text-secondary">
                 {messageDeliveryStatusLabels[attempt.deliveryStatus]}
               </p>
               {attempt.sentAt === undefined ? null : (
-                <time dateTime={attempt.sentAt} className="mt-1 block text-sm text-zinc-500">
+                <time dateTime={attempt.sentAt} className="mt-1 block text-sm text-text-tertiary">
                   {formatTimestamp(attempt.sentAt)}
                 </time>
               )}
               {attempt.delayBeforeNextAttemptSeconds === undefined ? null : (
-                <p className="mt-2 text-sm text-zinc-600">
+                <p className="mt-2 text-sm text-text-secondary">
                   Délai prévu avant la suite : {formatDuration(attempt.delayBeforeNextAttemptSeconds)}
                 </p>
               )}
@@ -62,13 +62,13 @@ export function OutreachSequenceTimeline({
       )}
 
       {sequence.nextAction === undefined ? null : (
-        <section className="mt-5 rounded-lg bg-zinc-50 p-4">
-          <h3 className="text-sm font-semibold text-zinc-950">Prochaine action prévue</h3>
+        <section className="mt-5 rounded-app-md bg-surface-muted p-4">
+          <h3 className="text-sm font-semibold text-text-primary">Prochaine action prévue</h3>
           {sequence.nextAction.reason === undefined ? null : (
-            <p className="mt-1 text-sm leading-6 text-zinc-600">{sequence.nextAction.reason}</p>
+            <p className="mt-1 text-sm leading-6 text-text-secondary">{sequence.nextAction.reason}</p>
           )}
           {sequence.nextAction.scheduledAt === undefined ? null : (
-            <time dateTime={sequence.nextAction.scheduledAt} className="mt-2 block text-sm text-zinc-600">
+            <time dateTime={sequence.nextAction.scheduledAt} className="mt-2 block text-sm text-text-secondary">
               {formatTimestamp(sequence.nextAction.scheduledAt)}
             </time>
           )}
@@ -76,13 +76,13 @@ export function OutreachSequenceTimeline({
       )}
 
       {sequence.stopReason === undefined ? null : (
-        <section className="mt-5 border-t border-zinc-100 pt-4">
-          <h3 className="text-sm font-semibold text-zinc-950">Séquence arrêtée</h3>
+        <section className="mt-5 border-t border-border pt-4">
+          <h3 className="text-sm font-semibold text-text-primary">Séquence arrêtée</h3>
           {sequence.stopReason.label === undefined ? null : (
-            <p className="mt-1 text-sm text-zinc-700">{sequence.stopReason.label}</p>
+            <p className="mt-1 text-sm text-text-secondary">{sequence.stopReason.label}</p>
           )}
           {sequence.stopReason.detail === undefined ? null : (
-            <p className="mt-1 text-sm leading-6 text-zinc-600">{sequence.stopReason.detail}</p>
+            <p className="mt-1 text-sm leading-6 text-text-secondary">{sequence.stopReason.detail}</p>
           )}
         </section>
       )}

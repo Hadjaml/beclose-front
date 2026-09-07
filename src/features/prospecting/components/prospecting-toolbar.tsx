@@ -17,7 +17,7 @@ export function ProspectingToolbar({
   onStatusChange,
 }: ProspectingToolbarProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 sm:flex-row">
+    <div className="flex flex-col gap-3 rounded-app-lg border border-border bg-surface p-4 sm:flex-row">
       <label className="flex-1">
         <span className="sr-only">Rechercher un prospect ou une entreprise</span>
         <input
@@ -25,7 +25,7 @@ export function ProspectingToolbar({
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder="Rechercher un prospect ou une entreprise"
-          className="min-h-11 w-full rounded-lg border border-zinc-300 px-3.5 text-sm text-zinc-950 outline-none placeholder:text-zinc-500 focus:border-zinc-950 focus:ring-2 focus:ring-zinc-950/10"
+          className="min-h-11 w-full rounded-app-md border border-border-strong px-3.5 text-sm text-text-primary outline-none placeholder:text-text-tertiary focus:border-brand-blue-violet focus:ring-2 focus:ring-brand-blue-violet/15"
         />
       </label>
       <label>
@@ -33,7 +33,7 @@ export function ProspectingToolbar({
         <select
           value={status}
           onChange={(event) => onStatusChange(event.target.value as ProspectStatus | "")}
-          className="min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-3.5 text-sm text-zinc-800 outline-none focus:border-zinc-950 focus:ring-2 focus:ring-zinc-950/10 sm:w-56"
+          className="min-h-11 w-full rounded-app-md border border-border-strong bg-surface px-3.5 text-sm text-text-primary outline-none focus:border-brand-blue-violet focus:ring-2 focus:ring-brand-blue-violet/15 sm:w-56"
         >
           <option value="">Tous les statuts</option>
           {Object.entries(prospectStatusLabels).map(([value, label]) => (

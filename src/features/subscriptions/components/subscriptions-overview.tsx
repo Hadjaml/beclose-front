@@ -27,10 +27,10 @@ export function SubscriptionsOverview({
     );
   }
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+    <div className="overflow-x-auto rounded-app-lg border border-border bg-surface">
       <table className="min-w-full text-left text-sm">
         <caption className="sr-only">Supervision globale des abonnements</caption>
-        <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-600">
+        <thead className="bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-secondary">
           <tr>
             <th scope="col" className="px-4 py-3">Client</th>
             <th scope="col" className="px-4 py-3">Plan</th>
@@ -39,16 +39,16 @@ export function SubscriptionsOverview({
             <th scope="col" className="px-4 py-3">Usage</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-100">
+        <tbody className="divide-y divide-border">
           {subscriptions.map((subscription) => (
             <tr key={subscription.id}>
-              <td className="px-4 py-4 font-semibold text-zinc-950">
+              <td className="px-4 py-4 font-semibold text-text-primary">
                 {subscription.workspaceName ?? subscription.workspaceId}
               </td>
-              <td className="px-4 py-4 text-zinc-700">{subscription.plan.commercialName}</td>
+              <td className="px-4 py-4 text-text-secondary">{subscription.plan.commercialName}</td>
               <td className="px-4 py-4"><SubscriptionStatusBadge status={subscription.status} /></td>
-              <td className="px-4 py-4 text-zinc-700">{subscription.nextBillingAt ?? "—"}</td>
-              <td className="px-4 py-4 text-zinc-700">
+              <td className="px-4 py-4 text-text-secondary">{subscription.nextBillingAt ?? "—"}</td>
+              <td className="px-4 py-4 text-text-secondary">
                 {getUsageAttentionLabel(subscription)}
               </td>
             </tr>

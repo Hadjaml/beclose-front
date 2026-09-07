@@ -29,15 +29,15 @@ export function QualificationStep({ initialData, onBack, onComplete }: Qualifica
         <TextAreaField id="qualification-positive" label="Signaux positifs" value={draft.positiveSignals} onChange={(event) => updateField("positiveSignals", event.target.value)} error={errors.positiveSignals} />
         <TextAreaField id="qualification-exclusion" label="Signaux d’exclusion" value={draft.exclusionSignals} onChange={(event) => updateField("exclusionSignals", event.target.value)} error={errors.exclusionSignals} />
       </div>
-      <details className="group rounded-xl border border-zinc-200 bg-zinc-50/70">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-zinc-800 marker:hidden">
+      <details className="group rounded-app-lg border border-border bg-surface-muted/70">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-text-primary marker:hidden">
           <span>
             Informations complémentaires
-            <span className="mt-1 block text-sm font-normal text-zinc-600">Budget, décision, besoin et calendrier, si ces éléments sont utiles</span>
+            <span className="mt-1 block text-sm font-normal text-text-secondary">Budget, décision, besoin et calendrier, si ces éléments sont utiles</span>
           </span>
-          <span className="text-lg text-zinc-500 transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+          <span className="text-lg text-text-tertiary transition-transform group-open:rotate-45" aria-hidden="true">+</span>
         </summary>
-        <div className="grid gap-6 border-t border-zinc-200 bg-white px-5 py-5 sm:grid-cols-2">
+        <div className="grid gap-6 border-t border-border bg-surface px-5 py-5 sm:grid-cols-2">
           <TextAreaField id="qualification-budget" label="Budget" value={draft.budget} onChange={(event) => updateField("budget", event.target.value)} optional rows={3} />
           <TextAreaField id="qualification-authority" label="Pouvoir de décision" value={draft.authority} onChange={(event) => updateField("authority", event.target.value)} optional rows={3} />
           <TextAreaField id="qualification-need" label="Besoin" value={draft.need} onChange={(event) => updateField("need", event.target.value)} optional rows={3} />

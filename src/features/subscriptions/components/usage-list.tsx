@@ -8,14 +8,14 @@ export function UsageList({ usage }: { usage: readonly SubscriptionUsage[] }) {
   return (
     <dl className="grid gap-3 sm:grid-cols-2">
       {usage.map((item) => (
-        <div key={item.key} className="rounded-xl border border-zinc-200 p-4">
-          <dt className="text-sm font-medium text-zinc-700">{item.label}</dt>
-          <dd className="mt-2 text-lg font-semibold text-zinc-950">
+        <div key={item.key} className="rounded-app-lg border border-border p-4">
+          <dt className="text-sm font-medium text-text-secondary">{item.label}</dt>
+          <dd className="mt-2 text-lg font-semibold text-text-primary">
             {item.formattedConsumed ?? item.consumed}
             {item.formattedLimit === undefined ? "" : ` / ${item.formattedLimit}`}
           </dd>
           {item.attention === undefined ? null : (
-            <dd className="mt-1 text-sm text-zinc-600">{usageAttentionLabels[item.attention]}</dd>
+            <dd className="mt-1 text-sm text-text-secondary">{usageAttentionLabels[item.attention]}</dd>
           )}
         </div>
       ))}

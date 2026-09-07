@@ -39,7 +39,7 @@ export function GlobalSupervisionView(props: GlobalSupervisionViewProps) {
   return (
     <div className="space-y-8">
       <section className="space-y-3" aria-labelledby="global-actions-title">
-        <h2 id="global-actions-title" className="text-lg font-semibold text-zinc-950">Interventions requises</h2>
+        <h2 id="global-actions-title" className="text-lg font-semibold text-text-primary">Interventions requises</h2>
         <RequiredActionsList
           actions={props.supervision.requiredActions}
           getWorkspaceName={getWorkspaceName}
@@ -50,7 +50,7 @@ export function GlobalSupervisionView(props: GlobalSupervisionViewProps) {
         />
       </section>
       <section className="space-y-3" aria-labelledby="workspace-statuses-title">
-        <h2 id="workspace-statuses-title" className="text-lg font-semibold text-zinc-950">Workspaces</h2>
+        <h2 id="workspace-statuses-title" className="text-lg font-semibold text-text-primary">Workspaces</h2>
         <WorkspaceSupervisionList
           workspaces={props.supervision.workspaces}
           formatTimestamp={props.formatTimestamp}
@@ -60,7 +60,7 @@ export function GlobalSupervisionView(props: GlobalSupervisionViewProps) {
         />
       </section>
       <section className="space-y-3" aria-labelledby="global-activity-title">
-        <h2 id="global-activity-title" className="text-lg font-semibold text-zinc-950">Activité récente</h2>
+        <h2 id="global-activity-title" className="text-lg font-semibold text-text-primary">Activité récente</h2>
         <ActivityList
           events={props.supervision.recentActivity}
           getWorkspaceName={getWorkspaceName}

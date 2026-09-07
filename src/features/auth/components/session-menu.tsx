@@ -14,14 +14,14 @@ export function SessionMenu({
 
   return (
     <div className="flex items-center gap-3">
-      <span className="hidden text-sm font-medium text-zinc-700 sm:inline">
+      <span className="hidden text-sm font-medium text-text-secondary sm:inline">
         {state.session.user.displayName}
       </span>
       {onLogout === undefined ? null : (
         <button
           type="button"
           onClick={onLogout}
-          className="min-h-10 rounded-lg border border-zinc-300 px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"
+          className="min-h-10 rounded-app-md border border-border-strong px-3 text-sm font-semibold text-text-primary hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet"
         >
           Se déconnecter
         </button>

@@ -23,12 +23,12 @@ export function ConversationContextPanel({
   const { conversation, prospect } = item;
 
   return (
-    <aside aria-label="Contexte commercial" className="space-y-5 rounded-xl border border-zinc-200 bg-white p-5">
+    <aside aria-label="Contexte commercial" className="space-y-5 rounded-app-lg border border-border bg-surface p-5">
       <header>
-        <p className="text-sm font-medium text-zinc-600">
+        <p className="text-sm font-medium text-text-secondary">
           {prospect.contact?.fullName ?? prospect.contact?.role ?? "Prospect"}
         </p>
-        <h2 className="mt-1 text-lg font-semibold text-zinc-950">{prospect.company.name}</h2>
+        <h2 className="mt-1 text-lg font-semibold text-text-primary">{prospect.company.name}</h2>
       </header>
 
       <ConversationOwnershipStatus ownership={conversation.ownership} />
@@ -49,15 +49,15 @@ export function ConversationContextPanel({
 
       {conversation.summary === undefined ? null : (
         <section>
-          <h3 className="text-sm font-semibold text-zinc-950">Résumé</h3>
-          <p className="mt-2 text-sm leading-6 text-zinc-700">{conversation.summary}</p>
+          <h3 className="text-sm font-semibold text-text-primary">Résumé</h3>
+          <p className="mt-2 text-sm leading-6 text-text-secondary">{conversation.summary}</p>
         </section>
       )}
 
       {conversation.intent === undefined ? null : (
         <section>
-          <h3 className="text-sm font-semibold text-zinc-950">Intention détectée</h3>
-          <p className="mt-2 text-sm text-zinc-700">{conversationIntentLabels[conversation.intent]}</p>
+          <h3 className="text-sm font-semibold text-text-primary">Intention détectée</h3>
+          <p className="mt-2 text-sm text-text-secondary">{conversationIntentLabels[conversation.intent]}</p>
         </section>
       )}
 

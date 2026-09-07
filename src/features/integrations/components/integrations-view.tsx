@@ -47,7 +47,7 @@ export function IntegrationsView(props: IntegrationsViewProps) {
 
         return (
           <section key={category} className="space-y-3">
-            <h2 className="text-lg font-semibold text-zinc-950">
+            <h2 className="text-lg font-semibold text-text-primary">
               {integrationCategoryLabels[category]}
             </h2>
             <div className="grid gap-3 lg:grid-cols-2">

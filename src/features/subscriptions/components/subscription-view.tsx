@@ -49,23 +49,23 @@ export function SubscriptionView({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-zinc-200 bg-white p-6">
+      <section className="rounded-2xl border border-border bg-surface p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-zinc-600">Plan actuel</p>
-            <h2 className="mt-1 text-2xl font-semibold text-zinc-950">
+            <p className="text-sm font-medium text-text-secondary">Plan actuel</p>
+            <h2 className="mt-1 text-2xl font-semibold text-text-primary">
               {subscription.plan.commercialName}
             </h2>
           </div>
           <SubscriptionStatusBadge status={subscription.status} />
         </div>
         {subscription.renewsAt === undefined ? null : (
-          <p className="mt-4 text-sm text-zinc-600">
+          <p className="mt-4 text-sm text-text-secondary">
             Renouvellement prévu : <time dateTime={subscription.renewsAt}>{subscription.renewsAt}</time>
           </p>
         )}
         {visibility.showPaymentSummary && subscription.paymentSummary !== undefined ? (
-          <p className="mt-2 text-sm text-zinc-600">
+          <p className="mt-2 text-sm text-text-secondary">
             Paiement : {subscription.paymentSummary.label}
           </p>
         ) : null}
@@ -79,15 +79,15 @@ export function SubscriptionView({
 
       {subscription.usage.length === 0 ? null : (
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-zinc-950">Usage</h2>
+          <h2 className="text-lg font-semibold text-text-primary">Usage</h2>
           <UsageList usage={subscription.usage} />
         </section>
       )}
 
       {visibility.showEntitlements && subscription.plan.entitlements.length > 0 ? (
-        <section className="rounded-xl border border-zinc-200 bg-white p-5">
-          <h2 className="text-lg font-semibold text-zinc-950">Capacités du plan</h2>
-          <ul className="mt-3 space-y-2 text-sm text-zinc-700">
+        <section className="rounded-app-lg border border-border bg-surface p-5">
+          <h2 className="text-lg font-semibold text-text-primary">Capacités du plan</h2>
+          <ul className="mt-3 space-y-2 text-sm text-text-secondary">
             {subscription.plan.entitlements.map((entitlement) => (
               <li key={entitlement.key}>
                 {entitlement.label} · {entitlement.enabled ? "Incluse" : "Non incluse"}
@@ -99,7 +99,7 @@ export function SubscriptionView({
 
       {subscription.invoices.length === 0 ? null : (
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-zinc-950">Factures</h2>
+          <h2 className="text-lg font-semibold text-text-primary">Factures</h2>
           <InvoiceList
             invoices={subscription.invoices}
             {...(renderInvoiceAction === undefined ? {} : { renderAction: renderInvoiceAction })}
@@ -109,15 +109,15 @@ export function SubscriptionView({
 
       {visibility.showHistory && subscription.history?.length ? (
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-zinc-950">Historique</h2>
-          <ol className="divide-y divide-zinc-100 rounded-xl border border-zinc-200 bg-white px-5">
+          <h2 className="text-lg font-semibold text-text-primary">Historique</h2>
+          <ol className="divide-y divide-border rounded-app-lg border border-border bg-surface px-5">
             {subscription.history.map((entry) => (
               <li key={entry.id} className="py-4">
-                <p className="text-sm font-semibold text-zinc-950">{entry.label}</p>
+                <p className="text-sm font-semibold text-text-primary">{entry.label}</p>
                 {entry.summary === undefined ? null : (
-                  <p className="mt-1 text-sm text-zinc-600">{entry.summary}</p>
+                  <p className="mt-1 text-sm text-text-secondary">{entry.summary}</p>
                 )}
-                <time dateTime={entry.occurredAt} className="mt-1 block text-xs text-zinc-500">
+                <time dateTime={entry.occurredAt} className="mt-1 block text-xs text-text-tertiary">
                   {entry.occurredAt}
                 </time>
               </li>
