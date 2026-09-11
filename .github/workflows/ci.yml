@@ -106,6 +106,17 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
       - run: npm run test:e2e
+      # trace: "retain-on-failure" (playwright.config.ts) writes traces to
+      # test-results/ on failure, but they're lost with the runner unless
+      # uploaded - added after a failure was diagnosed blind, without this,
+      # across three separate attempts (see tests/e2e/navigation.spec.ts).
+      - name: Upload Playwright traces (failure only)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7
 
   docker:
     runs-on: ubuntu-latest
