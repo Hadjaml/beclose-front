@@ -117,7 +117,7 @@ jobs:
       # verified for real). Build only, nothing is pushed to a registry —
       # no registry/deployment target exists yet.
       - name: Build production image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: false
