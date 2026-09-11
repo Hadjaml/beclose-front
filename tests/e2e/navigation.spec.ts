@@ -1,5 +1,13 @@
 import { expect, test } from "@playwright/test";
 
+// Back Office content (including the nested workspace layout's own
+// navigation) is gated behind a real session since RequireSession/AuthApi
+// wired against Beclose (2026-09-11). playwright.config.ts starts
+// tests/e2e/mock-backend.mjs alongside the app so GET /auth/me resolves to
+// a fake staff user - a real HTTP server, needed regardless of the timeout
+// issue below (see next comment): without it the session query settles into
+// ERROR, not AUTHENTICATED, and the workspace nav still never renders.
+
 test("global Back Office exposes only implemented routes", async ({ page }) => {
   await page.goto("/backoffice");
   const navigation = page.getByRole("navigation", { name: "Navigation principale" });
@@ -18,12 +26,24 @@ test("Portal contains no Back Office configuration", async ({ page }) => {
 });
 
 test("workspace navigation keeps the URL scope", async ({ page }) => {
+  test.setTimeout(45_000); // default 30s is tight once the assertion below waits up to 20s
   await page.goto("/backoffice/workspaces/workspace-e2e");
   const navigation = page.getByRole("navigation", { name: "Navigation du workspace" });
   const subscription = navigation.getByRole("link", { name: "Abonnement" });
+  // Longer timeout than the default 5s: this route pulls in a lot of new
+  // client code (auth + the 6 v0 API integrations - tanstack query, zod
+  // schemas, several new components), and RequireSession keeps this nav
+  // hidden behind a LoadingState until the session query resolves. On a
+  // cold `next dev`/Turbopack compile in CI this genuinely took longer than
+  // 5s - confirmed for real from a downloaded trace's network log: zero
+  // request to /auth/me had even been attempted yet when the assertion
+  // timed out, only page/JS-chunk requests were in flight. Not a mocking
+  // or auth-logic bug (three attempts at fixing those in turn were each
+  // chasing the wrong cause) - the element genuinely just isn't there yet.
   await expect(subscription).toHaveAttribute(
     "href",
     "/backoffice/workspaces/workspace-e2e/subscription",
+    { timeout: 20_000 },
   );
 });
 

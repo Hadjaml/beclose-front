@@ -76,3 +76,119 @@ voir « Git » dans `references/conventions.md` pour le choix de nom.
   paramètre du repo GitHub, à faire seulement sur demande explicite), pas de
   publication d'image Docker vers un registre (aucune cible de déploiement
   choisie à ce stade).
+
+## Auth réelle — Back Office (2026-09-11, branche `feat/wire-auth-api`)
+
+Beclose a livré une auth interne Bewise minimale (`api/routers/auth.py` :
+`POST /auth/login`, `POST /auth/logout`, `GET /auth/me`, cookie `HttpOnly`
+`beclose_session`) — vérifié directement dans le code Beclose (commit
+`29e30ed`), pas pris pour argent comptant sur la parole d'une session
+relais. Voir `references/conventions.md` pour le détail technique complet.
+
+- `createAuthApi` (implémentation concrète, `features/auth/api/auth-api.ts`)
+  branchée sur `/auth/login`/`/auth/me`/`/auth/logout`. `sessionSchema`
+  simplifié (plus d'`id`/`expiresAt` inventés — le backend ne les expose
+  pas). `requestPasswordReset`/`resetPassword` rejettent explicitement
+  (`ApiError` kind `"unsupported"`, nouveau) — aucun flux de reset n'existe
+  côté Beclose (comptes provisionnés à la main).
+- `SessionProvider` bootstrap désormais la session via TanStack Query
+  (`globalKeys.session()`), expose `login`/`logout` réels. `SessionBoundary`
+  gagne un état `ERROR` (`ApiError`, avec retry). `RequireSession` (nouveau)
+  protège le layout **Back Office uniquement** — pas le Portail, qui n'a
+  aucune auth backend (client onboardé à la main, pas de self-serve).
+  `LoginPage`/`CurrentSessionMenu` câblés (formulaire réel, redirection,
+  déconnexion).
+- **Bug réel trouvé en testant** (pas en le devinant) : `queryClient.clear()`
+  appelé juste après `setQueryData(sessionKey, null)` lors du logout
+  ré-écrasait la donnée avec une réponse d'un refetch automatique déclenché
+  par `clear()` sur l'observer encore monté de la query de session — l'état
+  repassait à `AUTHENTICATED` juste après un logout raté côté réseau.
+  Corrigé en excluant explicitement la clé de session du `removeQueries`
+  plutôt que de tout `clear()` sans distinction. Voir le commentaire dans
+  `session-provider.tsx`.
+- **Infra de test corrigée** : `tests/setup.ts` n'appelait jamais `cleanup()`
+  de Testing Library entre les tests (`vitest.config.mts` n'a pas
+  `test.globals: true`, donc l'auto-cleanup ne s'enclenchait jamais) — invisible
+  jusqu'ici car aucun fichier de test précédent ne faisait plusieurs `render()`
+  dans le même fichier. Découvert en écrivant `session-provider.test.tsx`.
+- `.env.example` créé (`NEXT_PUBLIC_API_BASE_URL`, défaut `localhost:8000`
+  dans `backend-client.ts` si absent). `.gitignore` corrigé : `.env*` avalait
+  aussi `.env.example` (ajout de `!.env.example`).
+- **Vérifié réellement avant de commiter** : `npm run lint` (0 erreur),
+  `npm run typecheck` (0 erreur, seul), `npm test` (20 tests, 0 échec —
+  10 nouveaux : 6 pour `createAuthApi`, 4 pour `SessionProvider`),
+  `npm run build` (13 routes, succès).
+- **Non fait à ce stade** : Portail non touché (auth staff ≠ auth client,
+  volontairement).
+
+## 6 endpoints v0 câblés (2026-09-11, même branche, autorisé explicitement
+## par l'utilisateur pour continuer sans reconfirmation cas par cas)
+
+Vérifié réellement dans le code Beclose (`api/routers/organizations.py`,
+commit `e59c499`) avant d'écrire quoi que ce soit — pas pris pour argent
+comptant sur la parole d'une session relais.
+
+- **Clients** (`GET /organizations`) et **overview**
+  (`GET /organizations/{id}/overview`) : voir commit `2636bb4`.
+- **Prospects** (`GET /organizations/{id}/prospects`) : nouveau modèle
+  honnête `LeadProspect` (`features/prospecting`), séparé du `prospectSchema`
+  existant (workflow de ciblage/stratégie de contact spéculatif, sans
+  contrepartie backend — aucune mutation n'existe dans ce contrat v0).
+  `LeadProspectsSection` remplace `<ProspectingView prospects={null} />` sur
+  la page.
+- **Configuration** (`GET /organizations/{id}/configuration`) : nouveau
+  `WorkspaceConfiguration` honnête (`features/client-configuration`), séparé
+  du schéma d'onboarding (company/offer/target/qualification/approach/tools)
+  — Beclose ne stocke que `pitch`/`signature` en texte libre et
+  `qualification_criteria.criteria` en JSONB volontairement non structuré,
+  aucun découpage fiable vers les nombreux champs du wizard n'existe.
+  Affiché tel quel (JSON brut pour les critères).
+- **Intégrations** (`GET /organizations/{id}/integrations`) : nouveau
+  `WorkspaceIntegrationStatus` honnête (`features/integrations`), séparé du
+  catalogue `workspaceIntegrationsSchema` (états `CONNECTING`/
+  `NEEDS_ATTENTION`/`ERROR`... qui n'existent pas côté backend). Juste
+  Google, connecté ou pas, dérivé de `organization_credentials`.
+- **Messages** (`GET /organizations/{id}/messages`) : nouveau
+  `MessageLogEntry` (`features/supervision`, pas `conversations` — la
+  richesse de `conversations` (intent, état, action recommandée) n'a pas de
+  source backend ; le backend lui-même qualifie cet endpoint de
+  « supervision lecture seule »). Affiché sur la page Conversations, à côté
+  de la vue existante (non remplacée, toujours sans donnée).
+- **Principe appliqué aux 4 dernières** (comme pour clients/overview) :
+  chaque feature existante avait un modèle bien plus riche/spéculatif que ce
+  que Beclose fournit réellement — ne jamais forcer les vraies données dans
+  ces modèles (ça exigerait d'inventer des champs, ex. `systemStatus`,
+  `ProspectStatus`, découpage du pitch en sections de wizard). À chaque
+  fois : nouveau schéma honnête, séparé, ajouté à côté ; l'ancien modèle
+  reste inchangé, non câblé, pour un futur où le backend le supporterait
+  vraiment.
+- `shared/api/api-envelope.ts` (`detailEnvelopeSchema`/`paginatedEnvelopeSchema`)
+  utilisé partout — évite de redéfinir `{data}`/`{data,pagination}` 6 fois.
+- **Vérifié réellement avant de commiter** : `npm run lint` (0 erreur),
+  `npm run typecheck` (0 erreur, seul), `npm test` (20 tests, 0 échec —
+  inchangé, pas de nouveau test ajouté pour ces 4 dernières features faute
+  de temps, à rattraper), `npm run build` (13 routes, succès).
+- **Non fait** : pagination UI (prospects/messages acceptent déjà
+  `limit`/`offset`/filtres côté API, pas encore de contrôles dans l'UI — la
+  première page suffit pour l'instant, peu de données réelles) ; tests pour
+  les 4 nouvelles features (seuls `clients-api`/`session-provider` ont des
+  tests dédiés) ; petite duplication assumée du vocabulaire `LeadStatus`
+  entre `prospecting` et `supervision` (deux petites copies plutôt qu'un
+  couplage prématuré entre features — à reconsidérer si un 3e endroit en a
+  besoin).
+
+## CI e2e rouge après le câblage de l'auth — 8 runs, cause réelle trouvée
+## (2026-09-11, branche `feat/wire-auth-api`, PR #12)
+
+`RequireSession` (auth réelle) a fait échouer `navigation.spec.ts` en CI.
+**8 runs, 8 théories, la 8e était la bonne** — détail complet et leçon dans
+`references/conventions.md` (« Piège critique : next dev bloque les
+origines cross-site »). Résumé : `next dev` bloque les requêtes cross-origin
+vers ses ressources de dev (`localhost` vs `127.0.0.1` de Playwright) —
+`allowedDevOrigins: ["127.0.0.1"]` dans `next.config.ts` a réglé le
+problème en une ligne, après 7 correctifs sur des théories plausibles mais
+fausses (CORS de mock, timeout de compile, `networkMode` de TanStack
+Query). Confirmé réellement : run `34651068809`, 7/7 jobs verts dont `e2e`
+(8/8 tests). Infrastructure de debug ajoutée en cours de route et gardée :
+upload des traces Playwright sur échec (`ci.yml`), serveur mock backend
+réel (`tests/e2e/mock-backend.mjs`).

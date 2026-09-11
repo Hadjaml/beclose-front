@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type { SessionState } from "../model/session-state";
 import { useSession } from "./session-provider";
 
@@ -30,7 +31,19 @@ export function SessionMenu({
   );
 }
 
-export function CurrentSessionMenu({ onLogout }: { onLogout?: () => void }) {
-  const { state } = useSession();
-  return <SessionMenu state={state} {...(onLogout === undefined ? {} : { onLogout })} />;
+export function CurrentSessionMenu() {
+  const router = useRouter();
+  const { state, logout } = useSession();
+
+  async function handleLogout() {
+    try {
+      await logout();
+    } finally {
+      // `logout()` already forgets the local session even on failure — the
+      // navigation should happen either way.
+      router.replace("/login");
+    }
+  }
+
+  return <SessionMenu state={state} onLogout={() => void handleLogout()} />;
 }

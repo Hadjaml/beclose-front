@@ -96,15 +96,19 @@ Le client HTTP central :
 
 ## Authentification
 
-Aucun fournisseur d’authentification n’est choisi. `AuthApi`,
-`SessionProvider` et `SessionBoundary` distinguent session inconnue,
-utilisateur non authentifié, session expirée et session valide.
+L’auth interne Bewise (Back Office uniquement — pas de compte client à ce
+jour) est raccordée à Beclose : `AuthApi` (`src/features/auth/api/auth-api.ts`)
+appelle `POST /auth/login`, `POST /auth/logout` et `GET /auth/me`. La session
+est un cookie `HttpOnly` posé par le backend (`Secure` piloté par
+`API_COOKIE_SECURE` côté Beclose — à mettre à `false` en dev local sans
+HTTPS, sinon le cookie ne revient jamais). `SessionProvider` et
+`SessionBoundary` distinguent session inconnue, utilisateur non authentifié,
+session expirée, échec de vérification et session valide ; `RequireSession`
+protège le Back Office (pas le Portail, qui n’a pas d’auth backend).
 
-La future implémentation doit privilégier une session serveur protégée par
-cookie `HttpOnly`, `Secure` et `SameSite`. Aucun token sensible ne doit
-être placé dans `localStorage` ou exposé au bundle client. Les contrôles de
-permissions frontend servent uniquement à la présentation ; le backend doit
-réautoriser chaque opération.
+Aucun token sensible n’est placé dans `localStorage` ni exposé au bundle
+client. Les contrôles de permissions frontend servent uniquement à la
+présentation ; le backend réautorise chaque opération.
 
 ## Tests
 
@@ -119,9 +123,10 @@ ne constituent pas des mocks métier de l’application.
 
 ## Variables d’environnement
 
-Aucune variable d’environnement n’est requise tant que le backend n’est pas
-raccordé. Une future URL publique d’API pourra être exposée par une variable
-comme `NEXT_PUBLIC_API_BASE_URL`, car une URL publique n’est pas un secret.
+`NEXT_PUBLIC_API_BASE_URL` (voir `.env.example`) pointe vers l’API Beclose —
+une URL publique, jamais un secret. Sans elle, `npm run dev` retombe sur
+`http://localhost:8000` (défaut `uvicorn` local de Beclose) pour rester
+utilisable sans configuration supplémentaire.
 
 Ne jamais placer de clé privée, secret OAuth, token de session ou secret de
 paiement dans une variable `NEXT_PUBLIC_*`.
