@@ -1,7 +1,9 @@
-export type { AuthApi } from "./api/auth-api";
+export { createAuthApi, type AuthApi } from "./api/auth-api";
 export { LoginForm } from "./components/login-form";
+export { LoginPage } from "./components/login-page";
 export { PasswordResetForm } from "./components/password-reset-form";
 export { PasswordResetRequestForm } from "./components/password-reset-request-form";
+export { RequireSession } from "./components/require-session";
 export { SessionBoundary } from "./components/session-boundary";
 export { CurrentSessionMenu, SessionMenu } from "./components/session-menu";
 export { SessionProvider, useSession } from "./components/session-provider";

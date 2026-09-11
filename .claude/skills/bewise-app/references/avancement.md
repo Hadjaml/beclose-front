@@ -76,3 +76,50 @@ voir « Git » dans `references/conventions.md` pour le choix de nom.
   paramètre du repo GitHub, à faire seulement sur demande explicite), pas de
   publication d'image Docker vers un registre (aucune cible de déploiement
   choisie à ce stade).
+
+## Auth réelle — Back Office (2026-09-11, branche `feat/wire-auth-api`)
+
+Beclose a livré une auth interne Bewise minimale (`api/routers/auth.py` :
+`POST /auth/login`, `POST /auth/logout`, `GET /auth/me`, cookie `HttpOnly`
+`beclose_session`) — vérifié directement dans le code Beclose (commit
+`29e30ed`), pas pris pour argent comptant sur la parole d'une session
+relais. Voir `references/conventions.md` pour le détail technique complet.
+
+- `createAuthApi` (implémentation concrète, `features/auth/api/auth-api.ts`)
+  branchée sur `/auth/login`/`/auth/me`/`/auth/logout`. `sessionSchema`
+  simplifié (plus d'`id`/`expiresAt` inventés — le backend ne les expose
+  pas). `requestPasswordReset`/`resetPassword` rejettent explicitement
+  (`ApiError` kind `"unsupported"`, nouveau) — aucun flux de reset n'existe
+  côté Beclose (comptes provisionnés à la main).
+- `SessionProvider` bootstrap désormais la session via TanStack Query
+  (`globalKeys.session()`), expose `login`/`logout` réels. `SessionBoundary`
+  gagne un état `ERROR` (`ApiError`, avec retry). `RequireSession` (nouveau)
+  protège le layout **Back Office uniquement** — pas le Portail, qui n'a
+  aucune auth backend (client onboardé à la main, pas de self-serve).
+  `LoginPage`/`CurrentSessionMenu` câblés (formulaire réel, redirection,
+  déconnexion).
+- **Bug réel trouvé en testant** (pas en le devinant) : `queryClient.clear()`
+  appelé juste après `setQueryData(sessionKey, null)` lors du logout
+  ré-écrasait la donnée avec une réponse d'un refetch automatique déclenché
+  par `clear()` sur l'observer encore monté de la query de session — l'état
+  repassait à `AUTHENTICATED` juste après un logout raté côté réseau.
+  Corrigé en excluant explicitement la clé de session du `removeQueries`
+  plutôt que de tout `clear()` sans distinction. Voir le commentaire dans
+  `session-provider.tsx`.
+- **Infra de test corrigée** : `tests/setup.ts` n'appelait jamais `cleanup()`
+  de Testing Library entre les tests (`vitest.config.mts` n'a pas
+  `test.globals: true`, donc l'auto-cleanup ne s'enclenchait jamais) — invisible
+  jusqu'ici car aucun fichier de test précédent ne faisait plusieurs `render()`
+  dans le même fichier. Découvert en écrivant `session-provider.test.tsx`.
+- `.env.example` créé (`NEXT_PUBLIC_API_BASE_URL`, défaut `localhost:8000`
+  dans `backend-client.ts` si absent). `.gitignore` corrigé : `.env*` avalait
+  aussi `.env.example` (ajout de `!.env.example`).
+- **Vérifié réellement avant de commiter** : `npm run lint` (0 erreur),
+  `npm run typecheck` (0 erreur, seul), `npm test` (20 tests, 0 échec —
+  10 nouveaux : 6 pour `createAuthApi`, 4 pour `SessionProvider`),
+  `npm run build` (13 routes, succès).
+- **Non fait à ce stade** : Portail non touché (auth staff ≠ auth client,
+  volontairement) ; câblage des 6 endpoints v0 restants (clients, overview,
+  prospects, configuration, intégrations, messages) — livrés côté Beclose
+  selon la coordination transverse, mais pas encore repris ici, seule l'auth
+  a été explicitement autorisée par l'utilisateur pour cette session.

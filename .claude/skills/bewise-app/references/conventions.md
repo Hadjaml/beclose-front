@@ -154,3 +154,71 @@ n'en garde qu'un résumé propre à ce dépôt.
   avec `onboardingProgress`/`systemStatus`/`subscriptionStatus`) sont plus
   spéculatifs que ce que Beclose peut fournir aujourd'hui — à revoir une
   fois le contrat calé, pas à faire semblant qu'ils correspondent déjà.
+
+## Auth réelle — Back Office (2026-09-11)
+
+- **Endpoints réels** (`api/routers/auth.py` côté Beclose, vérifiés dans le
+  code, pas supposés) : `POST /auth/login` (`{email,password}` →
+  `{id,email,full_name}`), `POST /auth/logout` (`204`), `GET /auth/me`
+  (même forme que login). Cookie `beclose_session`, `HttpOnly`,
+  `SameSite=lax`, `Secure` piloté par `Settings.api_cookie_secure` (défaut
+  `True`) — **en dev local sans HTTPS, Beclose doit tourner avec
+  `API_COOKIE_SECURE=false`, sinon le navigateur rejette le cookie et
+  l'auth échoue silencieusement contre `localhost:3000`**.
+- **Erreurs** : FastAPI par défaut, `{"detail": "..."}` — pas l'enveloppe
+  `{error:{code,message,details}}` proposée dans le brouillon de contrat
+  v0 transverse. `normalizeApiError`/`ApiError` n'en dépendent pas
+  (`details` reste `unknown`), donc rien à corriger côté front pour
+  l'instant, juste à ne pas supposer que l'enveloppe proposée a été
+  adoptée telle quelle.
+- **`sessionSchema` volontairement réduit** à `{ user }` — pas d'`id`
+  de session ni d'`expiresAt` : le backend ne les expose pas au client
+  (cookie opaque, expiry gérée côté serveur). Ne pas réinventer ces champs.
+- **`createAuthApi`** (`features/auth/api/auth-api.ts`) : `getCurrentSession`
+  intercepte un `401` et renvoie `null` (pas une erreur) — c'est le signal
+  `UNAUTHENTICATED`, distinct d'un vrai échec réseau/serveur (`ERROR`).
+  `requestPasswordReset`/`resetPassword` rejettent immédiatement avec
+  `ApiError({kind:"unsupported"})`, sans appeler le backend : Beclose n'a
+  et n'aura pas de flux de reset self-serve avant longtemps (comptes
+  provisionnés par `workers/create_staff_user.py`).
+- **Nouveau kind `"unsupported"`** sur `ApiError`/`ApiErrorKind`
+  (`shared/api/api-error.ts`) — pour « cette action n'existe pas côté
+  backend », distinct de `"configuration"` (config front invalide) et de
+  `"http"` (le backend a répondu une erreur). Présentation dédiée ajoutée
+  à `getApiErrorPresentation`.
+- **`SessionBoundary` gagne un état `ERROR`** (vérification de session
+  impossible — réseau/serveur, pas juste « pas connecté ») avec bouton
+  « Réessayer » (`ErrorState`, déjà existant dans `shared/ui/states`).
+- **`RequireSession` protège le Back Office, pas le Portail** — l'auth
+  livrée est interne Bewise uniquement (pas de compte client dans Beclose,
+  onboarding client fait à la main). Gater le Portail derrière ce login
+  aurait été sémantiquement faux (ça laisserait entendre que les clients
+  se connectent avec des identifiants staff).
+- **Bug de course trouvé en testant réellement** (`session-provider.test.tsx`) :
+  `queryClient.clear()` sur un `useQuery` de session encore monté déclenche
+  un refetch automatique de l'observer — si on fait `clear()` puis
+  `setQueryData(sessionKey, null)`, le refetch (résolu de façon asynchrone,
+  après le `setQueryData` synchrone) peut écraser le `null` et repasser
+  l'état à `AUTHENTICATED` juste après un logout, y compris si l'appel
+  réseau de logout a échoué. Corrigé : `removeQueries({predicate: ...})`
+  exclut explicitement la clé de session du nettoyage plutôt que de tout
+  `clear()` sans distinction, donc son cache n'est jamais retiré (pas de
+  refetch déclenché) et le `setQueryData(null)` qui suit reste la valeur
+  finale.
+- **`tests/setup.ts` ne nettoyait jamais le DOM entre les tests** — Testing
+  Library n'enregistre son `afterEach(cleanup)` automatique que si
+  `vitest.config.mts` a `test.globals: true`, ce qui n'est pas le cas ici.
+  Invisible jusqu'ici (aucun fichier de test précédent ne faisait plusieurs
+  `render()` dans le même fichier) ; découvert en écrivant
+  `session-provider.test.tsx` (plusieurs `it` avec `render()` chacun,
+  `getByTestId` trouvait plusieurs éléments). Corrigé en ajoutant
+  `afterEach(cleanup)` dans `tests/setup.ts` — bénéficie à toute la suite,
+  pas seulement au nouveau fichier.
+- **`backendClient`** (`shared/api/backend-client.ts`) : singleton
+  `ApiClient` construit depuis `NEXT_PUBLIC_API_BASE_URL`, avec repli sur
+  `http://localhost:8000` (défaut `uvicorn` local de Beclose,
+  `uv run uvicorn api.main:app --reload`) pour que `npm run dev` reste
+  utilisable sans config le jour où Beclose tourne en local.
+- **`.gitignore` corrigé** : le motif `.env*` avalait aussi `.env.example`
+  (jamais remarqué avant, ce fichier n'existait pas) — ajout de
+  `!.env.example` pour le laisser commitable, comme sur Beclose.

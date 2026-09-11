@@ -7,11 +7,16 @@ import { loginCredentialsSchema } from "../schemas/session-schemas";
 export function LoginForm({
   onSubmit,
   forgotPasswordAction,
+  serverError,
+  isSubmitting = false,
 }: {
   onSubmit?: (credentials: LoginCredentials) => void;
   forgotPasswordAction?: React.ReactNode;
+  serverError?: string;
+  isSubmitting?: boolean;
 }) {
-  const [error, setError] = useState<string>();
+  const [validationError, setValidationError] = useState<string>();
+  const displayedError = validationError ?? serverError;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,10 +27,10 @@ export function LoginForm({
       password: formData.get("password"),
     });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? "Vérifiez les informations saisies.");
+      setValidationError(result.error.issues[0]?.message ?? "Vérifiez les informations saisies.");
       return;
     }
-    setError(undefined);
+    setValidationError(undefined);
     onSubmit(result.data);
   }
 
@@ -38,7 +43,8 @@ export function LoginForm({
           type="email"
           autoComplete="email"
           required
-          className="mt-2 min-h-11 w-full rounded-app-md border border-border-strong px-3.5 text-sm outline-none focus:border-brand-blue-violet focus:ring-2 focus:ring-brand-blue-violet/15"
+          disabled={isSubmitting}
+          className="mt-2 min-h-11 w-full rounded-app-md border border-border-strong px-3.5 text-sm outline-none focus:border-brand-blue-violet focus:ring-2 focus:ring-brand-blue-violet/15 disabled:bg-surface-muted"
         />
       </label>
       <label className="block">
@@ -48,19 +54,20 @@ export function LoginForm({
           type="password"
           autoComplete="current-password"
           required
-          className="mt-2 min-h-11 w-full rounded-app-md border border-border-strong px-3.5 text-sm outline-none focus:border-brand-blue-violet focus:ring-2 focus:ring-brand-blue-violet/15"
+          disabled={isSubmitting}
+          className="mt-2 min-h-11 w-full rounded-app-md border border-border-strong px-3.5 text-sm outline-none focus:border-brand-blue-violet focus:ring-2 focus:ring-brand-blue-violet/15 disabled:bg-surface-muted"
         />
       </label>
-      {error === undefined ? null : (
-        <p role="alert" className="text-sm text-red-700">{error}</p>
+      {displayedError === undefined ? null : (
+        <p role="alert" className="text-sm text-red-700">{displayedError}</p>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           type="submit"
-          disabled={onSubmit === undefined}
+          disabled={onSubmit === undefined || isSubmitting}
           className="min-h-11 rounded-app-md bg-brand-navy px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-border-strong"
         >
-          Se connecter
+          {isSubmitting ? "Connexion…" : "Se connecter"}
         </button>
         {forgotPasswordAction}
       </div>

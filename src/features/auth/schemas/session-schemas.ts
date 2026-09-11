@@ -8,10 +8,14 @@ export const authenticatedUserSchema = z.object({
   displayName: z.string().trim().min(1),
 });
 
+/**
+ * Beclose's `/auth/login` and `/auth/me` (Bewise-internal Back Office auth,
+ * `api/routers/auth.py`) return only the current staff user — no session id
+ * or expiry is exposed to the client, the `HttpOnly` cookie carries that
+ * server-side. Don't add fields here the backend doesn't actually send.
+ */
 export const sessionSchema = z.object({
-  id: z.string().trim().min(1),
   user: authenticatedUserSchema,
-  expiresAt: z.string().datetime({ offset: true }),
 });
 
 export const workspaceMembershipSchema = z.object({

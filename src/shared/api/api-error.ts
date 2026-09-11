@@ -6,6 +6,7 @@ export type ApiErrorKind =
   | "http"
   | "network"
   | "parse"
+  | "unsupported"
   | "validation"
   | "unknown";
 
@@ -47,6 +48,13 @@ export function getApiErrorPresentation(error: ApiError): ApiErrorPresentation {
     return {
       title: "Connexion impossible",
       description: "Vérifiez votre connexion puis réessayez.",
+      ...base,
+    };
+  }
+  if (error.kind === "unsupported") {
+    return {
+      title: "Fonctionnalité indisponible",
+      description: "Cette action n’est pas encore proposée. Contactez un administrateur.",
       ...base,
     };
   }
