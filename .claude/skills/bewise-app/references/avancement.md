@@ -192,3 +192,28 @@ Query). Confirmé réellement : run `34651068809`, 7/7 jobs verts dont `e2e`
 (8/8 tests). Infrastructure de debug ajoutée en cours de route et gardée :
 upload des traces Playwright sur échec (`ci.yml`), serveur mock backend
 réel (`tests/e2e/mock-backend.mjs`).
+
+**PR #12 mergée dans `main`** (squash, commit `79789d6`) — un seul commit
+propre plutôt que les 11 (dont 7 de tâtonnement e2e). Branches
+`feat/wire-auth-api` et `chore/agent-skill-and-docker` supprimées (locales
++ remote) une fois leur contenu confirmé présent sur `main`.
+
+## Tests des 6 endpoints v0 (2026-09-12, branche `test/v0-api-coverage`)
+
+Aucun des 6 modules `*-api.ts` du contrat v0 n'avait de test dédié (seuls
+`auth-api`/`session-provider` en avaient) — corrigé pour les 6, pas
+seulement 4 comme suggéré initialement par la coordination transverse
+(`clients-api` et `lead-pipeline-api`/overview manquaient aussi à l'appel).
+
+- `tests/support/fake-api-client.ts` : `fakeClient`/`rejectingClient`
+  extraits de `auth-api.test.ts` (dupliqués sinon 6 fois) — mimique le
+  contrat de `createApiClient` sans vrai `fetch`, fait passer la réponse
+  brute à travers le vrai schéma Zod de chaque module.
+- 11 nouveaux tests (2 par module sauf `lead-pipeline-api`, 1 seul cas
+  utile) : forme de la requête (path, méthode, `context.workspaceId`,
+  query params), mapping `id`/`organizationId` → `workspaceId`, valeurs
+  `null` légitimes (pas d'erreur) — `qualificationCriteria: null`,
+  `google: null`, `status: null` sur un message entrant.
+- **Vérifié réellement** : `npm run lint` (0 erreur), `npm run typecheck`
+  (0 erreur, seul), `npm test` (31/31, 11 nouveaux), `npm run build` (13
+  routes, succès).
