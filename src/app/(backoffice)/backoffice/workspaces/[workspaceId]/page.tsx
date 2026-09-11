@@ -1,4 +1,4 @@
-import { WorkspaceOverviewView } from "@/features/supervision";
+import { LeadPipelineSection, WorkspaceOverviewView } from "@/features/supervision";
 
 export default function BackofficeWorkspacePage() {
   return (
@@ -13,6 +13,7 @@ export default function BackofficeWorkspacePage() {
         </p>
       </header>
 
+      <LeadPipelineSection />
       <WorkspaceOverviewView supervision={null} />
     </div>
   );

@@ -1,4 +1,4 @@
-import { ClientsSupervisionView } from "@/features/clients";
+import { ClientsPageContent } from "@/features/clients";
 
 export default function ClientsPage() {
   return (
@@ -8,7 +8,7 @@ export default function ClientsPage() {
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-text-primary">Clients</h1>
         <p className="mt-3 text-base leading-7 text-text-secondary">Suivez ici la préparation et l’état des systèmes de chaque client.</p>
       </header>
-      <ClientsSupervisionView workspaces={null} />
+      <ClientsPageContent />
     </div>
   );
 }
