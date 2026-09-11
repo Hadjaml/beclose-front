@@ -5,12 +5,36 @@ import { expect, test } from "@playwright/test";
 // wired against Beclose (2026-09-11) - stub /auth/me so these navigation
 // checks don't need a real backend running in CI. See
 // .claude/skills/bewise-app/references/conventions.md.
+//
+// page.route() alone isn't enough here: the app runs on
+// http://127.0.0.1:3000 (playwright.config.ts baseURL) and calls
+// http://localhost:8000 (backend-client.ts's default) with
+// `credentials: "include"` (api-client.ts) - different origins even on the
+// same machine, and a fulfilled route response is still subject to the
+// browser's real CORS enforcement unless it carries matching
+// Access-Control-Allow-Origin/-Credentials headers (verified for real: a
+// first attempt without them still failed in CI, run 34647340281, same
+// "element not found" as before any stub - the query fails as a network/CORS
+// error, not a 401, so getCurrentSession() rethrows instead of resolving to
+// `null`). Overriding `window.fetch` for this one path instead sidesteps the
+// browser's network/CORS layer entirely - no real cross-origin request is
+// ever made for /auth/me.
 test.beforeEach(async ({ page }) => {
-  await page.route("**/auth/me", (route) =>
-    route.fulfill({
-      json: { id: "e2e-staff", email: "e2e@bewise.test", full_name: "E2E Staff" },
-    }),
-  );
+  await page.addInitScript(() => {
+    const realFetch = window.fetch.bind(window);
+    window.fetch = (input, init) => {
+      const url = input instanceof Request ? input.url : input.toString();
+      if (url.endsWith("/auth/me")) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({ id: "e2e-staff", email: "e2e@bewise.test", full_name: "E2E Staff" }),
+            { status: 200, headers: { "content-type": "application/json" } },
+          ),
+        );
+      }
+      return realFetch(input, init);
+    };
+  });
 });
 
 test("global Back Office exposes only implemented routes", async ({ page }) => {
