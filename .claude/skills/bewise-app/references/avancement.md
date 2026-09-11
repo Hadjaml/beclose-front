@@ -176,3 +176,19 @@ comptant sur la parole d'une session relais.
   entre `prospecting` et `supervision` (deux petites copies plutôt qu'un
   couplage prématuré entre features — à reconsidérer si un 3e endroit en a
   besoin).
+
+## CI e2e rouge après le câblage de l'auth — 8 runs, cause réelle trouvée
+## (2026-09-11, branche `feat/wire-auth-api`, PR #12)
+
+`RequireSession` (auth réelle) a fait échouer `navigation.spec.ts` en CI.
+**8 runs, 8 théories, la 8e était la bonne** — détail complet et leçon dans
+`references/conventions.md` (« Piège critique : next dev bloque les
+origines cross-site »). Résumé : `next dev` bloque les requêtes cross-origin
+vers ses ressources de dev (`localhost` vs `127.0.0.1` de Playwright) —
+`allowedDevOrigins: ["127.0.0.1"]` dans `next.config.ts` a réglé le
+problème en une ligne, après 7 correctifs sur des théories plausibles mais
+fausses (CORS de mock, timeout de compile, `networkMode` de TanStack
+Query). Confirmé réellement : run `34651068809`, 7/7 jobs verts dont `e2e`
+(8/8 tests). Infrastructure de debug ajoutée en cours de route et gardée :
+upload des traces Playwright sur échec (`ci.yml`), serveur mock backend
+réel (`tests/e2e/mock-backend.mjs`).

@@ -3,6 +3,75 @@
 Ce fichier se remplit à mesure que des choix concrets sont pris pendant le
 développement (au-delà de ce que couvre déjà `AGENTS.md`).
 
+## Piège critique : `next dev` bloque les origines cross-site, lire le
+## warning avant de deviner (2026-09-11)
+
+8 runs CI rouges d'affilée sur `tests/e2e/navigation.spec.ts` (« workspace
+navigation keeps the URL scope ») après le câblage de l'auth réelle
+(`RequireSession`). Cause réelle, minuscule : `next dev` s'initialise sur
+l'origine `localhost` par défaut et **bloque les requêtes cross-origin vers
+ses ressources de dev** (`node_modules/next/dist/docs/.../allowedDevOrigins.md`).
+`playwright.config.ts` utilise `baseURL: "http://127.0.0.1:3000"` —
+`127.0.0.1` est une origine différente de `localhost` du point de vue du
+serveur, même sur la même machine. Corrigé avec une seule ligne :
+```ts
+allowedDevOrigins: ["127.0.0.1"],
+```
+
+**Le vrai problème n'était pas de trouver le correctif — c'était de le
+reconnaître.** Next.js imprimait le diagnostic ET le correctif exact, en toutes
+lettres, dans **chaque run échoué depuis le tout premier** :
+```
+[WebServer] ⚠ Blocked cross-origin request to Next.js dev resource /_next/hmr from "127.0.0.1".
+[WebServer] To allow this host in development, add it to "allowedDevOrigins" in next.config.js
+```
+Ce message a été lu et classé comme « bruit sans rapport » (attribué au HMR,
+donc à un détail de rechargement à chaud sans incidence) pendant 7 tentatives
+de correction consécutives, chacune sur une théorie différente et vérifiée
+avec de vraies preuves (traces Playwright téléchargées, pas des suppositions)
+— mais toutes en aval du vrai problème :
+
+1. `page.route("**/auth/me", ...)` sans en-têtes CORS — plausible, jamais
+   vraiment la cause.
+2. Override de `window.fetch` via `addInitScript` — même verdict.
+3. Serveur mock réel (`tests/e2e/mock-backend.mjs`) — **une vraie bonne
+   idée, gardée** (bien plus robuste qu'un mock navigateur pour simuler un
+   backend cross-origin), mais ne réglait pas le symptôme.
+4. Timeout d'assertion élevé (5s → 20s) — écarté une hypothèse plausible
+   (compile Turbopack à froid) mais la requête n'était de toute façon
+   jamais tentée, aucun délai n'y aurait changé quoi que ce soit.
+5. `networkMode: "always"` sur le `QueryClient` (pause si
+   `navigator.onLine` faux) — **gardé aussi**, c'est un bon défaut pour une
+   app sans UX hors-ligne, mais pas la cause ici.
+
+**Preuve qui a fini par trancher** : télécharger l'artefact de trace
+Playwright (`gh run download <id> -n playwright-traces`), l'extraire avec
+`python3 -m zipfile` (`unzip` absent de cette machine), et lire
+`0-trace.network` (liste brute des requêtes réseau réellement émises par le
+navigateur) — **zéro tentative vers `/auth/me`, à aucun moment**, quel que
+soit le temps d'attente. Ça a fini par pointer vers « la requête ne part
+jamais » plutôt que « la requête échoue » — et à ce moment-là, relire le
+warning HMR sous un jour différent (bloque des *ressources dev*, pas
+seulement le HMR) a donné la vraie piste.
+
+**Leçon pour la suite** : quand un outil (build, dev server, CI) imprime un
+diagnostic ET un correctif explicites dans ses propres logs, les tester
+en premier, avant de construire des théories plus élaborées — même si le
+message semble concerner autre chose (ici : « HMR », alors que le vrai
+effet de bord touchait l'hydratation/les requêtes client sur une route avec
+beaucoup de composants `"use client"` neufs). Le coût de vérifier une piste
+déjà donnée est presque toujours inférieur au coût de 7 hypothèses inventées.
+
+Infrastructure ajoutée pendant cette investigation, à garder :
+- `.github/workflows/ci.yml` : upload de `test-results/` en artefact sur
+  échec du job `e2e` (`playwright-traces`) — sans ça, aucune des preuves
+  ci-dessus n'aurait été possible à obtenir après coup.
+- `tests/e2e/mock-backend.mjs` + étape CI dédiée (« Start e2e mock
+  backend », avant `npm run test:e2e`, avec vérification `curl` explicite)
+  — nécessaire indépendamment de ce bug : sans lui, `/auth/me` renvoie une
+  vraie erreur réseau (pas de backend en CI) et `RequireSession` reste
+  bloqué en état `ERROR`, pas juste `UNAUTHENTICATED`.
+
 ## Git — nommage des branches (2026-09-11)
 
 Convention alignée sur celle documentée dans le skill projet de `../Beclose`
