@@ -59,13 +59,73 @@ Convention alignée sur celle documentée dans le skill projet de `../Beclose`
 
 ## Vérification avant commit sur ce dépôt (rappel `AGENTS.md`)
 
-- `npm run typecheck` échoue si `.next/types` n'existe pas encore (les
-  helpers globaux `LayoutProps<...>`/`PageProps<...>`, nouveauté Next 16,
-  sont générés par `next build`/`next dev`, pas présents avant un premier
-  build). Ne pas confondre avec une vraie erreur de code — lancer `npm run
-  build` (ou `npm run dev` une fois) avant de diagnostiquer plus loin.
-- Séquence complète utilisée le 2026-09-11 : `npm ci` → `npm run typecheck`
-  (échoue avant le premier build, cf. ci-dessus) → `npm run lint` (0 erreur)
-  → `npm run build` (13 routes générées, succès) → `npm run typecheck`
-  (0 erreur après build) → `docker build` → `docker run` + requêtes HTTP
-  réelles.
+- **Résolu (2026-09-11)** : `npm run typecheck` échouait sur
+  `Cannot find name 'LayoutProps'` si `.next/types` n'existait pas encore
+  (les helpers globaux `LayoutProps<...>`/`PageProps<...>`, nouveauté Next
+  16, n'étaient générés que par `next build`/`next dev`). Corrigé en
+  changeant le script vers `next typegen && tsc --noEmit --incremental
+  false` — `next typegen` (CLI ajoutée en Next 15.5, voir
+  `node_modules/next/dist/docs/01-app/03-api-reference/06-cli/next.md`)
+  génère les types de routes sans build complet, explicitement recommandé
+  pour le typecheck en CI/CD par la doc elle-même. Vérifié réellement :
+  `rm -rf .next && npm run typecheck` passe seul, sans autre commande avant.
+- Séquence complète vérifiée le 2026-09-11 : `npm ci` → `npm run typecheck`
+  (seul, 0 erreur) → `npm run lint` (0 erreur) → `npm test` (10 tests, 0
+  échec) → `npm run build` (13 routes générées, succès) → `docker build` →
+  `docker run` + requêtes HTTP réelles → `gitleaks detect` en local (0 leak).
+- **`npx playwright install chromium` échoue sur cette machine de dev**
+  (« Playwright does not support chromium on ubuntu26.04-x64 ») — limite de
+  la sandbox locale (Ubuntu 26.04), pas un problème du projet. Non vérifié
+  localement pour cette raison ; le job `e2e` de la CI tourne sur
+  `ubuntu-latest` (GitHub-hosted, 24.04 au moment de l'écriture), une
+  plateforme supportée par Playwright — à vérifier sur un vrai run GitHub
+  Actions dès le premier push, ne pas supposer que ça marche parce que ça
+  compile.
+
+## CI GitHub Actions (2026-09-11)
+
+- `.github/workflows/ci.yml` : jobs indépendants et parallèles
+  (`lint`/`typecheck`/`test`/`build`/`docker`/`secrets-scan`), même
+  philosophie que la CI de Beclose, sauf `e2e` qui dépend de `build`
+  (`needs: build`) — c'est le job le plus coûteux (install navigateur +
+  exécution), pas la peine de le lancer si l'app ne build même pas ; il ne
+  réutilise pas l'artefact de `build` pour autant, `playwright.config.ts`
+  démarre son propre `npm run dev`.
+- **Déclencheurs différents de Beclose, volontairement** : `push` limité à
+  `branches: [main]` + `pull_request` (au lieu de `push` sur toutes les
+  branches) pour éviter un double run sur une branche avec PR ouverte
+  (push + pull_request se déclenchant tous les deux sur le même commit).
+  Conséquence assumée : une branche poussée sans PR ouverte n'a pas de CI
+  tant qu'aucune PR n'existe. `workflow_dispatch` ajouté pour lancer
+  manuellement si besoin. `concurrency` avec `cancel-in-progress: true` pour
+  ne pas empiler les runs sur une même branche.
+- `permissions: contents: read` au niveau du workflow (principe du moindre
+  privilège) — aucun job ne pousse d'image ni n'écrit dans le repo.
+- Cache Next.js (`.next/cache`) dans le job `build` : recette officielle
+  GitHub Actions de
+  `node_modules/next/dist/docs/01-app/02-guides/ci-build-caching.md`, pas
+  inventée.
+- Cache des navigateurs Playwright (`~/.cache/ms-playwright`) dans le job
+  `e2e`, avec bascule `playwright install --with-deps` (cache miss) vs
+  `playwright install-deps` seul (cache hit, dépendances OS uniquement) —
+  recette standard Playwright.
+- Job `docker` : `docker/build-push-action@v6` avec `push: false` et cache
+  `type=gha` — valide seulement que le `Dockerfile` build encore, ne publie
+  nulle part (aucun registre configuré à ce stade).
+- `secrets-scan` : binaire CLI `gitleaks` en direct (`curl` + `tar`), pas
+  l'action `gitleaks/gitleaks-action@v2` — même choix que Beclose, pour la
+  même raison (licence désormais requise pour les repos d'organisation).
+  Vérifié en local avant de commiter (`gitleaks detect --source . --verbose
+  --redact`, 15 commits scannés, 0 leak) pour ne pas reproduire le
+  démarrage en CI rouge rencontré sur Beclose.
+- `.github/dependabot.yml` ajouté (npm hebdomadaire, groupé
+  Next.js/React/TanStack Query pour éviter une mise à jour partielle qui
+  casse les peer deps ; github-actions hebdomadaire séparément).
+- **Non fait délibérément** : pas de règle de protection de branche
+  configurée (changerait un paramètre du repo GitHub, action à part,
+  seulement sur demande explicite) ; pas de publication d'image Docker
+  (aucun registre/cible de déploiement choisi).
+- `.nvmrc` (`24`) et `"engines": {"node": ">=24"}` dans `package.json`
+  ajoutés pour que dev local, CI (`actions/setup-node`,
+  `node-version-file: .nvmrc`) et `Dockerfile` (`node:24-alpine`) restent
+  alignés sans dupliquer le numéro de version à trois endroits différents.

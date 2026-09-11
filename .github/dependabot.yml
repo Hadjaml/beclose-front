@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      # Next.js/React/TanStack Query stay grouped: bumping the framework
+      # trio together avoids a partial upgrade breaking peer deps.
+      framework:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@tanstack/react-query"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
