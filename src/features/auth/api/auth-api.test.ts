@@ -1,21 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ApiClient, ApiRequestOptions } from "@/shared/api/api-client";
 import { ApiError } from "@/shared/api/api-error";
+import { fakeClient, rejectingClient } from "../../../../tests/support/fake-api-client";
 import { createAuthApi } from "./auth-api";
-
-/** Mimics createApiClient's contract: parses the raw response through
- * whatever schema the caller passed, without a real fetch. */
-function fakeClient(
-  handler: (path: string, options: ApiRequestOptions<unknown>) => unknown,
-): ApiClient {
-  return {
-    request: (path, options) => Promise.resolve(options.schema.parse(handler(path, options))),
-  };
-}
-
-function rejectingClient(error: unknown): ApiClient {
-  return { request: () => Promise.reject(error) };
-}
 
 describe("createAuthApi", () => {
   it("login() posts credentials and returns the transformed session", async () => {
