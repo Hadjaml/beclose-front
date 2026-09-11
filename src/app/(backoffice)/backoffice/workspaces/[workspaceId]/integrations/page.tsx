@@ -1,4 +1,4 @@
-import { IntegrationsView } from "@/features/integrations";
+import { WorkspaceIntegrationStatusSection } from "@/features/integrations";
 
 export default function WorkspaceIntegrationsPage() {
   return (
@@ -9,10 +9,10 @@ export default function WorkspaceIntegrationsPage() {
           Intégrations
         </h1>
         <p className="mt-3 text-base leading-7 text-text-secondary">
-          Retrouvez les connexions du workspace et ce que chacune permet réellement.
+          État de la connexion Gmail utilisée pour l’envoi des messages.
         </p>
       </header>
-      <IntegrationsView integrations={null} />
+      <WorkspaceIntegrationStatusSection />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { ClientConfigurationView } from "@/features/client-configuration";
+import { WorkspaceConfigurationSection } from "@/features/client-configuration";
 
 export default function WorkspaceConfigurationPage() {
   return (
@@ -9,11 +9,11 @@ export default function WorkspaceConfigurationPage() {
           Configuration
         </h1>
         <p className="mt-3 text-base leading-7 text-text-secondary">
-          Retrouvez et mettez à jour chaque partie de la configuration de façon indépendante.
+          Pitch, signature et grille de qualification telle qu’enregistrée par Beclose.
         </p>
       </header>
 
-      <ClientConfigurationView configuration={null} />
+      <WorkspaceConfigurationSection />
     </div>
   );
 }

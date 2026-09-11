@@ -222,3 +222,29 @@ n'en garde qu'un résumé propre à ce dépôt.
 - **`.gitignore` corrigé** : le motif `.env*` avalait aussi `.env.example`
   (jamais remarqué avant, ce fichier n'existait pas) — ajout de
   `!.env.example` pour le laisser commitable, comme sur Beclose.
+
+## Principe : câbler un endpoint réel sur une feature dont le modèle est plus
+## riche que le backend (2026-09-11)
+
+Rencontré 5 fois de suite en câblant les 6 endpoints v0 (clients, overview,
+prospects, configuration, intégrations, messages) — presque toutes les
+features du scaffold V1 ont un modèle Zod pensé pour un backend plus
+avancé (statuts calculés, workflow d'approbation en UI, catalogue
+d'intégrations, wizard de configuration détaillé) que ce que Beclose fournit
+aujourd'hui (RLS/state machine bruts, pas de champs dérivés).
+
+**Ne jamais forcer une vraie réponse API dans un modèle existant qui exige
+des champs que le backend ne fournit pas** — ça obligerait à inventer une
+valeur (ex. un `systemStatus` calculé, un découpage de texte libre en
+sections structurées). À la place : nouveau schéma/modèle/api/composant,
+strictement aligné sur la vraie réponse (voir `api/routers/organizations.py`
+côté Beclose comme source de vérité, pas les schémas front pré-existants),
+ajouté à côté. L'ancien modèle reste inchangé et non câblé — il documente
+une intention future (mutations, workflow), pas une régression à corriger.
+Nommage : préfixer par le concept réel (`LeadProspect`, `WorkspaceLeadPipeline`,
+`WorkspaceConfiguration`, `WorkspaceIntegrationStatus`, `MessageLogEntry`)
+plutôt que réutiliser le nom déjà pris par le modèle spéculatif.
+
+`shared/api/api-envelope.ts` centralise l'enveloppe `{data}`/
+`{data,pagination}` commune à ces 6 endpoints — à réutiliser pour tout
+nouvel endpoint Beclose plutôt que de la redéfinir.

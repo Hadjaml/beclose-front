@@ -1,4 +1,5 @@
 import { ConversationsView } from "@/features/conversations";
+import { MessageLogSection } from "@/features/supervision";
 
 export default function WorkspaceConversationsPage() {
   return (
@@ -12,6 +13,14 @@ export default function WorkspaceConversationsPage() {
           Comprenez les échanges en cours, ce que le système a identifié et les interventions attendues.
         </p>
       </header>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold text-text-primary">Messages</h2>
+        <p className="text-sm text-text-secondary">
+          Supervision en lecture seule — l’approbation des messages en attente reste gérée sur Telegram.
+        </p>
+        <MessageLogSection />
+      </section>
 
       <ConversationsView items={null} />
     </div>

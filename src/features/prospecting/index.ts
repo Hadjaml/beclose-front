@@ -1,7 +1,11 @@
 export type { ProspectingApi } from "./api/prospecting-api";
+export { createLeadProspectsApi, type LeadProspectsApi } from "./api/lead-prospects-api";
+export { useLeadProspectsQuery } from "./api/use-lead-prospects-query";
 export { BatchActionBar } from "./components/batch-action-bar";
 export { ContactStrategyActions } from "./components/contact-strategy-actions";
 export { ExclusionForm, type ExclusionReasonOption } from "./components/exclusion-form";
+export { LeadProspectsList } from "./components/lead-prospects-list";
+export { LeadProspectsSection } from "./components/lead-prospects-section";
 export { ProspectDetailPanel } from "./components/prospect-detail-panel";
 export { ProspectTable } from "./components/prospect-table";
 export { ProspectingEmptyState } from "./components/prospecting-empty-state";
@@ -47,3 +51,14 @@ export {
   exclusionDraftSchema,
   targetingReviewSchema,
 } from "./schemas/review-schemas";
+export {
+  leadProspectCompanySchema,
+  leadProspectContactSchema,
+  leadProspectSchema,
+  leadStatusSchema,
+} from "./schemas/lead-prospect-schema";
+export {
+  leadStatusLabels,
+  type LeadProspect,
+  type LeadStatus,
+} from "./model/lead-prospect";

@@ -119,7 +119,60 @@ relais. Voir `references/conventions.md` pour le détail technique complet.
   10 nouveaux : 6 pour `createAuthApi`, 4 pour `SessionProvider`),
   `npm run build` (13 routes, succès).
 - **Non fait à ce stade** : Portail non touché (auth staff ≠ auth client,
-  volontairement) ; câblage des 6 endpoints v0 restants (clients, overview,
-  prospects, configuration, intégrations, messages) — livrés côté Beclose
-  selon la coordination transverse, mais pas encore repris ici, seule l'auth
-  a été explicitement autorisée par l'utilisateur pour cette session.
+  volontairement).
+
+## 6 endpoints v0 câblés (2026-09-11, même branche, autorisé explicitement
+## par l'utilisateur pour continuer sans reconfirmation cas par cas)
+
+Vérifié réellement dans le code Beclose (`api/routers/organizations.py`,
+commit `e59c499`) avant d'écrire quoi que ce soit — pas pris pour argent
+comptant sur la parole d'une session relais.
+
+- **Clients** (`GET /organizations`) et **overview**
+  (`GET /organizations/{id}/overview`) : voir commit `2636bb4`.
+- **Prospects** (`GET /organizations/{id}/prospects`) : nouveau modèle
+  honnête `LeadProspect` (`features/prospecting`), séparé du `prospectSchema`
+  existant (workflow de ciblage/stratégie de contact spéculatif, sans
+  contrepartie backend — aucune mutation n'existe dans ce contrat v0).
+  `LeadProspectsSection` remplace `<ProspectingView prospects={null} />` sur
+  la page.
+- **Configuration** (`GET /organizations/{id}/configuration`) : nouveau
+  `WorkspaceConfiguration` honnête (`features/client-configuration`), séparé
+  du schéma d'onboarding (company/offer/target/qualification/approach/tools)
+  — Beclose ne stocke que `pitch`/`signature` en texte libre et
+  `qualification_criteria.criteria` en JSONB volontairement non structuré,
+  aucun découpage fiable vers les nombreux champs du wizard n'existe.
+  Affiché tel quel (JSON brut pour les critères).
+- **Intégrations** (`GET /organizations/{id}/integrations`) : nouveau
+  `WorkspaceIntegrationStatus` honnête (`features/integrations`), séparé du
+  catalogue `workspaceIntegrationsSchema` (états `CONNECTING`/
+  `NEEDS_ATTENTION`/`ERROR`... qui n'existent pas côté backend). Juste
+  Google, connecté ou pas, dérivé de `organization_credentials`.
+- **Messages** (`GET /organizations/{id}/messages`) : nouveau
+  `MessageLogEntry` (`features/supervision`, pas `conversations` — la
+  richesse de `conversations` (intent, état, action recommandée) n'a pas de
+  source backend ; le backend lui-même qualifie cet endpoint de
+  « supervision lecture seule »). Affiché sur la page Conversations, à côté
+  de la vue existante (non remplacée, toujours sans donnée).
+- **Principe appliqué aux 4 dernières** (comme pour clients/overview) :
+  chaque feature existante avait un modèle bien plus riche/spéculatif que ce
+  que Beclose fournit réellement — ne jamais forcer les vraies données dans
+  ces modèles (ça exigerait d'inventer des champs, ex. `systemStatus`,
+  `ProspectStatus`, découpage du pitch en sections de wizard). À chaque
+  fois : nouveau schéma honnête, séparé, ajouté à côté ; l'ancien modèle
+  reste inchangé, non câblé, pour un futur où le backend le supporterait
+  vraiment.
+- `shared/api/api-envelope.ts` (`detailEnvelopeSchema`/`paginatedEnvelopeSchema`)
+  utilisé partout — évite de redéfinir `{data}`/`{data,pagination}` 6 fois.
+- **Vérifié réellement avant de commiter** : `npm run lint` (0 erreur),
+  `npm run typecheck` (0 erreur, seul), `npm test` (20 tests, 0 échec —
+  inchangé, pas de nouveau test ajouté pour ces 4 dernières features faute
+  de temps, à rattraper), `npm run build` (13 routes, succès).
+- **Non fait** : pagination UI (prospects/messages acceptent déjà
+  `limit`/`offset`/filtres côté API, pas encore de contrôles dans l'UI — la
+  première page suffit pour l'instant, peu de données réelles) ; tests pour
+  les 4 nouvelles features (seuls `clients-api`/`session-provider` ont des
+  tests dédiés) ; petite duplication assumée du vocabulaire `LeadStatus`
+  entre `prospecting` et `supervision` (deux petites copies plutôt qu'un
+  couplage prématuré entre features — à reconsidérer si un 3e endroit en a
+  besoin).
