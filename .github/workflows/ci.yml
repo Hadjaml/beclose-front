@@ -105,6 +105,27 @@ jobs:
       - name: Install Playwright OS deps only (browser already cached)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
+      # Started as its own step, not left to playwright.config.ts's
+      # webServer array: that produced zero evidence of ever starting across
+      # several CI runs (no "[e2e mock backend] listening" line anywhere in
+      # the job log, even though tests still somehow proceeded past
+      # webServer startup) - undiagnosable without visibility, so made
+      # explicit and independently verified here instead.
+      # reuseExistingServer: true in playwright.config.ts's own webServer
+      # entry means Playwright won't try to start a second one on top of this.
+      - name: Start e2e mock backend
+        run: |
+          node tests/e2e/mock-backend.mjs &
+          for _ in $(seq 1 20); do
+            if curl -sSf http://localhost:8000/auth/me > /dev/null; then
+              echo "Mock backend is up:"
+              curl -sSi http://localhost:8000/auth/me
+              exit 0
+            fi
+            sleep 0.5
+          done
+          echo "::error::Mock backend never became ready on :8000"
+          exit 1
       - run: npm run test:e2e
       # trace: "retain-on-failure" (playwright.config.ts) writes traces to
       # test-results/ on failure, but they're lost with the runner unless
