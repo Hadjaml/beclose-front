@@ -10,8 +10,17 @@ function createQueryClient() {
         staleTime: 30_000,
         refetchOnWindowFocus: false,
         retry: 1,
+        // Default "online" networkMode pauses queries (fetchStatus stays
+        // "paused", never fires, never errors) whenever the browser reports
+        // navigator.onLine === false. This app has no offline-first UX to
+        // pause for, and headless Chromium in CI can report itself offline
+        // - confirmed for real as the cause of a stuck-forever session
+        // query (RequireSession's nav never rendering in e2e, a downloaded
+        // Playwright trace showed zero network attempt ever made for
+        // GET /auth/me, no matter how long the test waited).
+        networkMode: "always",
       },
-      mutations: { retry: 0 },
+      mutations: { retry: 0, networkMode: "always" },
     },
   });
 }
