@@ -129,3 +129,28 @@ Convention alignée sur celle documentée dans le skill projet de `../Beclose`
   ajoutés pour que dev local, CI (`actions/setup-node`,
   `node-version-file: .nvmrc`) et `Dockerfile` (`node:24-alpine`) restent
   alignés sans dupliquer le numéro de version à trois endroits différents.
+
+## Contrat d'API v0 Back Office — coordination transverse (2026-09-11)
+
+Coordination pilotée par une session dédiée (skill global
+`~/.claude/skills/bewise-techlead/`, décisions/trace complète dans son
+`references/decisions.md` et `references/open-questions.md`) — ce fichier
+n'en garde qu'un résumé propre à ce dépôt.
+
+- Proposition envoyée : 6 endpoints en lecture seule (clients, overview par
+  statut de lead, prospects, configuration, intégrations, messages),
+  enveloppe `{ data, pagination? }`, enums backend (`LeadStatus`,
+  `InteractionStatus`) passés **tels quels** — pas de fusion avec le
+  vocabulaire de statuts frontend existant, encore un point ouvert non
+  tranché par l'utilisateur.
+- **Confirmé par l'utilisateur** : `organizationId` (Beclose) ≡ `workspaceId`
+  (frontend), 1:1 — pas de mapping à construire.
+- **Bloquant confirmé** : Beclose n'a aucun système d'authentification/
+  session à ce jour. Tant que ça n'est pas débloqué côté Beclose, **ne pas
+  écrire de vrais schémas Zod ni d'implémentation concrète des `*Api`** pour
+  ce contrat — seul l'affinage du texte du contrat (formes de réponse,
+  enveloppe d'erreur) peut continuer.
+- Les schémas Zod déjà présents dans ce dépôt (ex. `clientSummarySchema`
+  avec `onboardingProgress`/`systemStatus`/`subscriptionStatus`) sont plus
+  spéculatifs que ce que Beclose peut fournir aujourd'hui — à revoir une
+  fois le contrat calé, pas à faire semblant qu'ils correspondent déjà.
