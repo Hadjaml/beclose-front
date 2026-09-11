@@ -1,0 +1,25 @@
+# Local containerized run of the frontend, mirroring the docker-compose
+# convention used in ../Beclose (named services, healthchecks). This repo has
+# no database of its own (frontend-only, see AGENTS.md "Scope") — it only
+# containerizes the Next.js app itself. Compose is not required for `npm run
+# dev`; it exists to validate the production image locally.
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bewise-app:local
+    container_name: bewise-app
+    ports:
+      - "3000:3000"
+    environment:
+      # No backend URL is wired yet (see README, "Dépendances backend
+      # restantes"). Add NEXT_PUBLIC_API_BASE_URL here once the backend is
+      # reachable — never a secret, see AGENTS.md.
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

@@ -1,0 +1,131 @@
+# Conventions — bewise-app
+
+Ce fichier se remplit à mesure que des choix concrets sont pris pendant le
+développement (au-delà de ce que couvre déjà `AGENTS.md`).
+
+## Git — nommage des branches (2026-09-11)
+
+Convention alignée sur celle documentée dans le skill projet de `../Beclose`
+(`.claude/skills/bewise-beclose/`) pour le même utilisateur :
+
+- Format `<type>/<slug-kebab-case>`, `type` = préfixe Conventional Commits
+  (`feat`, `fix`, `chore`, `build`, `docs`, `refactor`, `test`).
+- **Une branche par chantier**, pas par micro-tâche — ni par « MVP » comme
+  Beclose (ce dépôt n'a pas de découpage MVP explicite à ce jour), ni un
+  commit = une branche.
+- Commits en Conventional Commits, référençant un identifiant d'exigence du
+  cahier des charges Beclose quand c'est pertinent au frontend.
+- Exemple réel : `chore/agent-skill-and-docker` (2026-09-11) — création de ce
+  skill + containerisation, un seul chantier, une seule branche, comme
+  demandé explicitement par l'utilisateur (« tout sera fait dans une
+  branche »).
+
+## Docker (2026-09-11)
+
+- **Build multi-stage** (`deps` → `builder` → `runner`) dans `Dockerfile`,
+  basé sur `node:24-alpine` (aligné sur le Node local, `v24.19.0` au moment du
+  scaffold — pas de version fixée dans `package.json` via `engines`, à ajouter
+  si un jour la CI construit l'image).
+- **`next.config.ts` : `output: "standalone"`** — Output File Tracing de
+  Next.js, confirmé toujours d'actualité et non déprécié en lisant
+  `node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/output.md`
+  et le guide self-hosting
+  (`.../02-guides/self-hosting.md`) avant d'y toucher, comme l'exige
+  `AGENTS.md`. Les « Adapters » (nouveauté Next 16,
+  `01-app/03-api-reference/07-adapters/`) sont pour des intégrations
+  plateforme (type Vercel) — pas requis pour un self-host Docker classique,
+  `output: "standalone"` reste le bon mécanisme.
+- Le dossier `.next/standalone` ne copie pas `public/` ni `.next/static` par
+  conception (pensés pour un CDN) — copiés manuellement dans le stage
+  `runner` du `Dockerfile`, exactement comme documenté dans le guide
+  self-hosting.
+- **Vérifié réellement, pas supposé** : `docker build` passe (~105 s à froid,
+  cache npm/Next inclus), le conteneur démarre (`node server.js`, `Ready in
+  0ms`), `GET /login` répond `200`, `GET /` répond `307` (redirection —
+  attendue, session inconnue côté `SessionBoundary`). Testé sur le port hôte
+  `3050` pour ne pas entrer en conflit avec un `next dev` local sur `3000`.
+- **`docker-compose.yml`** : un seul service `web` (ce dépôt n'a pas de base
+  de données propre, voir `AGENTS.md` « Scope » — pas de service
+  Postgres/Redis à containeriser ici, contrairement à Beclose). Nommage de
+  service/`container_name` aligné sur la convention Beclose (services nommés
+  explicitement, healthcheck systématique). Healthcheck en `wget --spider`
+  (busybox, déjà présent dans `node:alpine`, pas de `curl` à installer en
+  plus).
+- **Aucune variable d'environnement requise pour builder l'image** —
+  cohérent avec le README (« Aucune variable d'environnement n'est requise
+  tant que le backend n'est pas raccordé »). Un `NEXT_PUBLIC_API_BASE_URL`
+  pourra être ajouté en `environment:`/build arg le jour du raccordement,
+  jamais un secret (voir `AGENTS.md`, section Backend-driven capabilities).
+
+## Vérification avant commit sur ce dépôt (rappel `AGENTS.md`)
+
+- **Résolu (2026-09-11)** : `npm run typecheck` échouait sur
+  `Cannot find name 'LayoutProps'` si `.next/types` n'existait pas encore
+  (les helpers globaux `LayoutProps<...>`/`PageProps<...>`, nouveauté Next
+  16, n'étaient générés que par `next build`/`next dev`). Corrigé en
+  changeant le script vers `next typegen && tsc --noEmit --incremental
+  false` — `next typegen` (CLI ajoutée en Next 15.5, voir
+  `node_modules/next/dist/docs/01-app/03-api-reference/06-cli/next.md`)
+  génère les types de routes sans build complet, explicitement recommandé
+  pour le typecheck en CI/CD par la doc elle-même. Vérifié réellement :
+  `rm -rf .next && npm run typecheck` passe seul, sans autre commande avant.
+- Séquence complète vérifiée le 2026-09-11 : `npm ci` → `npm run typecheck`
+  (seul, 0 erreur) → `npm run lint` (0 erreur) → `npm test` (10 tests, 0
+  échec) → `npm run build` (13 routes générées, succès) → `docker build` →
+  `docker run` + requêtes HTTP réelles → `gitleaks detect` en local (0 leak).
+- **`npx playwright install chromium` échoue sur cette machine de dev**
+  (« Playwright does not support chromium on ubuntu26.04-x64 ») — limite de
+  la sandbox locale (Ubuntu 26.04), pas un problème du projet. Non vérifié
+  localement pour cette raison ; le job `e2e` de la CI tourne sur
+  `ubuntu-latest` (GitHub-hosted, 24.04 au moment de l'écriture), une
+  plateforme supportée par Playwright — à vérifier sur un vrai run GitHub
+  Actions dès le premier push, ne pas supposer que ça marche parce que ça
+  compile.
+
+## CI GitHub Actions (2026-09-11)
+
+- `.github/workflows/ci.yml` : jobs indépendants et parallèles
+  (`lint`/`typecheck`/`test`/`build`/`docker`/`secrets-scan`), même
+  philosophie que la CI de Beclose, sauf `e2e` qui dépend de `build`
+  (`needs: build`) — c'est le job le plus coûteux (install navigateur +
+  exécution), pas la peine de le lancer si l'app ne build même pas ; il ne
+  réutilise pas l'artefact de `build` pour autant, `playwright.config.ts`
+  démarre son propre `npm run dev`.
+- **Déclencheurs différents de Beclose, volontairement** : `push` limité à
+  `branches: [main]` + `pull_request` (au lieu de `push` sur toutes les
+  branches) pour éviter un double run sur une branche avec PR ouverte
+  (push + pull_request se déclenchant tous les deux sur le même commit).
+  Conséquence assumée : une branche poussée sans PR ouverte n'a pas de CI
+  tant qu'aucune PR n'existe. `workflow_dispatch` ajouté pour lancer
+  manuellement si besoin. `concurrency` avec `cancel-in-progress: true` pour
+  ne pas empiler les runs sur une même branche.
+- `permissions: contents: read` au niveau du workflow (principe du moindre
+  privilège) — aucun job ne pousse d'image ni n'écrit dans le repo.
+- Cache Next.js (`.next/cache`) dans le job `build` : recette officielle
+  GitHub Actions de
+  `node_modules/next/dist/docs/01-app/02-guides/ci-build-caching.md`, pas
+  inventée.
+- Cache des navigateurs Playwright (`~/.cache/ms-playwright`) dans le job
+  `e2e`, avec bascule `playwright install --with-deps` (cache miss) vs
+  `playwright install-deps` seul (cache hit, dépendances OS uniquement) —
+  recette standard Playwright.
+- Job `docker` : `docker/build-push-action@v6` avec `push: false` et cache
+  `type=gha` — valide seulement que le `Dockerfile` build encore, ne publie
+  nulle part (aucun registre configuré à ce stade).
+- `secrets-scan` : binaire CLI `gitleaks` en direct (`curl` + `tar`), pas
+  l'action `gitleaks/gitleaks-action@v2` — même choix que Beclose, pour la
+  même raison (licence désormais requise pour les repos d'organisation).
+  Vérifié en local avant de commiter (`gitleaks detect --source . --verbose
+  --redact`, 15 commits scannés, 0 leak) pour ne pas reproduire le
+  démarrage en CI rouge rencontré sur Beclose.
+- `.github/dependabot.yml` ajouté (npm hebdomadaire, groupé
+  Next.js/React/TanStack Query pour éviter une mise à jour partielle qui
+  casse les peer deps ; github-actions hebdomadaire séparément).
+- **Non fait délibérément** : pas de règle de protection de branche
+  configurée (changerait un paramètre du repo GitHub, action à part,
+  seulement sur demande explicite) ; pas de publication d'image Docker
+  (aucun registre/cible de déploiement choisi).
+- `.nvmrc` (`24`) et `"engines": {"node": ">=24"}` dans `package.json`
+  ajoutés pour que dev local, CI (`actions/setup-node`,
+  `node-version-file: .nvmrc`) et `Dockerfile` (`node:24-alpine`) restent
+  alignés sans dupliquer le numéro de version à trois endroits différents.
