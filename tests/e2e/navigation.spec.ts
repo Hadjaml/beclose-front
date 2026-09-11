@@ -1,5 +1,18 @@
 import { expect, test } from "@playwright/test";
 
+// Back Office content (including the nested workspace layout's own
+// navigation) is gated behind a real session since RequireSession/AuthApi
+// wired against Beclose (2026-09-11) - stub /auth/me so these navigation
+// checks don't need a real backend running in CI. See
+// .claude/skills/bewise-app/references/conventions.md.
+test.beforeEach(async ({ page }) => {
+  await page.route("**/auth/me", (route) =>
+    route.fulfill({
+      json: { id: "e2e-staff", email: "e2e@bewise.test", full_name: "E2E Staff" },
+    }),
+  );
+});
+
 test("global Back Office exposes only implemented routes", async ({ page }) => {
   await page.goto("/backoffice");
   const navigation = page.getByRole("navigation", { name: "Navigation principale" });
