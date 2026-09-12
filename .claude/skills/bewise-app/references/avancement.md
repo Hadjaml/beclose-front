@@ -304,3 +304,48 @@ données n'existera avant l'étape 6 du plan de migration.
   (n'existe pas), mise à jour du formulaire d'onboarding (`target`/
   `qualification` steps) pour utiliser les nouveaux schémas, migration de
   `qualification-panel.tsx` vers `bantEvaluationSchema`.
+
+### Corrections post-validation croisée (2026-09-12, même branche)
+
+Validation croisée faite par le coordinateur **en lisant les fichiers**, pas
+sur parole — deux corrections avant merge, une clarification qui les
+accompagne :
+
+- **Incohérence de rattachement entre les deux schémas d'évaluation** :
+  `icpEvaluationSchema` portait `icpProfileId` (FK) mais `bantEvaluationSchema`
+  portait `criteriaVersion` (numéro brut, suivant l'exemple §25 du document
+  source). Tranché : **FK dans les deux cas** —
+  `bantEvaluationSchema.qualificationCriteriaId` remplace `criteriaVersion`.
+  Le numéro de version reste disponible pour l'affichage
+  (`qualificationCriteriaVersion`, optionnel) mais **toujours dérivé de la
+  FK, jamais saisi indépendamment** — deux sources de vérité pourraient
+  diverger sinon.
+- **Traçabilité de la preuve, BANT seulement** : `sourceInteractionId`
+  optionnel ajouté sur chaque critère évalué (`budget`/`authority`/`need`/
+  `timing`) — une preuve BANT vient nécessairement d'un message du
+  prospect, ce qui rend l'évaluation contestable en Back Office (ES-04,
+  journal append-only = piste d'audit).
+- **Rien changé côté ICP** : le coordinateur a corrigé son propre livrable
+  (§3.6 sur-généralisait l'exigence de traçabilité à toute preuve) —
+  l'évaluation ICP porte sur des données d'entreprise sourcées
+  (`companies`/`contacts`), pas sur une conversation, donc aucune
+  interaction à référencer. `icpEvaluationSchema` reste inchangé.
+- **Vérifié réellement après corrections** : lint, typecheck seul, 41/41
+  tests (1 nouveau), build (13 routes).
+
+### Dépendances en avant à ne pas perdre de vue
+
+- **Visibilité du `nurture`** : une fois câblé, l'API devra exposer
+  `qualification_result` à côté du statut de lead, et le front l'afficher
+  — sinon un lead en nurture (`replied` + `qualification_result: nurture`)
+  sera indistinguable d'un lead qui vient tout juste de répondre.
+- **Migration de `qualification-panel.tsx`** vers `bantEvaluationSchema`
+  une fois le câblage réel possible — le composant actuel reste sur
+  `progressiveQualificationSchema` (statut générique `KNOWN/UNKNOWN/
+  TO_CONFIRM`) en attendant.
+- **Garde-fou non négociable réaffirmé** (Rochinel) : aucune modification
+  automatique de l'ICP/BANT par le LLM — l'apprentissage produit des
+  recommandations, jamais appliquées sans un geste humain explicite. Rien
+  à représenter côté front pour l'instant ; si un affichage de
+  recommandation d'évolution est conçu un jour, il devra toujours passer
+  par une validation humaine explicite dans l'UI, jamais s'appliquer seul.

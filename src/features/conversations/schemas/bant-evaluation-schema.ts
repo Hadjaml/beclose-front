@@ -26,15 +26,31 @@ import {
  *
  * NOT WIRED: `qualification_criteria` (evaluation storage) doesn't exist
  * on `leads` yet. Types/schemas only.
+ *
+ * Cross-validated against `icp-evaluation-schema.ts` (2026-09-12): the FK
+ * (`qualificationCriteriaId`) is the source of truth for which grid
+ * version was used, not a bare version number - referential integrity and
+ * direct joins for KPIs. `qualificationCriteriaVersion` is kept alongside
+ * for display only, always derived from the FK, never entered
+ * independently (two sources of truth could diverge otherwise).
  */
 
 export const qualificationResultSchema = z.enum(["qualified", "nurture", "not_qualified"]);
-export type QualificationResult = z.infer<typeof qualificationResultSchema>;
 
 const optionalText = z.string().trim().min(1).optional();
 
+/** `sourceInteractionId` ties a BANT criterion's evidence to the message it
+ * came from - makes the evaluation contestable in the Back Office and
+ * matches ES-04 (the append-only interactions log as an audit trail). Only
+ * on BANT: unlike ICP evidence (sourced company/contact data, verifiable
+ * against `companies`/`contacts`), BANT evidence necessarily comes from a
+ * conversation. */
 function evaluatedCriterionSchema<T extends z.ZodTypeAny>(statusSchema: T) {
-  return z.object({ status: statusSchema, evidence: optionalText });
+  return z.object({
+    status: statusSchema,
+    evidence: optionalText,
+    sourceInteractionId: optionalText,
+  });
 }
 
 /** Same shape as `qualificationCriterionSchema` (conversation-schemas.ts)
@@ -48,7 +64,10 @@ export const customBantCriterionSchema = z.object({
 });
 
 export const bantEvaluationSchema = z.object({
-  criteriaVersion: z.number().int().positive(),
+  qualificationCriteriaId: z.string().trim().min(1),
+  /** Display-only, always derived from `qualificationCriteriaId` - never
+   * set independently of the FK it points to. */
+  qualificationCriteriaVersion: z.number().int().positive().optional(),
   budget: evaluatedCriterionSchema(budgetStatusSchema),
   authority: evaluatedCriterionSchema(authorityStatusSchema),
   need: evaluatedCriterionSchema(needStatusSchema),
