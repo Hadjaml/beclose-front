@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { backendClient } from "@/shared/api/backend-client";
 import { workspaceKeys } from "@/shared/query/query-keys";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
@@ -12,5 +12,8 @@ export function useLeadProspectsQuery(workspaceId: WorkspaceId, query: LeadProsp
   return useQuery({
     queryKey: workspaceKeys.list(workspaceId, "lead-prospects", { ...query }),
     queryFn: ({ signal }) => leadProspectsApi.list(workspaceId, query, signal),
+    // Keeps the current page's rows on screen while the next page loads
+    // instead of flashing back to LoadingState on every "Suivant"/"Précédent".
+    placeholderData: keepPreviousData,
   });
 }
