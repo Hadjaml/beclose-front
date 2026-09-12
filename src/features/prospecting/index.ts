@@ -62,3 +62,5 @@ export {
   type LeadProspect,
   type LeadStatus,
 } from "./model/lead-prospect";
+export { icpEvaluationSchema, icpFitSchema } from "./schemas/icp-evaluation-schema";
+export { icpFitLabels, type IcpEvaluation, type IcpFit } from "./model/icp-evaluation";

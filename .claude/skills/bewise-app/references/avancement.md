@@ -236,3 +236,116 @@ API — juste l'UI qui manquait.
 - **Vérifié réellement** : lint, typecheck seul, 31/31 tests (inchangé,
   pas de nouveau test ajouté pour la pagination — UI pure, pas de nouvelle
   logique dans les modules `*-api.ts` déjà testés), build (13 routes).
+
+## Schémas cibles ICP/BANT (2026-09-12, branche `feat/icp-bant-target-schemas`,
+## PAS mergée — touche le contrat partagé, coordinateur prévenu avant merge)
+
+Suite à `decision_projet/bewise_beclose_icp_bant_handoff.md` (note de
+cadrage produit) et `decision_projet/reponse_techlead_icp_bant.md`
+(livrable Tech Lead, décisions A-E validées par l'utilisateur). Analyse
+complète (champ par champ, avant tout code) dans l'historique de
+coordination — résumé : 1 des 4 schémas spéculatifs existants
+(`progressiveQualificationSchema`) était déjà quasiment la bonne forme,
+les 3 autres nécessitaient une vraie reconstruction, pas un simple
+retaillage.
+
+**Périmètre strict de cette étape : types et schémas Zod uniquement,
+aucun câblage** — `icp_profiles` n'existe pas encore côté Beclose (Nile
+commence les migrations après ce livrable), aucun endpoint pour ces
+données n'existera avant l'étape 6 du plan de migration.
+
+- `shared/schemas/versioned-policy-envelope.ts` : enveloppe commune
+  `{id, organizationId, name, version, status, criteria, supersedesId,
+  createdAt, activatedAt, createdBy, notes}` — pas une invention front,
+  le document réponse Tech Lead (§3.1) spécifie explicitement cette
+  structure commune à `icp_profiles` et `qualification_criteria`.
+- `client-configuration/schemas/icp-profile-schema.ts` : ICP complet
+  (market/companyFit/prioritySectors/commercialMaturity/prospectability/
+  decisionMakers/signaux/disqualifiants), **reconstruit** depuis zéro —
+  remplace à terme le `targetSegmentSchema` tout en texte libre de
+  l'onboarding (pas touché dans cette étape, le formulaire wizard n'est
+  pas dans le périmètre).
+- `client-configuration/schemas/bant-criteria-schema.ts` : configuration
+  BANT par critère (definition/statusValues/signaux/questions), avec les
+  4 enums exacts du document (`budgetStatusSchema`,
+  `authorityStatusSchema`, `needStatusSchema`, `timingStatusSchema`) +
+  `qualificationRules`/`handoffRules`/`conversationPolicy`. **Retaille**
+  `qualificationStepSchema` (le découpage en 4 critères existait déjà).
+- `prospecting/schemas/icp-evaluation-schema.ts` : évaluation ICP par
+  lead — `fit` **qualitatif** (`strong/moderate/weak/none`), pas de score
+  numérique (décision D) ; `evidence` en `z.record` (clés libres, comme
+  l'exemple du document) plutôt qu'un objet à clés fixes ; borne de
+  longueur sur `reasoningSummary` pour empêcher un raisonnement libre du
+  LLM d'y passer (§3.6). Schéma **séparé** de `prospectSchema` existant
+  (`recommendation`/`score` non touchés) — les deux coexistent (décision
+  C : action ≠ propriété).
+- `conversations/schemas/bant-evaluation-schema.ts` : évaluation BANT par
+  lead, avec `criteriaVersion` + `result`
+  (`qualified`/`nurture`/`not_qualified`) + `customCriteria[]` conservé
+  (décision E). **Volontairement séparé** de `progressiveQualificationSchema`
+  existant plutôt que retaillé en place : celui-ci a de vrais
+  consommateurs (`qualification-panel.tsx`,
+  `commercial-handoff-schemas.ts`) qu'il aurait fallu adapter en même
+  temps — hors périmètre « schémas seulement » de cette étape.
+- **`nurture` sans nouveau statut de lead** (décision Tech Lead) : les
+  compteurs par statut de l'overview rangeront un lead en nurture sous
+  `replied` — `qualification_result` (nouveau champ ci-dessus) devra être
+  affiché à côté du statut une fois câblé, sinon indistinguable d'un lead
+  qui vient de répondre. **Non appliqué aux schémas déjà câblés**
+  (`leadProspectSchema`, `workspaceLeadPipelineSchema`) dans cette étape —
+  Beclose ne renvoie pas encore ce champ, l'ajouter maintenant serait
+  l'inventer.
+- 4 fichiers de test valident les schémas contre les **exemples JSON réels
+  du document source** (§10, §16, §24, §25, transcrits en camelCase) — pas
+  juste "ça compile", ça accepte la vraie forme cible.
+- **Vérifié réellement** : lint, typecheck seul, 40/40 tests (9 nouveaux),
+  build (13 routes).
+- **Non fait, hors périmètre explicite** : câblage de tout ça à une API
+  (n'existe pas), mise à jour du formulaire d'onboarding (`target`/
+  `qualification` steps) pour utiliser les nouveaux schémas, migration de
+  `qualification-panel.tsx` vers `bantEvaluationSchema`.
+
+### Corrections post-validation croisée (2026-09-12, même branche)
+
+Validation croisée faite par le coordinateur **en lisant les fichiers**, pas
+sur parole — deux corrections avant merge, une clarification qui les
+accompagne :
+
+- **Incohérence de rattachement entre les deux schémas d'évaluation** :
+  `icpEvaluationSchema` portait `icpProfileId` (FK) mais `bantEvaluationSchema`
+  portait `criteriaVersion` (numéro brut, suivant l'exemple §25 du document
+  source). Tranché : **FK dans les deux cas** —
+  `bantEvaluationSchema.qualificationCriteriaId` remplace `criteriaVersion`.
+  Le numéro de version reste disponible pour l'affichage
+  (`qualificationCriteriaVersion`, optionnel) mais **toujours dérivé de la
+  FK, jamais saisi indépendamment** — deux sources de vérité pourraient
+  diverger sinon.
+- **Traçabilité de la preuve, BANT seulement** : `sourceInteractionId`
+  optionnel ajouté sur chaque critère évalué (`budget`/`authority`/`need`/
+  `timing`) — une preuve BANT vient nécessairement d'un message du
+  prospect, ce qui rend l'évaluation contestable en Back Office (ES-04,
+  journal append-only = piste d'audit).
+- **Rien changé côté ICP** : le coordinateur a corrigé son propre livrable
+  (§3.6 sur-généralisait l'exigence de traçabilité à toute preuve) —
+  l'évaluation ICP porte sur des données d'entreprise sourcées
+  (`companies`/`contacts`), pas sur une conversation, donc aucune
+  interaction à référencer. `icpEvaluationSchema` reste inchangé.
+- **Vérifié réellement après corrections** : lint, typecheck seul, 41/41
+  tests (1 nouveau), build (13 routes).
+
+### Dépendances en avant à ne pas perdre de vue
+
+- **Visibilité du `nurture`** : une fois câblé, l'API devra exposer
+  `qualification_result` à côté du statut de lead, et le front l'afficher
+  — sinon un lead en nurture (`replied` + `qualification_result: nurture`)
+  sera indistinguable d'un lead qui vient tout juste de répondre.
+- **Migration de `qualification-panel.tsx`** vers `bantEvaluationSchema`
+  une fois le câblage réel possible — le composant actuel reste sur
+  `progressiveQualificationSchema` (statut générique `KNOWN/UNKNOWN/
+  TO_CONFIRM`) en attendant.
+- **Garde-fou non négociable réaffirmé** (Rochinel) : aucune modification
+  automatique de l'ICP/BANT par le LLM — l'apprentissage produit des
+  recommandations, jamais appliquées sans un geste humain explicite. Rien
+  à représenter côté front pour l'instant ; si un affichage de
+  recommandation d'évolution est conçu un jour, il devra toujours passer
+  par une validation humaine explicite dans l'UI, jamais s'appliquer seul.
