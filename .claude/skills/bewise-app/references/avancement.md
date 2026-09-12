@@ -217,3 +217,22 @@ seulement 4 comme suggéré initialement par la coordination transverse
 - **Vérifié réellement** : `npm run lint` (0 erreur), `npm run typecheck`
   (0 erreur, seul), `npm test` (31/31, 11 nouveaux), `npm run build` (13
   routes, succès).
+
+## Pagination UI — prospects et messages (2026-09-12, branche `feat/pagination-ui`)
+
+Le backend acceptait déjà `limit`/`offset` (contrat v0), rien à changer côté
+API — juste l'UI qui manquait.
+
+- `shared/ui/pagination/PaginationControls` (nouveau, business-agnostic :
+  `limit/offset/total` + callbacks `onPrevious`/`onNext`, pas de logique
+  métier) — même dossier que `shared/ui/states`.
+- `LeadProspectsSection`/`MessageLogSection` : `offset` en state local,
+  page fixe à 20. Contrôles affichés seulement si `total > limit` (pas de
+  pagination visible s'il n'y a qu'une page).
+- `useLeadProspectsQuery`/`useMessageLogQuery` : `placeholderData:
+  keepPreviousData` (TanStack Query v5) — garde la page précédente affichée
+  pendant le chargement de la suivante, évite un flash de `LoadingState` à
+  chaque clic.
+- **Vérifié réellement** : lint, typecheck seul, 31/31 tests (inchangé,
+  pas de nouveau test ajouté pour la pagination — UI pure, pas de nouvelle
+  logique dans les modules `*-api.ts` déjà testés), build (13 routes).
