@@ -349,3 +349,13 @@ accompagne :
   à représenter côté front pour l'instant ; si un affichage de
   recommandation d'évolution est conçu un jour, il devra toujours passer
   par une validation humaine explicite dans l'UI, jamais s'appliquer seul.
+
+### Divergence backend détectée en validation croisée (2026-09-12)
+
+Nile (Beclose) avait `not_fit` pour `icpFitSchema`, ce dépôt a `none`.
+Tranché en faveur de **ce dépôt** (cohérence avec `strong/moderate/weak/none`
+du `need`, énuméré tel quel dans le document source ; ce schéma était déjà
+mergé sur `main`) — Nile s'aligne de son côté. Ne pas s'étonner de croiser
+`not_fit` dans un vieux diff/commit backend. `qualification_result`
+(`qualified`/`nurture`/`not_qualified`) est identique des deux côtés,
+vérifié, aucune divergence.
