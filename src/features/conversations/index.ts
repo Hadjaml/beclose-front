@@ -38,3 +38,14 @@ export {
   recommendedConversationActionSchema,
 } from "./schemas/conversation-schemas";
 export { conversationLearningReviewSchema } from "./schemas/conversation-review-schema";
+export {
+  bantEvaluationSchema,
+  customBantCriterionSchema,
+  qualificationResultSchema,
+} from "./schemas/bant-evaluation-schema";
+export {
+  qualificationResultLabels,
+  type BantEvaluation,
+  type CustomBantCriterion,
+  type QualificationResult,
+} from "./model/bant-evaluation";
