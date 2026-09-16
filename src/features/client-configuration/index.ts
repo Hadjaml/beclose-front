@@ -14,11 +14,13 @@ export {
   type ClientConfigurationSectionId,
 } from "./model/client-configuration";
 export type {
+  IcpProfileVersion,
   QualificationCriteriaVersion,
   WorkspaceConfiguration,
 } from "./model/workspace-configuration";
 export { clientConfigurationSchema } from "./schemas/client-configuration-schema";
 export {
+  icpProfileVersionSchema,
   qualificationCriteriaVersionSchema,
   workspaceConfigurationSchema,
 } from "./schemas/workspace-configuration-schema";

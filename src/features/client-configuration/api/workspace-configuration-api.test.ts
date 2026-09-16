@@ -19,6 +19,12 @@ describe("createWorkspaceConfigurationApi", () => {
             criteria: { budget: "high" },
             createdAt: "2026-01-01T00:00:00Z",
           },
+          icpProfile: {
+            name: "Bewise - Beclose ICP V0",
+            version: 1,
+            criteria: { market: { businessModel: ["B2B services"] } },
+            createdAt: "2026-01-01T00:00:00Z",
+          },
         },
       };
     });
@@ -28,9 +34,10 @@ describe("createWorkspaceConfigurationApi", () => {
     expect(configuration.workspaceId).toBe("workspace-1");
     expect(configuration.qualificationCriteria?.version).toBe(2);
     expect(configuration.qualificationCriteria?.criteria).toEqual({ budget: "high" });
+    expect(configuration.icpProfile?.name).toBe("Bewise - Beclose ICP V0");
   });
 
-  it("get() accepts a null qualificationCriteria (no BANT grid defined yet)", async () => {
+  it("get() accepts a null qualificationCriteria and a null icpProfile", async () => {
     const client = fakeClient(() => ({
       data: {
         organizationId: "workspace-1",
@@ -39,11 +46,13 @@ describe("createWorkspaceConfigurationApi", () => {
         signature: null,
         telegramChatId: null,
         qualificationCriteria: null,
+        icpProfile: null,
       },
     }));
 
     const configuration = await createWorkspaceConfigurationApi(client).get("workspace-1");
 
     expect(configuration.qualificationCriteria).toBeNull();
+    expect(configuration.icpProfile).toBeNull();
   });
 });

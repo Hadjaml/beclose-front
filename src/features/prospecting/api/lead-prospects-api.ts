@@ -1,9 +1,11 @@
 import type { Pagination } from "@/shared/api/api-envelope";
 import type { ApiClient } from "@/shared/api/api-client";
-import { paginatedEnvelopeSchema } from "@/shared/api/api-envelope";
+import { detailEnvelopeSchema, paginatedEnvelopeSchema } from "@/shared/api/api-envelope";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 import { leadProspectSchema } from "../schemas/lead-prospect-schema";
+import { leadProspectDetailSchema } from "../schemas/lead-prospect-detail-schema";
 import type { LeadProspect, LeadStatus } from "../model/lead-prospect";
+import type { LeadProspectDetail } from "../model/lead-prospect-detail";
 
 export interface LeadProspectsPage {
   data: readonly LeadProspect[];
@@ -22,9 +24,15 @@ export interface LeadProspectsApi {
     query?: LeadProspectsQuery,
     signal?: AbortSignal,
   ) => Promise<LeadProspectsPage>;
+  getDetail: (
+    workspaceId: WorkspaceId,
+    leadId: string,
+    signal?: AbortSignal,
+  ) => Promise<LeadProspectDetail>;
 }
 
 const prospectsResponseSchema = paginatedEnvelopeSchema(leadProspectSchema);
+const prospectDetailResponseSchema = detailEnvelopeSchema(leadProspectDetailSchema);
 
 export function createLeadProspectsApi(client: ApiClient): LeadProspectsApi {
   return {
@@ -40,6 +48,19 @@ export function createLeadProspectsApi(client: ApiClient): LeadProspectsApi {
         },
         ...(signal === undefined ? {} : { signal }),
       });
+    },
+
+    async getDetail(workspaceId, leadId, signal) {
+      const response = await client.request(
+        `/organizations/${workspaceId}/prospects/${leadId}`,
+        {
+          method: "GET",
+          context: { workspaceId },
+          schema: prospectDetailResponseSchema,
+          ...(signal === undefined ? {} : { signal }),
+        },
+      );
+      return response.data;
     },
   };
 }

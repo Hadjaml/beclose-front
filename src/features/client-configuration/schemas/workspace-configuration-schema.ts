@@ -19,6 +19,16 @@ export const qualificationCriteriaVersionSchema = z.object({
   createdAt: z.string(),
 });
 
+/** Added 2026-09-16 (ICP/BANT wiring step 6a) — `IcpProfileOut` has no `id`
+ * (unlike `qualification_criteria`'s counterpart), only what a config page
+ * needs to display. */
+export const icpProfileVersionSchema = z.object({
+  name: z.string().trim().min(1),
+  version: z.number().int().positive(),
+  criteria: z.record(z.string(), z.unknown()),
+  createdAt: z.string(),
+});
+
 export const workspaceConfigurationSchema = z.object({
   workspaceId: workspaceIdSchema,
   name: z.string().trim().min(1),
@@ -26,4 +36,5 @@ export const workspaceConfigurationSchema = z.object({
   signature: z.string().trim().min(1).nullable(),
   telegramChatId: z.string().trim().min(1).nullable(),
   qualificationCriteria: qualificationCriteriaVersionSchema.nullable(),
+  icpProfile: icpProfileVersionSchema.nullable(),
 });

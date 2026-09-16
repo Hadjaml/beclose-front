@@ -32,7 +32,7 @@ function LeadProspectsSectionForWorkspace({ workspaceId }: { workspaceId: Worksp
 
   return (
     <div className="space-y-4">
-      <LeadProspectsList prospects={data} />
+      <LeadProspectsList prospects={data} workspaceId={workspaceId} />
       {pagination.total > pagination.limit ? (
         <PaginationControls
           limit={pagination.limit}

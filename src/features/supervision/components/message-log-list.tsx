@@ -5,7 +5,16 @@ import {
   type MessageLogEntry,
 } from "../model/message-log";
 
-export function MessageLogList({ messages }: { messages: readonly MessageLogEntry[] }) {
+export function MessageLogList({
+  messages,
+  highlightedMessageId,
+}: {
+  messages: readonly MessageLogEntry[];
+  /** Anchors and visually highlights one message — used by the prospect
+   * detail view to jump from a BANT criterion's evidence to the message it
+   * came from (`sourceInteractionId`). */
+  highlightedMessageId?: string;
+}) {
   if (messages.length === 0) {
     return (
       <EmptyState
@@ -18,7 +27,15 @@ export function MessageLogList({ messages }: { messages: readonly MessageLogEntr
   return (
     <ul className="space-y-3">
       {messages.map((message) => (
-        <li key={message.id} className="rounded-app-lg border border-border bg-surface p-4">
+        <li
+          key={message.id}
+          id={`message-${message.id}`}
+          className={`rounded-app-lg border p-4 ${
+            message.id === highlightedMessageId
+              ? "border-brand-blue-violet bg-brand-blue-violet/5"
+              : "border-border bg-surface"
+          }`}
+        >
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-tertiary">
             <span>
               {interactionDirectionLabels[message.direction]} · {message.channel}

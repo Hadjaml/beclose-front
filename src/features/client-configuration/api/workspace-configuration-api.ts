@@ -2,7 +2,10 @@ import { z } from "zod";
 import type { ApiClient } from "@/shared/api/api-client";
 import { detailEnvelopeSchema } from "@/shared/api/api-envelope";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
-import { qualificationCriteriaVersionSchema } from "../schemas/workspace-configuration-schema";
+import {
+  icpProfileVersionSchema,
+  qualificationCriteriaVersionSchema,
+} from "../schemas/workspace-configuration-schema";
 import type { WorkspaceConfiguration } from "../model/workspace-configuration";
 
 export interface WorkspaceConfigurationApi {
@@ -20,6 +23,7 @@ const configurationResponseSchema = detailEnvelopeSchema(
       signature: z.string().trim().min(1).nullable(),
       telegramChatId: z.string().trim().min(1).nullable(),
       qualificationCriteria: qualificationCriteriaVersionSchema.nullable(),
+      icpProfile: icpProfileVersionSchema.nullable(),
     })
     .transform(
       (raw): WorkspaceConfiguration => ({
@@ -29,6 +33,7 @@ const configurationResponseSchema = detailEnvelopeSchema(
         signature: raw.signature,
         telegramChatId: raw.telegramChatId,
         qualificationCriteria: raw.qualificationCriteria,
+        icpProfile: raw.icpProfile,
       }),
     ),
 );

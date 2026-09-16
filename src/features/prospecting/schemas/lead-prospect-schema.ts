@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { icpFitSchema } from "./icp-evaluation-schema";
 
 /**
  * Matches Beclose's real `/organizations/{id}/prospects` (`ProspectOut`,
@@ -44,6 +45,29 @@ export const leadProspectContactSchema = z.object({
   source: z.string().trim().min(1).nullable(),
 });
 
+/**
+ * `qualificationResult`/`icpFit`/`handoffReason`/`nurtureFollowUpsSent`
+ * added 2026-09-16 (ICP/BANT wiring step 6a) — real fields now, verified
+ * against `core/models/lead.py` before writing this, not guessed from a
+ * relayed description. `icpFit` is always `null` in practice today: no
+ * agent writes it yet (confirmed by Beclose, not a bug) — display it as
+ * "not evaluated", not a rich per-value breakdown, per the coordination's
+ * own instruction not to build UI around a field that stays empty.
+ */
+export const qualificationResultSchema = z.enum(["qualified", "nurture", "not_qualified"]);
+
+/** `strong_need_signal` is a deliberate early handoff (EF-403b, the product
+ * working as intended); the other four are booking-negotiation failures.
+ * Distinguishing the two is the whole point of this field — a broken
+ * calendar integration must never look like a normal handoff. */
+export const handoffReasonSchema = z.enum([
+  "strong_need_signal",
+  "booking_calendar_not_connected",
+  "booking_no_availability",
+  "booking_no_convergence",
+  "booking_error",
+]);
+
 export const leadProspectSchema = z.object({
   leadId: z.string().trim().min(1),
   status: leadStatusSchema,
@@ -59,6 +83,10 @@ export const leadProspectSchema = z.object({
   bouncedAt: nullableTimestamp,
   disqualifiedAt: nullableTimestamp,
   handedOffAt: nullableTimestamp,
+  qualificationResult: qualificationResultSchema.nullable(),
+  icpFit: icpFitSchema.nullable(),
+  handoffReason: handoffReasonSchema.nullable(),
+  nurtureFollowUpsSent: z.number().int().nonnegative(),
   company: leadProspectCompanySchema,
   contact: leadProspectContactSchema,
 });

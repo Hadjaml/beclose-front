@@ -359,3 +359,56 @@ mergé sur `main`) — Nile s'aligne de son côté. Ne pas s'étonner de croiser
 `not_fit` dans un vieux diff/commit backend. `qualification_result`
 (`qualified`/`nurture`/`not_qualified`) est identique des deux côtés,
 vérifié, aucune divergence.
+
+## Câblage réel des champs ICP/BANT (2026-09-16, branche `feat/wire-icp-bant-fields`)
+
+Étape 6a du contrat mergée côté Beclose (confirmé en lisant
+`api/routers/organizations.py` directement, pas sur relais) — les 4 champs
+demandés comme besoin d'affichage sont réels et câblés.
+
+- `leadProspectSchema` étendu avec `qualificationResult`/`icpFit`/
+  `handoffReason`/`nurtureFollowUpsSent` — vérifiés contre
+  `core/models/lead.py`. `icpFit` réutilise le `icpFitSchema` déjà existant
+  d'`icp-evaluation-schema.ts` (évite un doublon d'enum que j'avais
+  introduit par erreur en premier jet, corrigé avant tout commit).
+- **Nouvel endpoint** `GET /organizations/{id}/prospects/{leadId}`
+  (n'existait pas dans le contrat v0) — `leadProspectDetailSchema` réutilise
+  `bantEvaluationSchema`/`icpEvaluationSchema` déjà écrits à l'étape
+  précédente (cross-validés), plus un nouveau `policyReferenceSchema`
+  partagé (`{id, name, version}`) dans `shared/schemas/`.
+- **Nouvelle page** `/backoffice/workspaces/[workspaceId]/prospecting/[leadId]`
+  — première vraie page de détail prospect. Affiche les 2 évaluations, la
+  grille BANT utilisée (nom + version), et le log de messages **filtré par
+  lead** (`MessageLogSection` étendu avec un `leadId` optionnel — la
+  capacité de filtrage existait déjà côté hook, jamais exposée en UI avant).
+  Chaque critère BANT a un lien d'ancre (`#message-{sourceInteractionId}`)
+  vers son message source dans ce log — pas de nouvel endpoint nécessaire,
+  confirmé par Beclose que `sourceInteractionId` = `id` de `/messages`.
+- **`icpFit` volontairement minimal** : toujours `null` en pratique
+  aujourd'hui (aucun agent ne l'écrit, confirmé par Beclose) — affiché
+  comme "Non évalué" en texte simple, pas de breakdown riche autour d'un
+  champ qui reste vide.
+- **`handoffReason`** : distinction visuelle succès (`strong_need_signal`,
+  vert) vs échec technique (les 4 autres, rouge) — c'est le seul axe qui
+  compte pour l'affichage, jamais les 5 valeurs à plat avec le même poids
+  visuel (`handoffReasonKind` dans le modèle).
+- **Liste de prospects** : badge `qualificationResult` sur chaque ligne,
+  `handoffReason` visible seulement pour les leads `handed_off` (rare, pas
+  de bruit), compteur de relances visible seulement pour les leads en
+  `nurture`. Lien vers la page de détail sur le nom de l'entreprise.
+- **Overview** : nouvelle section `qualificationResultCounts` (qualified/
+  nurture/not_qualified/not_evaluated) **en complément** des compteurs par
+  statut existants, pas en remplacement — c'est exactement le problème de
+  nurture invisible signalé comme dépendance en avant à l'étape précédente,
+  maintenant résolu.
+- **Configuration** : profil ICP actif affiché à côté de la grille BANT
+  (même traitement, JSON brut pour l'instant faute d'un rendu structuré des
+  critères).
+- **Vérifié réellement** : lint, typecheck seul, 43/43 tests (2 nouveaux
+  fichiers, 2 tests étendus), build (14 routes, +1 nouvelle).
+- **Non fait** : rendu structuré (pas JSON brut) de la grille BANT/profil
+  ICP en configuration — les schémas cibles existent déjà
+  (`bantCriteriaSchema`) mais la vraie réponse `/configuration` renvoie
+  encore `criteria` en JSONB non typé, pas la forme structurée du contrat
+  cible ; surlignage dynamique (pas juste l'ancrage natif) du message
+  source dans le log filtré.
