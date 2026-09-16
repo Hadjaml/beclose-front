@@ -40,6 +40,23 @@ export function WorkspaceConfigurationView({
           )}
         </dd>
       </div>
+      <div className="rounded-app-lg border border-border bg-surface p-5 sm:col-span-2">
+        <dt className="text-sm font-semibold text-text-primary">
+          Profil ICP (ciblage)
+          {configuration.icpProfile === null
+            ? null
+            : ` — « ${configuration.icpProfile.name} » v${configuration.icpProfile.version}`}
+        </dt>
+        <dd className="mt-2 text-sm leading-6 text-text-secondary">
+          {configuration.icpProfile === null ? (
+            "Non défini."
+          ) : (
+            <pre className="mt-2 overflow-x-auto rounded-app-md bg-surface-muted p-3 text-xs">
+              {JSON.stringify(configuration.icpProfile.criteria, null, 2)}
+            </pre>
+          )}
+        </dd>
+      </div>
     </dl>
   );
 }

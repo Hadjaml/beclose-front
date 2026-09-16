@@ -24,6 +24,12 @@ describe("createLeadPipelineApi", () => {
             disqualified: 0,
             handed_off: 1,
           },
+          qualificationResultCounts: {
+            qualified: 0,
+            nurture: 1,
+            not_qualified: 0,
+            not_evaluated: 2,
+          },
         },
       };
     });
@@ -33,5 +39,6 @@ describe("createLeadPipelineApi", () => {
     expect(overview.workspaceId).toBe("workspace-1");
     expect(overview.totalLeads).toBe(3);
     expect(overview.leadCounts.handed_off).toBe(1);
+    expect(overview.qualificationResultCounts.nurture).toBe(1);
   });
 });

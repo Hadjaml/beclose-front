@@ -16,7 +16,9 @@ export { WorkspaceSupervisionList } from "./components/workspace-supervision-lis
 export {
   leadStatusDisplayOrder,
   leadStatusLabels,
+  qualificationResultCountLabels,
   type LeadCounts,
+  type QualificationResultCounts,
   type WorkspaceLeadPipeline,
 } from "./model/lead-pipeline";
 export {
@@ -26,7 +28,11 @@ export {
   type InteractionStatus,
   type MessageLogEntry,
 } from "./model/message-log";
-export { leadCountsSchema, workspaceLeadPipelineSchema } from "./schemas/lead-pipeline-schema";
+export {
+  leadCountsSchema,
+  qualificationResultCountsSchema,
+  workspaceLeadPipelineSchema,
+} from "./schemas/lead-pipeline-schema";
 export {
   interactionDirectionSchema,
   interactionStatusSchema,

@@ -1,8 +1,20 @@
 import type { z } from "zod";
-import type { leadCountsSchema, workspaceLeadPipelineSchema } from "../schemas/lead-pipeline-schema";
+import type {
+  leadCountsSchema,
+  qualificationResultCountsSchema,
+  workspaceLeadPipelineSchema,
+} from "../schemas/lead-pipeline-schema";
 
 export type LeadCounts = z.infer<typeof leadCountsSchema>;
+export type QualificationResultCounts = z.infer<typeof qualificationResultCountsSchema>;
 export type WorkspaceLeadPipeline = z.infer<typeof workspaceLeadPipelineSchema>;
+
+export const qualificationResultCountLabels = {
+  qualified: "Qualifiés",
+  nurture: "En maturation",
+  not_qualified: "Non qualifiés",
+  not_evaluated: "Non évalués",
+} as const satisfies Record<keyof QualificationResultCounts, string>;
 
 export const leadStatusLabels = {
   identified: "Identifiés",

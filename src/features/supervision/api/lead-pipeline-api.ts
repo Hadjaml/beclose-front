@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { ApiClient } from "@/shared/api/api-client";
 import { detailEnvelopeSchema } from "@/shared/api/api-envelope";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
-import { leadCountsSchema } from "../schemas/lead-pipeline-schema";
+import { leadCountsSchema, qualificationResultCountsSchema } from "../schemas/lead-pipeline-schema";
 import type { WorkspaceLeadPipeline } from "../model/lead-pipeline";
 
 export interface LeadPipelineApi {
@@ -17,12 +17,14 @@ const overviewResponseSchema = detailEnvelopeSchema(
       organizationId: z.string().trim().min(1),
       totalLeads: z.number().int().nonnegative(),
       leadCounts: leadCountsSchema,
+      qualificationResultCounts: qualificationResultCountsSchema,
     })
     .transform(
       (raw): WorkspaceLeadPipeline => ({
         workspaceId: raw.organizationId,
         totalLeads: raw.totalLeads,
         leadCounts: raw.leadCounts,
+        qualificationResultCounts: raw.qualificationResultCounts,
       }),
     ),
 );

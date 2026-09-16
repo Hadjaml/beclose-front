@@ -17,6 +17,10 @@ const prospectWire = {
   bouncedAt: null,
   disqualifiedAt: null,
   handedOffAt: null,
+  qualificationResult: null,
+  icpFit: null,
+  handoffReason: null,
+  nurtureFollowUpsSent: 0,
   company: {
     id: "company-1",
     name: "Acme",
@@ -66,5 +70,61 @@ describe("createLeadProspectsApi", () => {
     const page = await createLeadProspectsApi(client).list("workspace-1");
 
     expect(page.data).toEqual([]);
+  });
+
+  it("list() carries the real qualification/handoff fields through when set", async () => {
+    const client = fakeClient(() => ({
+      data: [
+        {
+          ...prospectWire,
+          status: "handed_off",
+          handedOffAt: "2026-01-02T00:00:00Z",
+          qualificationResult: "qualified",
+          handoffReason: "strong_need_signal",
+          nurtureFollowUpsSent: 2,
+        },
+      ],
+      pagination: { limit: 50, offset: 0, total: 1 },
+    }));
+
+    const page = await createLeadProspectsApi(client).list("workspace-1");
+
+    expect(page.data[0]?.qualificationResult).toBe("qualified");
+    expect(page.data[0]?.handoffReason).toBe("strong_need_signal");
+    expect(page.data[0]?.nurtureFollowUpsSent).toBe(2);
+  });
+
+  it("getDetail() gets /organizations/{id}/prospects/{leadId} with the two evaluations", async () => {
+    const client = fakeClient((path, options) => {
+      expect(path).toBe("/organizations/workspace-1/prospects/lead-1");
+      expect(options.method).toBe("GET");
+      expect(options.context).toEqual({ workspaceId: "workspace-1" });
+      return {
+        data: {
+          ...prospectWire,
+          icpEvaluation: null,
+          qualificationEvaluation: {
+            qualificationCriteriaId: "bant-1",
+            qualificationCriteriaVersion: 1,
+            budget: { status: "probable", evidence: "Utilise une agence" },
+            authority: { status: "decision_maker" },
+            need: { status: "strong", sourceInteractionId: "interaction-1" },
+            timing: { status: "0_90_days" },
+            result: "qualified",
+          },
+          qualificationCriteria: { id: "bant-1", name: "Bewise BANT V0", version: 1 },
+          icpProfile: null,
+        },
+      };
+    });
+
+    const detail = await createLeadProspectsApi(client).getDetail("workspace-1", "lead-1");
+
+    expect(detail.leadId).toBe("lead-1");
+    expect(detail.icpEvaluation).toBeNull();
+    expect(detail.qualificationEvaluation?.result).toBe("qualified");
+    expect(detail.qualificationEvaluation?.need.sourceInteractionId).toBe("interaction-1");
+    expect(detail.qualificationCriteria?.name).toBe("Bewise BANT V0");
+    expect(detail.icpProfile).toBeNull();
   });
 });

@@ -22,8 +22,25 @@ export const leadCountsSchema = z.object({
   handed_off: z.number().int().nonnegative(),
 });
 
+/**
+ * Added 2026-09-16 (ICP/BANT wiring step 6a, need expressed by bewise-app):
+ * a `replied` lead alone doesn't say whether its conversation was
+ * qualified, still in nurture, or dead-ended — this is where that becomes
+ * visible in aggregate, in addition to (not instead of) `leadCounts`.
+ * `not_evaluated` = `qualification_result IS NULL` (never reached the
+ * qualification agent yet). Same `BaseModel`/snake_case convention as
+ * `leadCounts` — real backend keys, not relabelled.
+ */
+export const qualificationResultCountsSchema = z.object({
+  qualified: z.number().int().nonnegative(),
+  nurture: z.number().int().nonnegative(),
+  not_qualified: z.number().int().nonnegative(),
+  not_evaluated: z.number().int().nonnegative(),
+});
+
 export const workspaceLeadPipelineSchema = z.object({
   workspaceId: workspaceIdSchema,
   totalLeads: z.number().int().nonnegative(),
   leadCounts: leadCountsSchema,
+  qualificationResultCounts: qualificationResultCountsSchema,
 });
