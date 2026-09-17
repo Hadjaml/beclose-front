@@ -127,4 +127,56 @@ describe("createLeadProspectsApi", () => {
     expect(detail.qualificationCriteria?.name).toBe("Bewise BANT V0");
     expect(detail.icpProfile).toBeNull();
   });
+
+  it("getDetail() handles real Beclose wire shape for qualificationEvaluation", async () => {
+    const client = fakeClient(() => ({
+      data: {
+        ...prospectWire,
+        icpEvaluation: null,
+        qualificationEvaluation: {
+          need: {
+            status: "weak",
+            evidence: [
+              {
+                text: "D’accord je suis ouvert pour en discuter avec vous à ce sujet",
+                source_interaction_id: "interaction-need-1",
+              },
+            ],
+          },
+          budget: { status: "unknown", evidence: [] },
+          timing: {
+            status: "0_90_days",
+            evidence: [
+              {
+                text: "Parfait, à vendredi !",
+                source_interaction_id: "interaction-timing-1",
+              },
+            ],
+          },
+          authority: { status: "unknown", evidence: [] },
+          evaluated_at: "2026-09-17T10:37:23.082881Z",
+          schema_version: "1.0",
+          handoff_signals: { explicit_meeting_request: true },
+          criteria_version: 2,
+        },
+        qualificationCriteria: { id: "bant-1", name: "Bewise BANT V0", version: 2 },
+        icpProfile: null,
+      },
+    }));
+
+    const detail = await createLeadProspectsApi(client).getDetail("workspace-1", "lead-1");
+
+    expect(detail.qualificationEvaluation?.need.status).toBe("weak");
+    expect(detail.qualificationEvaluation?.need.evidence).toBe(
+      "D’accord je suis ouvert pour en discuter avec vous à ce sujet",
+    );
+    expect(detail.qualificationEvaluation?.need.sourceInteractionId).toBe("interaction-need-1");
+    expect(detail.qualificationEvaluation?.timing.status).toBe("0_90_days");
+    expect(detail.qualificationEvaluation?.timing.evidence).toBe("Parfait, à vendredi !");
+    expect(detail.qualificationEvaluation?.timing.sourceInteractionId).toBe("interaction-timing-1");
+    expect(detail.qualificationEvaluation?.budget.status).toBe("unknown");
+    expect(detail.qualificationEvaluation?.budget.evidence).toBeUndefined();
+    expect(detail.qualificationEvaluation?.budget.sourceInteractionId).toBeUndefined();
+  });
 });
+

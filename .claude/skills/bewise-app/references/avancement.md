@@ -412,3 +412,25 @@ demandés comme besoin d'affichage sont réels et câblés.
   encore `criteria` en JSONB non typé, pas la forme structurée du contrat
   cible ; surlignage dynamique (pas juste l'ancrage natif) du message
   source dans le log filtré.
+
+## Alignement réel du schéma qualificationEvaluation (2026-09-17)
+
+Lors du test de la première démo réelle avec conversion du lead QR-CLEAN
+(`98fbe8a8-1ebf-4079-ab39-2f71c8f4dad2`, statut `booked`), la fiche prospect
+n'affichait rien (`Impossible de charger ce prospect`) en raison d'une divergence
+entre la forme réelle persistée par Beclose (`QualificationEvaluationRecord`) et
+le schéma Zod `bantEvaluationSchema` :
+- Beclose envoie `evidence: [{ text, source_interaction_id }]` (liste d'objets)
+  et non un `evidence` plat en chaîne.
+- `qualificationCriteriaId` et `result` ne font pas partie de l'objet
+  `qualification_evaluation` côté backend (ils sont portés au niveau racine
+  du lead).
+- `leadQualificationEvaluationSchema` (`lead-prospect-detail-schema.ts`)
+  normalise désormais la forme réelle de Beclose : extrait `evidence` (texte)
+  et `sourceInteractionId` (`source_interaction_id`), tout en restant compatible
+  avec la forme directe.
+- **Vérifié réellement** : test d'intégration en direct contre Beclose sur le lead
+  QR-CLEAN (succès), `npm run lint` (0 erreur), `npm run typecheck` (0 erreur),
+  `npm test` (44/44 tests réussis, 1 nouveau test pour la forme wire Beclose),
+  `npm run build` (succès).
+
