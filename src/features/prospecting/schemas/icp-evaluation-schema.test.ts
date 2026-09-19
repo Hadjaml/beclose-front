@@ -27,4 +27,23 @@ describe("icpEvaluationSchema", () => {
     const invalid = { ...bewiseIcpEvaluation, fit: 87 };
     expect(() => icpEvaluationSchema.parse(invalid)).toThrow();
   });
+
+  it("accepts real Beclose wire shape ({ fit, tier, sector, reasons })", () => {
+    const realWire = {
+      fit: "strong",
+      tier: 1,
+      sector: "building_maintenance",
+      reasons: [
+        "Entreprise de rénovation et aménagement immobilier",
+        "Effectif de 12 salariés dans la cible prioritaire (10-150)",
+        "Dirigeant identifié (décideur direct)",
+      ],
+    };
+    const parsed = icpEvaluationSchema.parse(realWire);
+    expect(parsed.fit).toBe("strong");
+    if ("reasons" in parsed) {
+      expect(parsed.reasons).toHaveLength(3);
+    }
+  });
 });
+
