@@ -1,0 +1,8 @@
+schema_version: 1
+id: 5a0e2e4f-7a87-43a2-9d03-4d08773ddf9d
+name: bewise-app
+context: .agentmesh/skills/project
+runtimes: {}
+components: []
+project_id: 4b99d214-1fbd-4469-bb40-079efdbc6124
+component_id: fb34607d-2493-469d-94b4-f549628fc0a8

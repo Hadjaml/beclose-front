@@ -83,3 +83,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - Before writing Next.js code, consult the matching local documentation under `node_modules/next/dist/docs` as required above.
 - After changes, run ESLint, TypeScript checking, and the production build. Fix all introduced errors.
+
+<!-- agentmesh:canonical -->
+The project source of truth is `.agentmesh/skills/project/`.
+Before any work, every agent must read `AGENTS.md`, then
+`.agentmesh/skills/project/SKILL.md`, `.agentmesh/skills/project/avancement.md`,
+and `.agentmesh/skills/project/conventions.md`.
+Update `avancement.md` after every meaningful stage with actual validation and next steps.
+Provider-specific files (Claude, Codex, OpenCode, Gemini, Grok or any other runtime)
+may only be pointers or shims to this canonical skill, never independent copies.
+Operational tasks, checkpoints and handoffs live in PostgreSQL; presence and routing
+live in Redis. The Markdown summary is human project context, not backend state.
+<!-- /agentmesh:canonical -->
