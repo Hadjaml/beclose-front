@@ -673,3 +673,48 @@ bugs bloquants.
   différent (page restée sur un ancien build en cache, session expirée
   dans son navigateur au moment du test), ça reste à confirmer par un
   nouveau test de sa part après ce correctif.
+
+## Audit des onglets Back Office + bouton de lancement de sourcing (2026-09-23,
+## branche `feat/prospecting-sourcing-run-button`)
+
+Audit demandé par Rochinel via Orion : parcours de chaque onglet + bouton
+du Back Office (pas juste le sourcing). Résultat livré avant tout code
+(demandé explicitement) : sur ~14 zones de contenu, **8 sont des coquilles
+vides** — page fige la prop à `null`, l'API associée
+(`SupervisionApi`/`SettingsApi`/`SubscriptionsApi`/`TeamApi`/
+`AppointmentsApi`/`ConversationsApi`/`LearningApi`/`PerformanceApi`) est une
+interface TypeScript pure, zéro implémentation, zéro requête. Nuance
+importante : presque aucun bouton n'est réellement rendu dans ces coquilles
+(le code respecte déjà "pas de callback fourni = pas de bouton" —
+`AGENTS.md`) — un seul vrai bouton mort trouvé (Nouveau client, déjà
+corrigé, PR #22). Vérifié directement dans Beclose (`api/routers/`,
+`core/models/`) : seuls `auth`/`organizations` existent comme routers ;
+aucun des 8 morts n'a d'endpoint, 5 sur 8 n'ont même pas de modèle (seul
+`appointment.py` existe côté modèle sans route API). Décision du
+coordinateur transverse : rien codé sur ces 7 sections tant que Rochinel
+n'a pas tranché de priorités (une fusion Conversations/Prospection et les
+composants Portail non montés notés à part, pas dans ce chantier).
+
+**Bouton de sourcing** (feu vert reçu, seul point endpoint-ready
+aujourd'hui) : `POST /organizations/{id}/sourcing-runs` (tous champs
+optionnels, pilote depuis l'ICP actif tier 1 par défaut — bouton simple
+sans formulaire, conforme à l'usage "normal" documenté côté Beclose).
+
+- `sourcing-runs-api.ts`/`use-start-sourcing-run-mutation.ts`
+  (`prospecting`) : `SourcingRunsApi.start` envoie `{}` (aucun champ
+  précisé = mode ICP actif), réponse `202 Accepted` fire-and-forget (pas de
+  suivi de complétion, Beclose ne le fournit pas). Invalide
+  `workspaceKeys.feature(workspaceId, "lead-prospects")` au succès —
+  cohérent avec le fait que les nouveaux prospects arrivent au fil de l'eau,
+  pas un vrai signal de fin.
+- `StartSourcingRunButton`/`SourcingRunSection` : bouton simple + message
+  de confirmation (fire-and-forget, pas de suivi) + message dédié si un
+  run est déjà en cours (`409 SOURCING_RUN_ALREADY_IN_PROGRESS`, distingué
+  d'une erreur générique). Ajouté dans l'en-tête de la page Prospection.
+- **Vérifié réellement** : lint (0 erreur/warning), typecheck (seul, 0
+  erreur), 96/96 tests (5 nouveaux : API + composant bouton), build (13
+  routes, inchangé).
+- **Non fait, sur consigne du coordinateur** : nouvelle convention actée le
+  23/09 après-midi — plus de PR/merge de ma propre initiative même CI
+  verte ; commit/push sur branche seulement, PR ouverte uniquement sur feu
+  vert explicite après test réel de Rochinel.

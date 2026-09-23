@@ -9,6 +9,10 @@ export { LeadProspectDetailSection } from "./components/lead-prospect-detail-sec
 export { LeadProspectDetailView } from "./components/lead-prospect-detail-view";
 export { LeadProspectsList } from "./components/lead-prospects-list";
 export { LeadProspectsSection } from "./components/lead-prospects-section";
+export { SourcingRunSection } from "./components/sourcing-run-section";
+export { StartSourcingRunButton } from "./components/start-sourcing-run-button";
+export { createSourcingRunsApi, type SourcingRunsApi } from "./api/sourcing-runs-api";
+export { useStartSourcingRunMutation } from "./api/use-start-sourcing-run-mutation";
 export { ProspectDetailPanel } from "./components/prospect-detail-panel";
 export { ProspectTable } from "./components/prospect-table";
 export { ProspectingEmptyState } from "./components/prospecting-empty-state";
