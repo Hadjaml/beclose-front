@@ -11,6 +11,7 @@ import {
   type ClientProvisioningStepId,
 } from "../model/client-provisioning";
 import { BantStep } from "./steps/bant-step";
+import { GmailConnectionStep } from "./steps/gmail-connection-step";
 import { IcpStep } from "./steps/icp-step";
 import { OrganizationStep } from "./steps/organization-step";
 
@@ -57,8 +58,16 @@ export function ClientProvisioningWizard() {
           <BantStep
             workspaceId={workspaceId}
             workspaceName={workspaceName}
-            onCreated={() => {
-              completeStep("bant", null);
+            onCreated={() => completeStep("bant", "gmail")}
+          />
+        );
+      case "gmail":
+        if (workspaceId === null) return null;
+        return (
+          <GmailConnectionStep
+            workspaceId={workspaceId}
+            onFinish={() => {
+              completeStep("gmail", null);
               router.push(`/backoffice/workspaces/${workspaceId}/configuration`);
             }}
           />

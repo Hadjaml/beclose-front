@@ -718,3 +718,37 @@ sans formulaire, conforme à l'usage "normal" documenté côté Beclose).
   23/09 après-midi — plus de PR/merge de ma propre initiative même CI
   verte ; commit/push sur branche seulement, PR ouverte uniquement sur feu
   vert explicite après test réel de Rochinel.
+
+## 4e étape — visibilité de la connexion Gmail dans l'onboarding (2026-09-23,
+## branche `feat/onboarding-gmail-connection-step`)
+
+Vrai trou trouvé par Rochinel en testant : la connexion Gmail
+(`workers/connect_gmail_cli.py`, OAuth local EF-602) reste CLI-only et
+invisible dans l'interface — rien dans l'assistant organisation→ICP→BANT
+n'y fait référence, facile à oublier après la création. Pas de vrai flux
+OAuth dans le navigateur (chantier plus gros, hors périmètre aujourd'hui) —
+seulement rendre l'étape visible et non-oubliable.
+
+**Vérifié avant de coder** (demande d'Orion) : l'endpoint de lecture existe
+déjà — `GET /organizations/{id}/integrations` (dérivé de
+`organization_credentials`), déjà utilisé par l'onglet Intégrations
+existant (`useWorkspaceIntegrationStatusQuery`/`workspace-integration-status-api.ts`).
+Aucun nouvel endpoint nécessaire, contrairement à ce qu'Orion pensait
+possible — réutilisation directe.
+
+- **4e step** `GmailConnectionStep` (`client-provisioning/components/steps/`)
+  ajoutée au wizard (`organization`→`icp`→`bant`→`gmail`). Réutilise le
+  hook existant avec le `workspaceId` du wizard (pas `useWorkspace()` —
+  l'organisation qu'on vient de créer n'est pas encore le workspace actif
+  du contexte global). Si connecté : confirmation. Sinon : commande CLI
+  exacte (`uv run python -m workers.connect_gmail_cli <organization_id>`,
+  copiée verbatim depuis le docstring du script, pas reformulée) avec
+  l'id réel déjà rempli + bouton copier. "Terminer" toujours cliquable
+  (connecté ou non — la connexion se fait hors navigateur, le wizard ne
+  peut pas attendre dessus), redirige vers la configuration du workspace
+  (déplacé depuis l'étape BANT, qui redirigeait directement avant).
+- **Vérifié réellement** : lint (0 erreur/warning), typecheck (seul, 0
+  erreur), 100/100 tests (4 nouveaux), build (13 routes, inchangé).
+- **Non fait, sur consigne du coordinateur** : pas de PR ouverte — commit/
+  push sur branche seulement, en attente du feu vert après test réel de
+  Rochinel.
