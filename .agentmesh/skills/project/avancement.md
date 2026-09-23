@@ -449,4 +449,9 @@ le schéma Zod `bantEvaluationSchema` :
 - **Suivi des tâches AgentMesh** :
   - Tâche `aaadda36` passée en `cancelled` (remplacée par `65043361`).
   - Tâche `9e306fb4` (bilan d'inspection) passée en `review_requested`.
-  - Tâche `65043361` (inversion du contexte) traitée, modifications laissées non commitées conformément aux consignes, passée en `review_requested`.
+  - Tâche `65043361` (inversion du contexte) traitée et validée (`done` après revue tech lead).
+- **Commit et push de la migration (tâche `220d48eb`)** :
+  - Branche dédiée : `chore/agentmesh-contexte-canonique` (créée depuis `fix/prospect-detail-bant-shape`).
+  - Commit initial de migration : `52ab597` (`chore: [agentmesh] .agentmesh devient la source de vérité, .claude en pointeur`).
+  - Ajout de `.agentmesh/local/` dans `.gitignore`.
+  - Push : `git push -u origin chore/agentmesh-contexte-canonique`.
