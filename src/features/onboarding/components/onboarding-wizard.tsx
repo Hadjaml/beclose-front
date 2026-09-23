@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { WizardProgress } from "@/shared/ui/forms";
 import { emptyOnboardingDraft, initialOnboardingStatuses } from "../model/initial-onboarding";
 import {
+  onboardingSteps,
   onboardingStepIds,
   type OnboardingDraft,
   type OnboardingStepId,
@@ -17,7 +19,6 @@ import { QualificationStep } from "./steps/qualification-step";
 import { TargetStep } from "./steps/target-step";
 import { ToolsStep } from "./steps/tools-step";
 import { TrainingStep } from "./steps/training-step";
-import { WizardProgress } from "./wizard-progress";
 
 interface OnboardingWizardProps {
   initialSnapshot?: OnboardingWizardSnapshot;
@@ -90,7 +91,12 @@ export function OnboardingWizard({ initialSnapshot }: OnboardingWizardProps) {
         <Link href="/backoffice/clients" className="rounded-app-md px-4 py-2 text-sm font-semibold text-text-secondary hover:bg-surface-muted hover:text-text-primary">Quitter l’onboarding</Link>
       </div>
       <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start">
-        <WizardProgress currentStep={snapshot.currentStep} statuses={snapshot.statuses} />
+        <WizardProgress
+          ariaLabel="Progression de l’onboarding"
+          steps={onboardingSteps}
+          currentStep={snapshot.currentStep}
+          statuses={snapshot.statuses}
+        />
         <div className="min-w-0 rounded-app-lg border border-border bg-surface p-5 sm:p-8 lg:p-10">{renderCurrentStep()}</div>
       </div>
     </div>

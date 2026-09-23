@@ -1,11 +1,11 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useStepForm } from "../../hooks/use-step-form";
+import { useStepForm } from "@/shared/ui/forms";
 import type { TargetSegmentData } from "../../model/onboarding";
 import { targetSegmentSchema } from "../../schemas/onboarding-schemas";
-import { TextAreaField, TextField } from "../form-fields";
-import { StepFormLayout } from "../step-form-layout";
+import { TextAreaField, TextField } from "@/shared/ui/forms";
+import { StepFormLayout } from "@/shared/ui/forms";
 
 interface TargetStepProps {
   initialData: TargetSegmentData;

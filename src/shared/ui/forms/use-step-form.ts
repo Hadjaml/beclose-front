@@ -5,6 +5,11 @@ import type { ZodType } from "zod";
 
 export type FieldErrors<T> = Partial<Record<keyof T, string>>;
 
+/**
+ * Local-draft + Zod-validation state for one step of a multi-step form.
+ * Business-agnostic — extracted from `features/onboarding`
+ * (2026-09-23) for reuse by other step-based flows.
+ */
 export function useStepForm<T extends object>(initialData: T, schema: ZodType<T>) {
   const [draft, setDraft] = useState<T>(initialData);
   const [errors, setErrors] = useState<FieldErrors<T>>({});

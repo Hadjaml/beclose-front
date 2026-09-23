@@ -496,3 +496,45 @@ Dépendance en avant notée à l'étape 6a, résolue.
 - **Non fait** : pas de push/PR à ce stade (pas demandé pour cette tâche,
   contrairement à EF-705) — reste sur la branche locale
   `feat/configuration-bant-icp-structured` en attente d'instruction.
+
+## Kit de formulaire partagé + nouvelles primitives de champ (2026-09-23, branche `refactor/shared-form-kit-and-primitives`)
+
+Préparation du nouveau chantier (créer une organisation + une vraie grille
+ICP/BANT, en attente du contrat de Beclose — 3 endpoints atomiques : création
+organisation, création version ICP, création version BANT, chacun persisté
+immédiatement, pas un gros brouillon local soumis à la fin). Décidé avec le
+coordinateur transverse : le squelette du wizard onboarding est réutilisable,
+son contenu (champs texte libre) ne l'est pas — voir analyse dans la
+coordination du 2026-09-23. Rien codé sur les steps organisation/ICP/BANT
+elles-mêmes, comme convenu (le contrat n'est pas encore là).
+
+- **`shared/ui/forms/`** (nouveau) : `FieldFrame`, `TextField`,
+  `TextAreaField`, `useStepForm`, `StepFormLayout`, `WizardProgress` sortis
+  de `features/onboarding` (business-agnostiques, `AGENTS.md` les voulait
+  dans `shared/ui`). `WizardProgress` généralisée : ne dépend plus de
+  `OnboardingStepId`/`OnboardingStepStatus`, générique sur le type d'id
+  d'étape (`WizardStepDefinition<StepId>`), `ariaLabel` maintenant fourni
+  par l'appelant. `features/onboarding` importe désormais ce kit au lieu de
+  ses propres copies (supprimées) — comportement inchangé, vérifié par les
+  tests existants + build (14 routes, `/backoffice/clients/new` inchangée).
+- **4 nouvelles primitives de champ**, absentes avant car jamais nécessaires
+  à l'onboarding en texte libre, mais requises par la vraie forme ICP/BANT
+  (`bant-criteria-wire-schema.ts`/`icp-criteria-wire-schema.ts`) :
+  - `StringListField` : liste de chaînes ajoutable/supprimable (signaux,
+    questions, titres…).
+  - `NumericRangeField` : plage min/max, avec bornes de rejet optionnelles
+    (`showRejectBounds`) — calqué sur `employeeRange`
+    (`min/max/rejectBelow/rejectAbove`).
+  - `EnumSelectField` : select générique sur un jeu fermé de valeurs
+    (`{value, label}[]`), pour les enums de statut BANT.
+  - `RepeatableGroupField` : groupe d'objets structurés ajoutable/
+    supprimable (ex. tiers de secteurs prioritaires), via `renderItem`/
+    `createItem` — ignore tout du contenu réel d'un item.
+  - Toutes génériques sur le type de donnée, aucun nom de champ Vega en dur
+    — pas d'anticipation du contrat, juste le type de widget.
+- **Vérifié réellement** : lint (0 erreur/0 warning), typecheck (seul, 0
+  erreur), 72/72 tests (17 nouveaux : composants des 4 primitives + 3 sur
+  `WizardProgress` généralisée), build (14 routes, inchangé).
+- **Non fait, en attente du contrat Vega** : les steps organisation/ICP/BANT
+  elles-mêmes (schémas de requête, mutations TanStack Query une par étape,
+  wizard reparamétré sur ces 3-4 steps).
