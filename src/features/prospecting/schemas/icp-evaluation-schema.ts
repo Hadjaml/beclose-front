@@ -18,10 +18,21 @@ import { z } from "zod";
 export const icpFitSchema = z.enum(["strong", "moderate", "weak", "none"]);
 export type IcpFit = z.infer<typeof icpFitSchema>;
 
-/** Short, factual snippets only — never a chain-of-thought field,
- * per reponse_techlead_icp_bant.md §3.6. Each entry should be traceable to
- * the interaction it came from once wired (auditability, ES-04). */
-export const icpEvaluationSchema = z.object({
+/**
+ * Real Beclose wire shape written by sourcing/qualification:
+ * { fit: "strong", tier?: 1, sector?: "building_maintenance", reasons?: ["..."] }
+ */
+export const icpEvaluationWireSchema = z.object({
+  fit: icpFitSchema,
+  tier: z.number().int().nullable().optional(),
+  sector: z.string().trim().nullable().optional(),
+  reasons: z.array(z.string().trim()).nullable().optional(),
+});
+
+/**
+ * Document / legacy shape from bewise_beclose_icp_bant_handoff.md §24
+ */
+export const icpEvaluationDocumentSchema = z.object({
   icpProfileId: z.string().trim().min(1),
   fit: icpFitSchema,
   evidence: z.record(z.string(), z.string().trim().min(1)),
@@ -29,3 +40,9 @@ export const icpEvaluationSchema = z.object({
   negativeSignals: z.array(z.string().trim().min(1)),
   reasoningSummary: z.string().trim().min(1).max(500),
 });
+
+export const icpEvaluationSchema = z.union([
+  icpEvaluationDocumentSchema,
+  icpEvaluationWireSchema,
+]);
+

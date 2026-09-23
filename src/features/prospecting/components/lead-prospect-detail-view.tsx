@@ -8,6 +8,7 @@ import {
 import {
   handoffReasonKind,
   handoffReasonLabels,
+  icpFitLabels,
   leadStatusLabels,
   qualificationResultLabels,
 } from "../model/lead-prospect";
@@ -104,20 +105,44 @@ export function LeadProspectDetailView({ prospect }: { prospect: LeadProspectDet
             <dt className="text-xs font-semibold uppercase tracking-wide text-text-tertiary">
               Adéquation ICP
             </dt>
-            {/* Deliberately minimal: icp_fit is always null in practice today
-                (no agent writes it yet) — a plain "not evaluated" line, not a
-                rich breakdown around a field that stays empty. */}
-            <dd className="mt-1 text-sm text-text-primary">Non évalué</dd>
+            <dd className="mt-1 text-sm text-text-primary">
+              {prospect.icpFit === null ? "Non évalué" : icpFitLabels[prospect.icpFit]}
+            </dd>
           </div>
         </dl>
       </section>
 
-      {prospect.qualificationCriteria === null ? null : (
-        <p className="text-sm text-text-tertiary">
-          Évalué avec la grille BANT « {prospect.qualificationCriteria.name} » v
-          {prospect.qualificationCriteria.version}.
-        </p>
+      {prospect.icpProfile === null && prospect.qualificationCriteria === null ? null : (
+        <div className="space-y-1 text-sm text-text-tertiary">
+          {prospect.icpProfile === null ? null : (
+            <p>
+              Ciblé avec le profil ICP « {prospect.icpProfile.name} » v{prospect.icpProfile.version}.
+            </p>
+          )}
+          {prospect.qualificationCriteria === null ? null : (
+            <p>
+              Évalué avec la grille BANT « {prospect.qualificationCriteria.name} » v
+              {prospect.qualificationCriteria.version}.
+            </p>
+          )}
+        </div>
       )}
+
+      {prospect.icpEvaluation !== null &&
+      "reasons" in prospect.icpEvaluation &&
+      prospect.icpEvaluation.reasons &&
+      prospect.icpEvaluation.reasons.length > 0 ? (
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-text-primary">Critères de ciblage ICP</h2>
+          <div className="rounded-app-lg border border-border bg-surface p-4">
+            <ul className="list-inside list-disc space-y-1 text-sm text-text-secondary">
+              {prospect.icpEvaluation.reasons.map((reason, idx) => (
+                <li key={idx}>{reason}</li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-text-primary">Évaluation BANT</h2>

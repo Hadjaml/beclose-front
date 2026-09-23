@@ -412,3 +412,44 @@ demandés comme besoin d'affichage sont réels et câblés.
   encore `criteria` en JSONB non typé, pas la forme structurée du contrat
   cible ; surlignage dynamique (pas juste l'ancrage natif) du message
   source dans le log filtré.
+
+## Alignement réel du schéma qualificationEvaluation (2026-09-17)
+
+Lors du test de la première démo réelle avec conversion du lead QR-CLEAN
+(`98fbe8a8-1ebf-4079-ab39-2f71c8f4dad2`, statut `booked`), la fiche prospect
+n'affichait rien (`Impossible de charger ce prospect`) en raison d'une divergence
+entre la forme réelle persistée par Beclose (`QualificationEvaluationRecord`) et
+le schéma Zod `bantEvaluationSchema` :
+- Beclose envoie `evidence: [{ text, source_interaction_id }]` (liste d'objets)
+  et non un `evidence` plat en chaîne.
+- `qualificationCriteriaId` et `result` ne font pas partie de l'objet
+  `qualification_evaluation` côté backend (ils sont portés au niveau racine
+  du lead).
+- `leadQualificationEvaluationSchema` (`lead-prospect-detail-schema.ts`)
+  normalise désormais la forme réelle de Beclose : extrait `evidence` (texte)
+  et `sourceInteractionId` (`source_interaction_id`), tout en restant compatible
+  avec la forme directe.
+- **Vérifié réellement** : test d'intégration en direct contre Beclose sur le lead
+  QR-CLEAN (succès), `npm run lint` (0 erreur), `npm run typecheck` (0 erreur),
+  `npm test` (44/44 tests réussis, 1 nouveau test pour la forme wire Beclose),
+  `npm run build` (succès).
+
+
+### Volet icpEvaluation + finalisation de la branche (2026-09-19 → 2026-09-23)
+
+- Beclose écrit `icp_evaluation` sous la forme `{ fit, tier?, sector?,
+  reasons?[] }`, pas la forme document §24 (`icpProfileId`/`evidence`/
+  `positiveSignals`/`negativeSignals`/`reasoningSummary`).
+  `icpEvaluationSchema` devient une union `icpEvaluationDocumentSchema |
+  icpEvaluationWireSchema` (commit `80dded1`). Tests sur les formes réelles
+  des leads Nanfa (`handed_off`) et ML-HANDC (`contacted`, BANT `null`).
+- Fiche prospect : `icpFit` affiché via `icpFitLabels` (n'est plus
+  toujours `null` en pratique), référence du profil ICP à côté de la grille
+  BANT, liste `reasons` quand présente.
+- **Écart de contrat à suivre** : les deux évaluations (ICP et BANT)
+  divergent de la forme cible du document ; le front accepte les deux
+  formes via union en attendant que le contrat tranche. Les `status` BANT
+  de la forme wire sont en `z.string()` (pas d'enum) — à resserrer quand la
+  forme est figée.
+- **Vérifié réellement le 2026-09-23** : lint (0 erreur), typecheck seul
+  (0 erreur), 47/47 tests, build (succès, 14 routes).
