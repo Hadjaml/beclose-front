@@ -1,5 +1,5 @@
-import { OnboardingWizard } from "@/features/onboarding";
+import { ClientProvisioningWizard } from "@/features/client-provisioning";
 
 export default function NewClientPage() {
-  return <OnboardingWizard />;
+  return <ClientProvisioningWizard />;
 }

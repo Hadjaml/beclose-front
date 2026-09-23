@@ -1,24 +1,19 @@
-export type { ClientConfigurationApi } from "./api/client-configuration-api";
 export {
   createWorkspaceConfigurationApi,
+  type BantCriteriaCreateRequest,
+  type IcpProfileCreateRequest,
   type WorkspaceConfigurationApi,
 } from "./api/workspace-configuration-api";
 export { useWorkspaceConfigurationQuery } from "./api/use-workspace-configuration-query";
-export { ClientConfigurationView } from "./components/client-configuration-view";
-export { ConfigurationSection } from "./components/configuration-section";
+export { useCreateIcpProfileVersionMutation } from "./api/use-create-icp-profile-version-mutation";
+export { useCreateBantCriteriaVersionMutation } from "./api/use-create-bant-criteria-version-mutation";
 export { WorkspaceConfigurationSection } from "./components/workspace-configuration-section";
 export { WorkspaceConfigurationView } from "./components/workspace-configuration-view";
-export {
-  clientConfigurationSections,
-  type ClientConfiguration,
-  type ClientConfigurationSectionId,
-} from "./model/client-configuration";
 export type {
   IcpProfileVersion,
   QualificationCriteriaVersion,
   WorkspaceConfiguration,
 } from "./model/workspace-configuration";
-export { clientConfigurationSchema } from "./schemas/client-configuration-schema";
 export {
   icpProfileVersionSchema,
   qualificationCriteriaVersionSchema,
@@ -51,3 +46,37 @@ export {
   type NeedStatus,
   type TimingStatus,
 } from "./model/bant-criteria";
+
+// Real-shape schemas + form-facing schemas for the client-provisioning flow
+// (organization -> ICP profile -> BANT criteria, EF-601/602, 2026-09-23).
+export type { BantCriteriaWire } from "./schemas/bant-criteria-wire-schema";
+export type { IcpCriteriaWire } from "./schemas/icp-criteria-wire-schema";
+export {
+  emptyIcpCriteriaDraft,
+  icpCriteriaFormSchema,
+  toCommercialMaturityLevelsPayload,
+  toIcpCriteriaPayload,
+  type EmployeeRangeFormValue,
+  type IcpCriteriaFormValue,
+  type IcpCriteriaPayload,
+  type LevelEntryFormValue,
+  type PrioritySectorFormValue,
+  type PrioritySectorTierFormValue,
+} from "./schemas/icp-criteria-form-schema";
+export { icpFieldHints } from "./schemas/icp-criteria-field-hints";
+export {
+  emptyBantCriteriaDraft,
+  bantCriteriaFormSchema,
+  toBantCriteriaPayload,
+  toFollowUpDelayDaysPayload,
+  toQualificationRulesPayload,
+  type BantCriteriaFormValue,
+  type BantCriteriaPayload,
+  type DelayEntryFormValue,
+  type RuleEntryFormValue,
+} from "./schemas/bant-criteria-form-schema";
+export { bantFieldHints } from "./schemas/bant-criteria-field-hints";
+export {
+  policyVersionSummarySchema,
+  type PolicyVersionSummary,
+} from "./schemas/policy-version-summary-schema";

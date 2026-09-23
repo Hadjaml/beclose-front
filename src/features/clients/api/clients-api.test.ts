@@ -41,4 +41,37 @@ describe("createClientsApi", () => {
     const client = rejectingClient(new Error("network down"));
     await expect(createClientsApi(client).list()).rejects.toThrow("network down");
   });
+
+  it("create() posts /organizations and maps the response to a ClientSummary", async () => {
+    const client = fakeClient((path, options) => {
+      expect(path).toBe("/organizations");
+      expect(options.method).toBe("POST");
+      expect(options.body).toEqual({
+        name: "Acme",
+        pitch: null,
+        signature: null,
+        telegramChatId: null,
+      });
+      return {
+        data: {
+          id: "org-2",
+          name: "Acme",
+          pitch: null,
+          signature: null,
+          telegramChatId: null,
+          createdAt: "2026-01-01T00:00:00Z",
+          updatedAt: "2026-01-01T00:00:00Z",
+        },
+      };
+    });
+
+    const created = await createClientsApi(client).create({
+      name: "Acme",
+      pitch: null,
+      signature: null,
+      telegramChatId: null,
+    });
+
+    expect(created.workspaceId).toBe("org-2");
+  });
 });
