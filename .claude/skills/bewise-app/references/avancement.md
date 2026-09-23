@@ -623,3 +623,53 @@ schéma de formulaire.
 - **Non fait à ce stade, sur consigne du coordinateur** : pas de PR
   ouverte par étape — une seule PR groupant les 3 steps + l'intégration,
   ouverte une fois le tout vérifié (ce point).
+
+## Correction — 2 bugs réels trouvés par Rochinel sur le flux provisioning
+## (2026-09-23, branche `fix/provisioning-flow-nav-and-validation`)
+
+Test réel de Rochinel après reconstruction du conteneur sur `b15ff12` : deux
+bugs bloquants.
+
+- **Bug 1 — bouton introuvable** : le bouton "Onboarder un client" n'existait
+  que dans `ClientsEmptyState`, affiché seulement quand la liste est vide.
+  Une organisation (Bewise) existe déjà en base → jamais vide → jamais
+  affiché sur la vraie page. Corrigé : bouton "Nouveau client" persistant
+  ajouté à l'en-tête de `/backoffice/clients` (composition, pas dans la
+  feature `ClientsList` elle-même).
+- **Bug 2 — "cliquer ne fait rien"** : investigué en conditions réelles, pas
+  juste relu. Créé un compte staff jetable + une organisation de test
+  jetable pour reproduire l'appel exact avec un vrai `curl` authentifié
+  contre l'API réelle sur `localhost:8000` : `POST /organizations` avec le
+  payload exact du front répond **201** sans problème — le contrat/réseau
+  n'est pas en cause. Écrit un test d'intégration exerçant le vrai
+  `OrganizationStep` (vraie validation Zod, vrai `useStepForm`, vraie
+  `useMutation`) avec seulement le réseau simulé — a d'abord accidentellement
+  tapé la vraie API locale (leçon : `backendClient` capture `fetch` une
+  seule fois à l'import du module, un `vi.stubGlobal("fetch", ...)`
+  postérieur n'a aucun effet sur ce singleton ; corrigé avec `vi.mock` sur
+  le module `backend-client` lui-même). Une fois isolé correctement : la
+  chaîne clic → validation → mutation → succès → avancement du wizard
+  fonctionne intégralement. **Vrai gap trouvé en cours de route** :
+  une validation Zod échouée (champ requis vide) ne produisait qu'un petit
+  texte rouge sous le champ concerné, sans bannière — facilement confondu
+  avec "rien ne se passe" sur un formulaire long. Ajouté
+  `ValidationErrorBanner` (`shared/ui/forms`), affichée dans les 3 steps
+  (organisation/ICP/BANT) quand `form.validate()` échoue, à côté de
+  `MutationErrorBanner` (échec réseau) déjà en place.
+- **Nettoyage** : le compte staff et l'organisation de test créés pour la
+  reproduction n'ont pas pu être supprimés par le script — le rôle
+  back-office n'a que `SELECT`/`INSERT` sur `staff_users` (permissions
+  minimales, cohérent avec le reste du projet), pas de `DELETE`. Deux
+  comptes `lyra-debug-temp@bewise.{fr,local}` et une organisation
+  "Test Curl Org" restent en base, à supprimer manuellement par quelqu'un
+  avec un accès direct à la base si souhaité — signalé à Orion.
+- **Vérifié réellement** : lint (0 erreur/warning), typecheck seul, 91/91
+  tests (3 nouveaux, le test d'intégration ci-dessus), build (13 routes,
+  inchangé).
+- **Non résolu avec certitude** : je n'ai pas pu reproduire "rien ne se
+  passe" à l'identique en conditions de navigateur réel (toujours pas de
+  Playwright local) — la validation silencieuse était la meilleure piste
+  concrète trouvée et corrigée ; si le vrai problème de Rochinel était
+  différent (page restée sur un ancien build en cache, session expirée
+  dans son navigateur au moment du test), ça reste à confirmer par un
+  nouveau test de sa part après ce correctif.
