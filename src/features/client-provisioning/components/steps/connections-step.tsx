@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useWorkspaceIntegrationStatusQuery } from "@/features/integrations";
+import { useUpdateClientMutation } from "@/features/clients";
 import { ErrorState, LoadingState } from "@/shared/ui/states";
-import { StepFormLayout } from "@/shared/ui/forms";
+import { MutationErrorBanner, StepFormLayout, TextField } from "@/shared/ui/forms";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 
 /**
@@ -85,16 +86,101 @@ function GmailStatus({ workspaceId }: { workspaceId: WorkspaceId }) {
  * group, per Beclose's own notes). Flagged to Orion/Vega as a candidate
  * for a small dedicated script; this step states the procedure in plain
  * language rather than inventing a command that doesn't exist.
+ *
+ * Editable via `PATCH /organizations/{id}` (point 18, 23/09/2026 — shipped
+ * by Vega in direct response to this exact gap) — a value left blank, or
+ * mistyped, at the organization step is no longer stuck forever.
  */
-function TelegramStatus({ telegramChatId }: { telegramChatId: string | null }) {
+function TelegramStatus({
+  workspaceId,
+  telegramChatId,
+  onSaved,
+}: {
+  workspaceId: WorkspaceId;
+  telegramChatId: string | null;
+  onSaved: (next: string | null) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(telegramChatId ?? "");
+  const mutation = useUpdateClientMutation(workspaceId);
+
+  function startEditing() {
+    setDraft(telegramChatId ?? "");
+    setIsEditing(true);
+  }
+
+  function save() {
+    const trimmed = draft.trim();
+    mutation.mutate(
+      { telegramChatId: trimmed === "" ? null : trimmed },
+      {
+        onSuccess: (client) => {
+          onSaved(client.telegramChatId);
+          setIsEditing(false);
+        },
+      },
+    );
+  }
+
+  if (isEditing) {
+    return (
+      <div
+        className="space-y-3 rounded-app-lg border border-border bg-surface p-4"
+        onKeyDown={(event) => {
+          // This edit block lives inside the step's own <form> (the
+          // "Terminer" submit button) — Enter here must save this field,
+          // never submit the whole step and finish the wizard mid-edit.
+          if (event.key === "Enter") {
+            event.preventDefault();
+            save();
+          }
+        }}
+      >
+        {mutation.isError ? <MutationErrorBanner error={mutation.error} /> : null}
+        <TextField
+          id="connections-telegram-chat-id"
+          label="Identifiant du groupe Telegram"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          optional
+        />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={mutation.isPending}
+            onClick={save}
+            className="brand-gradient-action brand-gradient-hover rounded-app-md px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {mutation.isPending ? "Enregistrement…" : "Enregistrer"}
+          </button>
+          <button
+            type="button"
+            disabled={mutation.isPending}
+            onClick={() => setIsEditing(false)}
+            className="rounded-app-md border border-border px-4 py-2 text-sm font-semibold text-text-secondary hover:bg-surface-muted hover:text-text-primary"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (telegramChatId !== null && telegramChatId.trim() !== "") {
     return (
-      <div className="rounded-app-lg border border-emerald-200 bg-emerald-50 p-4" role="status">
+      <div className="space-y-2 rounded-app-lg border border-emerald-200 bg-emerald-50 p-4" role="status">
         <p className="text-sm font-semibold text-emerald-950">Groupe Telegram renseigné</p>
-        <p className="mt-1 text-sm text-emerald-800">
+        <p className="text-sm text-emerald-800">
           Identifiant enregistré : <code className="text-emerald-950">{telegramChatId}</code>. Le
           bot pourra y poster les messages à valider une fois ajouté au groupe.
         </p>
+        <button
+          type="button"
+          onClick={startEditing}
+          className="text-sm font-semibold text-emerald-900 underline underline-offset-2"
+        >
+          Corriger
+        </button>
       </div>
     );
   }
@@ -107,10 +193,15 @@ function TelegramStatus({ telegramChatId }: { telegramChatId: string | null }) {
         Ajoutez le bot Bewise au groupe Telegram de ce client, envoyez-y la commande{" "}
         <code className="rounded bg-surface px-1 py-0.5">/start</code>, puis récupérez
         l&rsquo;identifiant du groupe (chat_id) — procédure aujourd&rsquo;hui manuelle côté
-        Beclose, aucun script dédié comme pour Gmail. Une fois obtenu, transmettez-le pour qu&rsquo;il
-        soit enregistré (pas encore de moyen de le modifier depuis cette interface après la
-        création de l&rsquo;organisation).
+        Beclose, aucun script dédié comme pour Gmail.
       </p>
+      <button
+        type="button"
+        onClick={startEditing}
+        className="text-sm font-semibold text-amber-900 underline underline-offset-2"
+      >
+        Renseigner l&rsquo;identifiant
+      </button>
     </div>
   );
 }
@@ -118,10 +209,16 @@ function TelegramStatus({ telegramChatId }: { telegramChatId: string | null }) {
 interface ConnectionsStepProps {
   workspaceId: WorkspaceId;
   telegramChatId: string | null;
+  onTelegramChatIdChange: (next: string | null) => void;
   onFinish: () => void;
 }
 
-export function ConnectionsStep({ workspaceId, telegramChatId, onFinish }: ConnectionsStepProps) {
+export function ConnectionsStep({
+  workspaceId,
+  telegramChatId,
+  onTelegramChatIdChange,
+  onFinish,
+}: ConnectionsStepProps) {
   return (
     <StepFormLayout
       title="Connexions"
@@ -139,7 +236,11 @@ export function ConnectionsStep({ workspaceId, telegramChatId, onFinish }: Conne
       </div>
       <div className="space-y-2">
         <h2 className="text-base font-semibold text-text-primary">Groupe Telegram du client</h2>
-        <TelegramStatus telegramChatId={telegramChatId} />
+        <TelegramStatus
+          workspaceId={workspaceId}
+          telegramChatId={telegramChatId}
+          onSaved={onTelegramChatIdChange}
+        />
       </div>
     </StepFormLayout>
   );

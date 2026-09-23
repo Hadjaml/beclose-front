@@ -790,3 +790,32 @@ step séparé.
   existants renommés/étendus), build (13 routes, inchangé).
 - **Non fait, sur consigne du coordinateur** : pas de PR ouverte, commit/
   push sur branche seulement.
+
+## Correction inline du groupe Telegram dans l'étape Connexions (même jour,
+## même branche `feat/onboarding-gmail-connection-step`)
+
+Vega a livré `PATCH /organizations/{id}` en réponse directe au gap
+"`pitch`/`signature`/`telegramChatId` non corrigeables après création"
+signalé dans l'étape précédente — sémantique PATCH stricte via
+`exclude_unset` (champ absent = inchangé, `null` explicite = effacé,
+`name` jamais effaçable). Pas urgent selon le coordinateur, mais gain
+direct et à faible risque : ajouté tout de suite plutôt que reporté.
+
+- `ClientsApi.update`/`useUpdateClientMutation` (`clients`) : PATCH avec
+  uniquement les champs fournis (`JSON.stringify` élimine déjà les clés
+  `undefined`, pas besoin de gérer l'omission à la main). Invalide la
+  liste des clients + la configuration du workspace.
+- `ConnectionsStep` : le bloc Telegram devient éditable ("Renseigner
+  l'identifiant" si vide, "Corriger" si déjà rempli) — édition inline,
+  pas une page séparée. Piège réel évité : le bloc d'édition vit dans le
+  même `<form>` que le bouton "Terminer" du step (`StepFormLayout`) —
+  Appuyer sur Entrée dans le champ y aurait déclenché la fin du wizard au
+  lieu d'enregistrer ; intercepté explicitement (`onKeyDown` sur le bloc
+  d'édition, `preventDefault` + sauvegarde).
+- **Vérifié réellement** : lint (0 erreur/warning), typecheck (seul, 0
+  erreur), 105/105 tests (5 nouveaux : 2 sur `ClientsApi.update`, 3 sur
+  l'édition inline dans `ConnectionsStep`, dont un qui vérifie
+  explicitement que "Terminer" n'est jamais déclenché en éditant), build
+  (13 routes, inchangé).
+- **Non fait, sur consigne du coordinateur** : pas de PR ouverte, commit/
+  push sur branche seulement.

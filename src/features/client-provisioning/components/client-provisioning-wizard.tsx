@@ -69,6 +69,7 @@ export function ClientProvisioningWizard() {
           <ConnectionsStep
             workspaceId={workspaceId}
             telegramChatId={telegramChatId}
+            onTelegramChatIdChange={setTelegramChatId}
             onFinish={() => {
               completeStep("connections", null);
               router.push(`/backoffice/workspaces/${workspaceId}/configuration`);

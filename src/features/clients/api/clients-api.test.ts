@@ -74,4 +74,28 @@ describe("createClientsApi", () => {
 
     expect(created.workspaceId).toBe("org-2");
   });
+
+  it("update() sends only the given field, omitting the rest (PATCH semantics)", async () => {
+    const client = fakeClient((path, options) => {
+      expect(path).toBe("/organizations/org-2");
+      expect(options.method).toBe("PATCH");
+      expect(options.context).toEqual({ workspaceId: "org-2" });
+      expect(options.body).toEqual({ telegramChatId: "-100123456" });
+      return {
+        data: {
+          id: "org-2",
+          name: "Acme",
+          pitch: null,
+          signature: null,
+          telegramChatId: "-100123456",
+          createdAt: "2026-01-01T00:00:00Z",
+          updatedAt: "2026-01-02T00:00:00Z",
+        },
+      };
+    });
+
+    const updated = await createClientsApi(client).update("org-2", { telegramChatId: "-100123456" });
+
+    expect(updated.telegramChatId).toBe("-100123456");
+  });
 });
