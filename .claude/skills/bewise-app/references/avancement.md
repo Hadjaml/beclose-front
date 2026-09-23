@@ -819,3 +819,64 @@ direct et à faible risque : ajouté tout de suite plutôt que reporté.
   (13 routes, inchangé).
 - **Non fait, sur consigne du coordinateur** : pas de PR ouverte, commit/
   push sur branche seulement.
+
+## Bug bloquant réel — profileName jamais lié à un champ visible (ICP/BANT)
+## (même jour, même branche `feat/onboarding-gmail-connection-step`)
+
+Rochinel bloqué à l'étape 2 (Profil ICP) : tous les champs visibles
+remplis, "Continuer" ne fait rien, aucun champ signalé comme vide.
+
+**Cause racine trouvée** (pas la piste "champ imbriqué invisible" d'Orion,
+plus simple et plus grave) : `IcpStep`/`BantStep` géraient le "Nom de cette
+version" via un `useState` local séparé (`name`), et ne fusionnaient sa
+valeur dans `draft.profileName` **qu'après** validation, dans la
+construction du payload final — sauf que `form.validate()` valide
+`draft` tel qu'il est, où `profileName` restait `""` **pour toujours**,
+puisqu'aucun champ visible n'appelait jamais `updateField("profileName",
+...)`. Résultat : la validation Zod échouait **systématiquement** sur
+`profileName`, quoi que l'utilisateur remplisse par ailleurs — champ
+structurellement impossible à remplir depuis l'UI. Reproduit et confirmé
+par un test d'intégration réel avant correction (soumission qui échoue
+alors que tous les champs visibles sont remplis), puis par le même test
+qui passe après correctif.
+
+**Corrigé** : le champ "Nom de cette version" est maintenant lié
+directement à `draft.profileName` (plus de state dupliqué) — `name` du
+payload API dérive de `criteria.profileName` (déjà validé), plus de fusion
+tardive.
+
+**Deuxième angle d'Orion confirmé aussi, corrigé en profondeur** :
+`useStepForm.errors` ne gardait que le **premier segment** du chemin Zod
+(`issue.path[0]`) — sur un schéma imbriqué, toutes les erreurs sous
+`companyFit` par exemple s'écrasaient en un seul message générique, et la
+plupart des sections ICP/BANT ne recevaient même pas `errors` en prop du
+tout. Corrigé :
+- `useStepForm` : clé désormais le **chemin complet** (`issue.path.join(".")`,
+  ex. `"companyFit.employeeRange.min"`, `"items.0.key"`) — rétrocompatible
+  pour les schémas plats (`OrganizationStep`, un seul segment = comportement
+  inchangé).
+- `ValidationErrorBanner` : liste désormais chaque erreur réelle (chemin
+  humanisé + message Zod), au lieu d'un texte générique qui ne pointait
+  rien.
+- `SectionErrorsNote` (nouveau, `shared/ui/forms`) : note d'erreur
+  compacte filtrée par préfixe de section, montée en tête de chaque
+  fieldset ICP/BANT (7 sections ICP, 6 sections BANT) — chaque section
+  affiche désormais ses propres erreurs, chemin relatif à la section.
+- **Non fait, assumé** : pas de bordure rouge sur chaque primitive de
+  saisie individuelle (`NumericRangeField`/`RepeatableGroupField` n'ont pas
+  encore de prop d'erreur par sous-champ) — refactor plus large que ce
+  correctif urgent ne justifiait pas aujourd'hui ; la note de section donne
+  déjà le chemin exact et le message Zod, largement suffisant pour ne plus
+  jamais reproduire "rien ne se passe, aucune piste".
+- Ajouté au passage : message explicite dans `IcpCommercialMaturitySection`
+  quand aucun niveau n'est encore défini ("Ajoutez au moins un niveau...")
+  — `commercialMaturity.preferredLevel` (requis) n'a littéralement aucun
+  moyen d'être rempli tant qu'aucun niveau n'existe, piège réel identifié
+  en marge du bug principal.
+- **Vérifié réellement** : lint (0 erreur/warning), typecheck (seul, 0
+  erreur), 118/118 tests (13 nouveaux : reproduction du bug ICP et BANT
+  avant/après correctif, `useStepForm` chemins imbriqués,
+  `SectionErrorsNote`, `ValidationErrorBanner`), build (13 routes,
+  inchangé).
+- **Non fait, sur consigne du coordinateur** : pas de PR ouverte, commit/
+  push sur branche seulement.

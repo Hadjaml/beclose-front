@@ -48,7 +48,7 @@ export function OrganizationStep({ onCreated }: OrganizationStepProps) {
       onBack={null}
       submitLabel={mutation.isPending ? "Création…" : "Créer et continuer"}
     >
-      {showValidationError ? <ValidationErrorBanner /> : null}
+      {showValidationError ? <ValidationErrorBanner errors={errors} /> : null}
       {mutation.isError ? <MutationErrorBanner error={mutation.error} /> : null}
       <TextField
         id="organization-name"

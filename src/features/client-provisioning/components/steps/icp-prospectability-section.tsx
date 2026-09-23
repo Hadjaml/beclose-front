@@ -1,20 +1,23 @@
 "use client";
 
 import { icpFieldHints, type IcpCriteriaFormValue } from "@/features/client-configuration";
-import { CheckboxField, StringListField } from "@/shared/ui/forms";
+import { CheckboxField, SectionErrorsNote, StringListField, type FieldErrors } from "@/shared/ui/forms";
 
 type ProspectabilityValue = IcpCriteriaFormValue["prospectability"];
 
 export function IcpProspectabilitySection({
   value,
   onChange,
+  errors,
 }: {
   value: ProspectabilityValue;
   onChange: (next: ProspectabilityValue) => void;
+  errors: FieldErrors;
 }) {
   return (
     <fieldset className="space-y-3">
       <legend className="text-base font-semibold text-text-primary">Atteignabilité</legend>
+      <SectionErrorsNote errors={errors} prefix="prospectability" />
       <CheckboxField
         id="icp-prospectability-accounts-identifiable"
         label="Entreprises facilement identifiables"

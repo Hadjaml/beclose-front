@@ -1,7 +1,7 @@
 "use client";
 
 import { bantFieldHints, type BantCriteriaFormValue } from "@/features/client-configuration";
-import { StringListField, TextAreaField, TextField } from "@/shared/ui/forms";
+import { SectionErrorsNote, StringListField, TextAreaField, TextField, type FieldErrors } from "@/shared/ui/forms";
 
 type TimingValue = BantCriteriaFormValue["timing"];
 
@@ -10,10 +10,19 @@ function parsePositiveInt(raw: string, fallback: number): number {
   return Number.isFinite(parsed) && parsed > 0 ? Math.trunc(parsed) : fallback;
 }
 
-export function BantTimingSection({ value, onChange }: { value: TimingValue; onChange: (next: TimingValue) => void }) {
+export function BantTimingSection({
+  value,
+  onChange,
+  errors,
+}: {
+  value: TimingValue;
+  onChange: (next: TimingValue) => void;
+  errors: FieldErrors;
+}) {
   return (
     <fieldset className="space-y-4">
       <legend className="text-base font-semibold text-text-primary">{bantFieldHints.timing.self}</legend>
+      <SectionErrorsNote errors={errors} prefix="timing" />
       <TextAreaField
         id="bant-timing-definition"
         label="Définition"

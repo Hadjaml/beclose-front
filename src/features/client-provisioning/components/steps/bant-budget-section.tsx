@@ -1,20 +1,23 @@
 "use client";
 
 import { bantFieldHints, type BantCriteriaFormValue } from "@/features/client-configuration";
-import { CheckboxField, StringListField, TextAreaField } from "@/shared/ui/forms";
+import { CheckboxField, SectionErrorsNote, StringListField, TextAreaField, type FieldErrors } from "@/shared/ui/forms";
 
 type BudgetValue = BantCriteriaFormValue["budget"];
 
 export function BantBudgetSection({
   value,
   onChange,
+  errors,
 }: {
   value: BudgetValue;
   onChange: (next: BudgetValue) => void;
+  errors: FieldErrors;
 }) {
   return (
     <fieldset className="space-y-4">
       <legend className="text-base font-semibold text-text-primary">{bantFieldHints.budget.self}</legend>
+      <SectionErrorsNote errors={errors} prefix="budget" />
       <TextAreaField
         id="bant-budget-definition"
         label="Définition"

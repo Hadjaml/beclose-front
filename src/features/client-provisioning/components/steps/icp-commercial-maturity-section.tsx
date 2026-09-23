@@ -1,7 +1,14 @@
 "use client";
 
 import { icpFieldHints, type IcpCriteriaFormValue, type LevelEntryFormValue } from "@/features/client-configuration";
-import { EnumSelectField, RepeatableGroupField, StringListField, TextField } from "@/shared/ui/forms";
+import {
+  EnumSelectField,
+  RepeatableGroupField,
+  SectionErrorsNote,
+  StringListField,
+  TextField,
+  type FieldErrors,
+} from "@/shared/ui/forms";
 
 type CommercialMaturityValue = IcpCriteriaFormValue["commercialMaturity"];
 
@@ -36,15 +43,18 @@ function LevelEntryEditor({
 export function IcpCommercialMaturitySection({
   value,
   onChange,
+  errors,
 }: {
   value: CommercialMaturityValue;
   onChange: (next: CommercialMaturityValue) => void;
+  errors: FieldErrors;
 }) {
   const levelOptions = value.levels.map((level) => ({ value: level.key, label: level.key || "(vide)" }));
 
   return (
     <fieldset className="space-y-4">
       <legend className="text-base font-semibold text-text-primary">Maturité commerciale</legend>
+      <SectionErrorsNote errors={errors} prefix="commercialMaturity" />
       <RepeatableGroupField<LevelEntryFormValue>
         id="icp-commercial-maturity-levels"
         label="Échelle des niveaux possibles"
@@ -59,7 +69,11 @@ export function IcpCommercialMaturitySection({
         removeLabel="Retirer ce niveau"
         emptyLabel="Aucun niveau de maturité défini pour l'instant."
       />
-      {levelOptions.length === 0 ? null : (
+      {levelOptions.length === 0 ? (
+        <p className="text-sm text-text-tertiary">
+          Ajoutez au moins un niveau ci-dessus pour pouvoir choisir le niveau idéal (requis).
+        </p>
+      ) : (
         <EnumSelectField
           id="icp-commercial-maturity-preferred-level"
           label="Niveau idéal"

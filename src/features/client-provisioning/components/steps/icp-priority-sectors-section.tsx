@@ -5,7 +5,7 @@ import {
   type PrioritySectorFormValue,
   type PrioritySectorTierFormValue,
 } from "@/features/client-configuration";
-import { RepeatableGroupField, TextField } from "@/shared/ui/forms";
+import { RepeatableGroupField, SectionErrorsNote, TextField, type FieldErrors } from "@/shared/ui/forms";
 
 function SectorEditor({
   idPrefix,
@@ -85,13 +85,16 @@ function TierEditor({
 export function IcpPrioritySectorsSection({
   value,
   onChange,
+  errors,
 }: {
   value: PrioritySectorTierFormValue[];
   onChange: (next: PrioritySectorTierFormValue[]) => void;
+  errors: FieldErrors;
 }) {
   return (
     <fieldset>
       <legend className="mb-3 text-base font-semibold text-text-primary">Secteurs prioritaires</legend>
+      <SectionErrorsNote errors={errors} prefix="prioritySectors" />
       <RepeatableGroupField<PrioritySectorTierFormValue>
         id="icp-priority-sectors"
         label="Rangs de priorité"

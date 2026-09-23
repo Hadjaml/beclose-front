@@ -1,14 +1,23 @@
 "use client";
 
 import { bantFieldHints, type BantCriteriaFormValue } from "@/features/client-configuration";
-import { StringListField, TextAreaField } from "@/shared/ui/forms";
+import { SectionErrorsNote, StringListField, TextAreaField, type FieldErrors } from "@/shared/ui/forms";
 
 type NeedValue = BantCriteriaFormValue["need"];
 
-export function BantNeedSection({ value, onChange }: { value: NeedValue; onChange: (next: NeedValue) => void }) {
+export function BantNeedSection({
+  value,
+  onChange,
+  errors,
+}: {
+  value: NeedValue;
+  onChange: (next: NeedValue) => void;
+  errors: FieldErrors;
+}) {
   return (
     <fieldset className="space-y-4">
       <legend className="text-base font-semibold text-text-primary">{bantFieldHints.need.self}</legend>
+      <SectionErrorsNote errors={errors} prefix="need" />
       <TextAreaField
         id="bant-need-definition"
         label="Définition"

@@ -1,20 +1,23 @@
 "use client";
 
 import { bantFieldHints, type BantCriteriaFormValue } from "@/features/client-configuration";
-import { StringListField, TextAreaField } from "@/shared/ui/forms";
+import { SectionErrorsNote, StringListField, TextAreaField, type FieldErrors } from "@/shared/ui/forms";
 
 type AuthorityValue = BantCriteriaFormValue["authority"];
 
 export function BantAuthoritySection({
   value,
   onChange,
+  errors,
 }: {
   value: AuthorityValue;
   onChange: (next: AuthorityValue) => void;
+  errors: FieldErrors;
 }) {
   return (
     <fieldset className="space-y-4">
       <legend className="text-base font-semibold text-text-primary">{bantFieldHints.authority.self}</legend>
+      <SectionErrorsNote errors={errors} prefix="authority" />
       <TextAreaField
         id="bant-authority-definition"
         label="Définition"

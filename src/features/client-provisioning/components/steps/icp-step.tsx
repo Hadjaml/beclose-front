@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import type { FormEvent } from "react";
+import { useState } from "react";
 import {
   emptyIcpCriteriaDraft,
   icpCriteriaFormSchema,
@@ -32,16 +33,18 @@ interface IcpStepProps {
 }
 
 export function IcpStep({ workspaceId, workspaceName, onCreated }: IcpStepProps) {
-  const [name, setName] = useState(`Profil ICP ${workspaceName}`);
-  const form = useStepForm(emptyIcpCriteriaDraft, icpCriteriaFormSchema);
-  const { draft, updateField } = form;
+  const form = useStepForm(
+    { ...emptyIcpCriteriaDraft, profileName: `Profil ICP ${workspaceName}` },
+    icpCriteriaFormSchema,
+  );
+  const { draft, errors, updateField } = form;
   const mutation = useCreateIcpProfileVersionMutation(workspaceId);
   const [showValidationError, setShowValidationError] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const criteria = form.validate();
-    if (criteria === null || name.trim() === "") {
+    if (criteria === null) {
       setShowValidationError(true);
       return;
     }
@@ -49,9 +52,9 @@ export function IcpStep({ workspaceId, workspaceName, onCreated }: IcpStepProps)
 
     mutation.mutate(
       {
-        name,
+        name: criteria.profileName,
         notes: null,
-        criteria: toIcpCriteriaPayload({ ...criteria, profileName: name }),
+        criteria: toIcpCriteriaPayload(criteria),
       },
       { onSuccess: onCreated },
     );
@@ -65,14 +68,15 @@ export function IcpStep({ workspaceId, workspaceName, onCreated }: IcpStepProps)
       onBack={null}
       submitLabel={mutation.isPending ? "Création…" : "Créer et continuer"}
     >
-      {showValidationError ? <ValidationErrorBanner /> : null}
+      {showValidationError ? <ValidationErrorBanner errors={errors} /> : null}
       {mutation.isError ? <MutationErrorBanner error={mutation.error} /> : null}
 
       <TextField
         id="icp-name"
         label="Nom de cette version"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
+        value={draft.profileName}
+        onChange={(event) => updateField("profileName", event.target.value)}
+        error={errors["profileName"]}
         hint={icpFieldHints.profileName}
       />
       <TextAreaField
@@ -80,26 +84,39 @@ export function IcpStep({ workspaceId, workspaceName, onCreated }: IcpStepProps)
         label="Objet de ce profil"
         value={draft.purpose}
         onChange={(event) => updateField("purpose", event.target.value)}
+        error={errors["purpose"]}
         hint={icpFieldHints.purpose}
       />
 
-      <IcpMarketSection value={draft.market} onChange={(next) => updateField("market", next)} />
-      <IcpCompanyFitSection value={draft.companyFit} onChange={(next) => updateField("companyFit", next)} />
+      <IcpMarketSection
+        value={draft.market}
+        onChange={(next) => updateField("market", next)}
+        errors={errors}
+      />
+      <IcpCompanyFitSection
+        value={draft.companyFit}
+        onChange={(next) => updateField("companyFit", next)}
+        errors={errors}
+      />
       <IcpPrioritySectorsSection
         value={draft.prioritySectors}
         onChange={(next) => updateField("prioritySectors", next)}
+        errors={errors}
       />
       <IcpCommercialMaturitySection
         value={draft.commercialMaturity}
         onChange={(next) => updateField("commercialMaturity", next)}
+        errors={errors}
       />
       <IcpProspectabilitySection
         value={draft.prospectability}
         onChange={(next) => updateField("prospectability", next)}
+        errors={errors}
       />
       <IcpDecisionMakersSection
         value={draft.decisionMakers}
         onChange={(next) => updateField("decisionMakers", next)}
+        errors={errors}
       />
       <IcpSignalsSection
         positiveSignals={draft.positiveSignals}

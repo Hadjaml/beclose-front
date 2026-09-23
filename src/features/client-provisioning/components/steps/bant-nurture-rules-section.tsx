@@ -1,7 +1,7 @@
 "use client";
 
 import { bantFieldHints, type BantCriteriaFormValue, type DelayEntryFormValue } from "@/features/client-configuration";
-import { CheckboxField, RepeatableGroupField, TextField } from "@/shared/ui/forms";
+import { CheckboxField, RepeatableGroupField, SectionErrorsNote, TextField, type FieldErrors } from "@/shared/ui/forms";
 
 type NurtureRulesValue = BantCriteriaFormValue["nurtureRules"];
 
@@ -42,13 +42,16 @@ function DelayEntryEditor({
 export function BantNurtureRulesSection({
   value,
   onChange,
+  errors,
 }: {
   value: NurtureRulesValue;
   onChange: (next: NurtureRulesValue) => void;
+  errors: FieldErrors;
 }) {
   return (
     <fieldset className="space-y-4">
       <legend className="text-base font-semibold text-text-primary">{bantFieldHints.nurtureRules.self}</legend>
+      <SectionErrorsNote errors={errors} prefix="nurtureRules" />
       <CheckboxField
         id="bant-nurture-rules-enabled"
         label="Relancer automatiquement les prospects en attente"

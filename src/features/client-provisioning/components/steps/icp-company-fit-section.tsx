@@ -1,20 +1,23 @@
 "use client";
 
 import { icpFieldHints, type IcpCriteriaFormValue } from "@/features/client-configuration";
-import { CheckboxField, NumericRangeField, TextField } from "@/shared/ui/forms";
+import { CheckboxField, NumericRangeField, SectionErrorsNote, TextField, type FieldErrors } from "@/shared/ui/forms";
 
 type CompanyFitValue = IcpCriteriaFormValue["companyFit"];
 
 export function IcpCompanyFitSection({
   value,
   onChange,
+  errors,
 }: {
   value: CompanyFitValue;
   onChange: (next: CompanyFitValue) => void;
+  errors: FieldErrors;
 }) {
   return (
     <fieldset className="space-y-5">
       <legend className="text-base font-semibold text-text-primary">Adéquation entreprise</legend>
+      <SectionErrorsNote errors={errors} prefix="companyFit" />
 
       <NumericRangeField
         id="icp-employee-range"

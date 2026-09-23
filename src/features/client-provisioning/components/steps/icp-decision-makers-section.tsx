@@ -1,20 +1,23 @@
 "use client";
 
 import { icpFieldHints, type IcpCriteriaFormValue } from "@/features/client-configuration";
-import { StringListField } from "@/shared/ui/forms";
+import { SectionErrorsNote, StringListField, type FieldErrors } from "@/shared/ui/forms";
 
 type DecisionMakersValue = IcpCriteriaFormValue["decisionMakers"];
 
 export function IcpDecisionMakersSection({
   value,
   onChange,
+  errors,
 }: {
   value: DecisionMakersValue;
   onChange: (next: DecisionMakersValue) => void;
+  errors: FieldErrors;
 }) {
   return (
     <fieldset className="space-y-4">
       <legend className="text-base font-semibold text-text-primary">Décideurs visés</legend>
+      <SectionErrorsNote errors={errors} prefix="decisionMakers" />
       <StringListField
         id="icp-decision-makers-primary"
         label="Décideurs principaux"

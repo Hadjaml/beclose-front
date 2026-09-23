@@ -1,7 +1,7 @@
 "use client";
 
 import { bantFieldHints, type BantCriteriaFormValue, type RuleEntryFormValue } from "@/features/client-configuration";
-import { RepeatableGroupField, StringListField, TextField } from "@/shared/ui/forms";
+import { RepeatableGroupField, SectionErrorsNote, StringListField, TextField, type FieldErrors } from "@/shared/ui/forms";
 
 type QualificationRulesValue = BantCriteriaFormValue["qualificationRules"];
 
@@ -36,13 +36,16 @@ function RuleEntryEditor({
 export function BantQualificationRulesSection({
   value,
   onChange,
+  errors,
 }: {
   value: QualificationRulesValue;
   onChange: (next: QualificationRulesValue) => void;
+  errors: FieldErrors;
 }) {
   return (
     <fieldset className="space-y-5">
       <legend className="text-base font-semibold text-text-primary">{bantFieldHints.qualificationRules.self}</legend>
+      <SectionErrorsNote errors={errors} prefix="qualificationRules" />
       <RepeatableGroupField<RuleEntryFormValue>
         id="bant-qualification-rules-qualified"
         label="Règles « qualifié »"
