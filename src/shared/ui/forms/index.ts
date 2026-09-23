@@ -1,6 +1,7 @@
 export { FieldFrame, type FieldFrameProps } from "./field-frame";
 export { CheckboxField, type CheckboxFieldProps } from "./checkbox-field";
 export { MutationErrorBanner } from "./mutation-error-banner";
+export { ValidationErrorBanner } from "./validation-error-banner";
 export { TextField, type TextFieldProps } from "./text-field";
 export { TextAreaField, type TextAreaFieldProps } from "./textarea-field";
 export { StringListField, type StringListFieldProps } from "./string-list-field";

@@ -8,7 +8,14 @@ import {
   toIcpCriteriaPayload,
   useCreateIcpProfileVersionMutation,
 } from "@/features/client-configuration";
-import { MutationErrorBanner, StepFormLayout, TextAreaField, TextField, useStepForm } from "@/shared/ui/forms";
+import {
+  MutationErrorBanner,
+  StepFormLayout,
+  TextAreaField,
+  TextField,
+  ValidationErrorBanner,
+  useStepForm,
+} from "@/shared/ui/forms";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 import { IcpCommercialMaturitySection } from "./icp-commercial-maturity-section";
 import { IcpCompanyFitSection } from "./icp-company-fit-section";
@@ -29,11 +36,16 @@ export function IcpStep({ workspaceId, workspaceName, onCreated }: IcpStepProps)
   const form = useStepForm(emptyIcpCriteriaDraft, icpCriteriaFormSchema);
   const { draft, updateField } = form;
   const mutation = useCreateIcpProfileVersionMutation(workspaceId);
+  const [showValidationError, setShowValidationError] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const criteria = form.validate();
-    if (criteria === null || name.trim() === "") return;
+    if (criteria === null || name.trim() === "") {
+      setShowValidationError(true);
+      return;
+    }
+    setShowValidationError(false);
 
     mutation.mutate(
       {
@@ -53,6 +65,7 @@ export function IcpStep({ workspaceId, workspaceName, onCreated }: IcpStepProps)
       onBack={null}
       submitLabel={mutation.isPending ? "Création…" : "Créer et continuer"}
     >
+      {showValidationError ? <ValidationErrorBanner /> : null}
       {mutation.isError ? <MutationErrorBanner error={mutation.error} /> : null}
 
       <TextField

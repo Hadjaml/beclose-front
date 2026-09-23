@@ -1,13 +1,20 @@
 "use client";
 
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import {
   emptyOrganizationCreateDraft,
   organizationCreateSchema,
   organizationFieldHints,
   useCreateClientMutation,
 } from "@/features/clients";
-import { MutationErrorBanner, StepFormLayout, TextAreaField, TextField, useStepForm } from "@/shared/ui/forms";
+import {
+  MutationErrorBanner,
+  StepFormLayout,
+  TextAreaField,
+  TextField,
+  ValidationErrorBanner,
+  useStepForm,
+} from "@/shared/ui/forms";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 
 interface OrganizationStepProps {
@@ -18,11 +25,16 @@ export function OrganizationStep({ onCreated }: OrganizationStepProps) {
   const form = useStepForm(emptyOrganizationCreateDraft, organizationCreateSchema);
   const { draft, errors, updateField } = form;
   const mutation = useCreateClientMutation();
+  const [showValidationError, setShowValidationError] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = form.validate();
-    if (data === null) return;
+    if (data === null) {
+      setShowValidationError(true);
+      return;
+    }
+    setShowValidationError(false);
     mutation.mutate(data, {
       onSuccess: (client) => onCreated(client.workspaceId, client.name),
     });
@@ -36,6 +48,7 @@ export function OrganizationStep({ onCreated }: OrganizationStepProps) {
       onBack={null}
       submitLabel={mutation.isPending ? "Création…" : "Créer et continuer"}
     >
+      {showValidationError ? <ValidationErrorBanner /> : null}
       {mutation.isError ? <MutationErrorBanner error={mutation.error} /> : null}
       <TextField
         id="organization-name"

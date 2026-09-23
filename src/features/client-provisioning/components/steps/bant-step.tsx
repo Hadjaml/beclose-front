@@ -9,7 +9,13 @@ import {
   toBantCriteriaPayload,
   useCreateBantCriteriaVersionMutation,
 } from "@/features/client-configuration";
-import { MutationErrorBanner, StepFormLayout, TextField, useStepForm } from "@/shared/ui/forms";
+import {
+  MutationErrorBanner,
+  StepFormLayout,
+  TextField,
+  ValidationErrorBanner,
+  useStepForm,
+} from "@/shared/ui/forms";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 import { BantAuthoritySection } from "./bant-authority-section";
 import { BantBudgetSection } from "./bant-budget-section";
@@ -31,11 +37,16 @@ export function BantStep({ workspaceId, workspaceName, onCreated }: BantStepProp
   const form = useStepForm(emptyBantCriteriaDraft, bantCriteriaFormSchema);
   const { draft, updateField } = form;
   const mutation = useCreateBantCriteriaVersionMutation(workspaceId);
+  const [showValidationError, setShowValidationError] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const criteria = form.validate();
-    if (criteria === null || name.trim() === "") return;
+    if (criteria === null || name.trim() === "") {
+      setShowValidationError(true);
+      return;
+    }
+    setShowValidationError(false);
 
     mutation.mutate(
       {
@@ -55,6 +66,7 @@ export function BantStep({ workspaceId, workspaceName, onCreated }: BantStepProp
       onBack={null}
       submitLabel={mutation.isPending ? "Création…" : "Créer"}
     >
+      {showValidationError ? <ValidationErrorBanner /> : null}
       {mutation.isError ? <MutationErrorBanner error={mutation.error} /> : null}
 
       <TextField
