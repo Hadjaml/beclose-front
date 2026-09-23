@@ -1,10 +1,10 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useStepForm } from "../../hooks/use-step-form";
+import { useStepForm } from "@/shared/ui/forms";
 import type { TrainingStepData } from "../../model/onboarding";
 import { trainingStepSchema } from "../../schemas/onboarding-schemas";
-import { StepFormLayout } from "../step-form-layout";
+import { StepFormLayout } from "@/shared/ui/forms";
 
 interface TrainingStepProps {
   initialData: TrainingStepData;

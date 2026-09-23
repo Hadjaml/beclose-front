@@ -1,11 +1,11 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useStepForm } from "../../hooks/use-step-form";
+import { useStepForm } from "@/shared/ui/forms";
 import type { QualificationStepData } from "../../model/onboarding";
 import { qualificationStepSchema } from "../../schemas/onboarding-schemas";
-import { TextAreaField } from "../form-fields";
-import { StepFormLayout } from "../step-form-layout";
+import { TextAreaField } from "@/shared/ui/forms";
+import { StepFormLayout } from "@/shared/ui/forms";
 
 interface QualificationStepProps {
   initialData: QualificationStepData;

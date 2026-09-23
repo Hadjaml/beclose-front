@@ -2,7 +2,13 @@
 
 import type { FormEventHandler, ReactNode } from "react";
 
-interface StepFormLayoutProps {
+/**
+ * Generic chrome for one step of a multi-step form: title, description,
+ * fields, and a sticky back/continue footer. Business-agnostic — extracted
+ * from `features/onboarding` (2026-09-23) for reuse by other step-based
+ * flows.
+ */
+export interface StepFormLayoutProps {
   title: string;
   description: string;
   children: ReactNode;
@@ -27,7 +33,9 @@ export function StepFormLayout({
       </header>
       <div className="space-y-6">{children}</div>
       <footer className="sticky bottom-0 z-10 -mx-5 flex flex-wrap items-center justify-between gap-3 border-t border-border bg-surface/95 px-5 py-4 backdrop-blur sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10">
-        {onBack === null ? <span /> : (
+        {onBack === null ? (
+          <span />
+        ) : (
           <button
             type="button"
             onClick={onBack}
