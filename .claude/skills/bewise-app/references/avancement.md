@@ -538,3 +538,88 @@ elles-mêmes, comme convenu (le contrat n'est pas encore là).
 - **Non fait, en attente du contrat Vega** : les steps organisation/ICP/BANT
   elles-mêmes (schémas de requête, mutations TanStack Query une par étape,
   wizard reparamétré sur ces 3-4 steps).
+
+## Flux réel de provisioning client — organisation + ICP + BANT (2026-09-23,
+## branche `feat/client-provisioning-organization-icp-bant`)
+
+Contrat EF-601/602 mergé côté Beclose (PR #29, `f4005d9`, lu directement
+dans `api/routers/organizations.py` + `core/profiles/icp_schema.py` +
+`core/profiles/bant_schema.py`, pas pris sur relais) : 3 endpoints
+atomiques et indépendants, `POST /organizations`,
+`POST /organizations/{id}/icp-profile`, `POST /organizations/{id}/bant-criteria`.
+Chaque champ de `IcpProfileCriteria`/`BantCriteria` porte désormais un
+`Field(description=...)` en français orienté métier — texte repris tel
+quel comme aide sous chaque champ, pas reformulé.
+
+**Retiré** : `features/onboarding` (wizard + 8 steps + schémas, jamais
+branché sur aucune API — confirmé cause de la confusion de Rochinel) et sa
+chaîne dépendante dans `client-configuration` (`clientConfigurationSchema`/
+`ClientConfigurationView`/`ConfigurationSection`/`model/client-configuration.ts`,
+jamais rendus sur aucune page réelle). `tests/integration/onboarding-validation.test.ts`
+retiré avec, son intention de couverture reprise par les nouveaux tests de
+schéma de formulaire.
+
+**Construit** :
+- `clients` : `organization-create-schema.ts` (requête + hints FR),
+  `ClientsApi.create` (`POST /organizations`, réutilise le schéma
+  `OrganizationOut` déjà exact), `useCreateClientMutation` (invalide
+  `globalKeys.workspaces()`).
+- `client-configuration` : `icp-criteria-form-schema.ts`/
+  `bant-criteria-form-schema.ts` — forme camelCase native (Beclose accepte
+  désormais camelCase directement, `alias_generator=to_camel,
+  populate_by_name=True`), **délibérément séparée** des schémas wire
+  (GET, snake_case) et des schémas cibles spéculatifs. Champs `dict[str,X]`
+  de Beclose (`commercialMaturity.levels`, `qualificationRules.*`,
+  `nurtureRules.followUpDelayDays`) édités comme listes de paires
+  (`RepeatableGroupField`) puis repliés en `Record` via
+  `toIcpCriteriaPayload`/`toBantCriteriaPayload` avant l'envoi — types
+  `*Payload` distincts des types `*FormValue` de brouillon (le premier jet
+  envoyait le brouillon tel quel, bug réel : `levels` partait en liste au
+  lieu du dict attendu, corrigé avant tout commit). `*-field-hints.ts` :
+  description Beclose copiées verbatim. `createIcpProfileVersion`/
+  `createBantCriteriaVersion` sur `WorkspaceConfigurationApi`, mutations
+  associées (invalident `workspaceKeys.feature(workspaceId,"configuration")`).
+- **Déduplication assumée** : Beclose a deux champs "nom" qui se recouvrent
+  (`{Icp,Bant}CriteriaCreateRequest.name` et `criteria.profileName`, mêmes
+  descriptions quasi identiques) — un seul champ "Nom de cette version"
+  dans le formulaire, envoyé aux deux, pas deux champs qui pourraient
+  diverger aux yeux de l'utilisateur.
+- `client-provisioning` (nouvelle feature) : `ClientProvisioningWizard`,
+  3 steps (`organization`/`icp`/`bant`) sur le kit `shared/ui/forms`.
+  **Persistance progressive** (décision transverse 23/09) : chaque step
+  appelle sa mutation immédiatement, avance seulement en cas de succès —
+  pas de brouillon global soumis à la fin. Steps **à sens unique** : aucun
+  endpoint `PATCH`/update n'existe, revenir en arrière ne peut rien
+  annuler — bouton retour désactivé une fois une étape créée. Redirige
+  vers `/backoffice/workspaces/{id}/configuration` après la grille BANT
+  (referme la boucle sur `BantCriteriaView`/`IcpCriteriaView` déjà
+  construites le matin même).
+- 2 nouvelles primitives partagées (`shared/ui/forms/`) au-delà des 4
+  prévues la veille : `CheckboxField` (nécessaire partout — ICP/BANT sont
+  pleins de booléens) et `MutationErrorBanner` (bannière d'échec de
+  mutation, réutilisable, plus légère que `ErrorState` plein écran).
+- Sections ICP découpées en 7 fichiers (marché, adéquation entreprise,
+  secteurs prioritaires — groupe imbriqué, maturité commerciale — options
+  d'enum dynamiques depuis les niveaux saisis, atteignabilité, décideurs,
+  signaux) ; BANT en 8 fichiers (4 critères, règles de qualification —
+  groupe de paires, handoff, nurture — activable/désactivable, politique
+  de conversation).
+- **Simplification assumée, documentée** : `customCriteria` (JSON
+  vraiment libre côté Beclose, aucun agent ne le consomme) sans champ de
+  formulaire — reste `null` à la création, pas un textarea JSON pour
+  l'instant. `targetLevels`/`preferredLevels`/`excludedLevels` de
+  `commercialMaturity` en listes de texte libre plutôt qu'un vrai
+  multi-select synchronisé sur les clés de `levels` (pas de primitive
+  multi-select construite) — l'utilisateur retape la même clé.
+- **Vérifié réellement** : lint (0 erreur/0 warning), typecheck (seul, 0
+  erreur), 88/88 tests (22 nouveaux : schémas formulaire ICP/BANT + repli
+  payload, `ClientsApi.create`, mutations de création), build (13 routes,
+  `/backoffice/clients/new` toujours statique). **Non vérifié en
+  navigateur réel** (Playwright indisponible sur cette machine, comme déjà
+  documenté) — un `curl` confirme que la page sert bien la coquille et
+  s'arrête à `RequireSession` (`Vérification de la session…`), attendu
+  sans session ; le rendu du wizard lui-même n'a pas pu être vérifié
+  visuellement en local, à faire par Rochinel ou en CI e2e après merge.
+- **Non fait à ce stade, sur consigne du coordinateur** : pas de PR
+  ouverte par étape — une seule PR groupant les 3 steps + l'intégration,
+  ouverte une fois le tout vérifié (ce point).

@@ -1,10 +1,12 @@
 import { z } from "zod";
 import type { ApiClient } from "@/shared/api/api-client";
-import { listEnvelopeSchema } from "@/shared/api/api-envelope";
+import { detailEnvelopeSchema, listEnvelopeSchema } from "@/shared/api/api-envelope";
 import type { ClientSummary } from "../schemas/client-summary-schema";
+import type { OrganizationCreateValue } from "../schemas/organization-create-schema";
 
 export interface ClientsApi {
   list: (signal?: AbortSignal) => Promise<readonly ClientSummary[]>;
+  create: (request: OrganizationCreateValue, signal?: AbortSignal) => Promise<ClientSummary>;
 }
 
 /**
@@ -34,6 +36,7 @@ const organizationResponseSchema = z
   );
 
 const organizationsListResponseSchema = listEnvelopeSchema(organizationResponseSchema);
+const organizationCreateResponseSchema = detailEnvelopeSchema(organizationResponseSchema);
 
 export function createClientsApi(client: ApiClient): ClientsApi {
   return {
@@ -41,6 +44,15 @@ export function createClientsApi(client: ApiClient): ClientsApi {
       const response = await client.request("/organizations", {
         method: "GET",
         schema: organizationsListResponseSchema,
+        ...(signal === undefined ? {} : { signal }),
+      });
+      return response.data;
+    },
+    async create(request, signal) {
+      const response = await client.request("/organizations", {
+        method: "POST",
+        body: request,
+        schema: organizationCreateResponseSchema,
         ...(signal === undefined ? {} : { signal }),
       });
       return response.data;

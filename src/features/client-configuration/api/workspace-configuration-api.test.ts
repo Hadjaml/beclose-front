@@ -198,4 +198,56 @@ describe("createWorkspaceConfigurationApi", () => {
 
     expect(configuration.qualificationCriteria?.criteria.nurtureRules).toBeNull();
   });
+
+  it("createIcpProfileVersion() posts /organizations/{id}/icp-profile and returns the version summary", async () => {
+    const client = fakeClient((path, options) => {
+      expect(path).toBe("/organizations/workspace-1/icp-profile");
+      expect(options.method).toBe("POST");
+      expect(options.context).toEqual({ workspaceId: "workspace-1" });
+      return {
+        data: {
+          id: "icp-1",
+          name: "Profil ICP V1",
+          version: 1,
+          status: "active",
+          activatedAt: "2026-09-23T00:00:00Z",
+          createdAt: "2026-09-23T00:00:00Z",
+        },
+      };
+    });
+
+    const result = await createWorkspaceConfigurationApi(client).createIcpProfileVersion("workspace-1", {
+      name: "Profil ICP V1",
+      notes: null,
+      criteria: {} as never,
+    });
+
+    expect(result.id).toBe("icp-1");
+    expect(result.status).toBe("active");
+  });
+
+  it("createBantCriteriaVersion() posts /organizations/{id}/bant-criteria and returns the version summary", async () => {
+    const client = fakeClient((path, options) => {
+      expect(path).toBe("/organizations/workspace-1/bant-criteria");
+      expect(options.method).toBe("POST");
+      return {
+        data: {
+          id: "bant-1",
+          name: "Grille BANT V1",
+          version: 1,
+          status: "active",
+          activatedAt: "2026-09-23T00:00:00Z",
+          createdAt: "2026-09-23T00:00:00Z",
+        },
+      };
+    });
+
+    const result = await createWorkspaceConfigurationApi(client).createBantCriteriaVersion("workspace-1", {
+      name: "Grille BANT V1",
+      notes: null,
+      criteria: {} as never,
+    });
+
+    expect(result.id).toBe("bant-1");
+  });
 });
