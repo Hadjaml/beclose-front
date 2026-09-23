@@ -13,25 +13,25 @@ import type { WizardStepDefinition, WizardStepStatus } from "@/shared/ui/forms";
  * endpoint, so "going back" cannot un-create anything. Only the very first
  * step (before any mutation has run) can be edited freely.
  */
-export type ClientProvisioningStepId = "organization" | "icp" | "bant" | "gmail";
+export type ClientProvisioningStepId = "organization" | "icp" | "bant" | "connections";
 
 export const clientProvisioningStepIds: readonly ClientProvisioningStepId[] = [
   "organization",
   "icp",
   "bant",
-  "gmail",
+  "connections",
 ];
 
 export const clientProvisioningSteps: readonly WizardStepDefinition<ClientProvisioningStepId>[] = [
   { id: "organization", label: "Organisation" },
   { id: "icp", label: "Profil ICP" },
   { id: "bant", label: "Grille BANT" },
-  { id: "gmail", label: "Connexion Gmail" },
+  { id: "connections", label: "Connexions" },
 ];
 
 export const initialClientProvisioningStatuses: Record<ClientProvisioningStepId, WizardStepStatus> = {
   organization: "IN_PROGRESS",
   icp: "NOT_STARTED",
   bant: "NOT_STARTED",
-  gmail: "NOT_STARTED",
+  connections: "NOT_STARTED",
 };

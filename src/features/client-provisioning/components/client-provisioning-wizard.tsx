@@ -11,7 +11,7 @@ import {
   type ClientProvisioningStepId,
 } from "../model/client-provisioning";
 import { BantStep } from "./steps/bant-step";
-import { GmailConnectionStep } from "./steps/gmail-connection-step";
+import { ConnectionsStep } from "./steps/connections-step";
 import { IcpStep } from "./steps/icp-step";
 import { OrganizationStep } from "./steps/organization-step";
 
@@ -21,6 +21,7 @@ export function ClientProvisioningWizard() {
   const [statuses, setStatuses] = useState(initialClientProvisioningStatuses);
   const [workspaceId, setWorkspaceId] = useState<WorkspaceId | null>(null);
   const [workspaceName, setWorkspaceName] = useState("");
+  const [telegramChatId, setTelegramChatId] = useState<string | null>(null);
 
   function completeStep(stepId: ClientProvisioningStepId, nextStep: ClientProvisioningStepId | null) {
     setStatuses((current) => ({
@@ -36,9 +37,10 @@ export function ClientProvisioningWizard() {
       case "organization":
         return (
           <OrganizationStep
-            onCreated={(newWorkspaceId, name) => {
+            onCreated={(newWorkspaceId, name, newTelegramChatId) => {
               setWorkspaceId(newWorkspaceId);
               setWorkspaceName(name);
+              setTelegramChatId(newTelegramChatId);
               completeStep("organization", "icp");
             }}
           />
@@ -58,16 +60,17 @@ export function ClientProvisioningWizard() {
           <BantStep
             workspaceId={workspaceId}
             workspaceName={workspaceName}
-            onCreated={() => completeStep("bant", "gmail")}
+            onCreated={() => completeStep("bant", "connections")}
           />
         );
-      case "gmail":
+      case "connections":
         if (workspaceId === null) return null;
         return (
-          <GmailConnectionStep
+          <ConnectionsStep
             workspaceId={workspaceId}
+            telegramChatId={telegramChatId}
             onFinish={() => {
-              completeStep("gmail", null);
+              completeStep("connections", null);
               router.push(`/backoffice/workspaces/${workspaceId}/configuration`);
             }}
           />

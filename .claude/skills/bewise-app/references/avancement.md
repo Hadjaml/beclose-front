@@ -752,3 +752,41 @@ possible — réutilisation directe.
 - **Non fait, sur consigne du coordinateur** : pas de PR ouverte — commit/
   push sur branche seulement, en attente du feu vert après test réel de
   Rochinel.
+
+## Étape "Connexions" étendue à Telegram (même jour, 2026-09-23, même branche
+## renommée `feat/onboarding-gmail-connection-step`)
+
+Rochinel a trouvé le même trou côté Telegram, en clarifiant une confusion à
+ne pas reproduire : deux choses distinctes.
+1. Groupe d'alerte technique Bewise (`BEWISE_INTERNAL_ALERT_CHAT_ID`) : un
+   seul, global, déjà configuré en `.env` — hors périmètre, rien à faire.
+2. Groupe Telegram du **client** (`organizations.telegram_chat_id`, déjà un
+   champ de `OrganizationCreateRequest`) : où le bot poste les messages à
+   valider avant envoi. Jusqu'ici une case de texte remplie à l'aveugle,
+   sans statut — même défaut que Gmail avant la 4e étape du matin même.
+
+Étape renommée `GmailConnectionStep` → `ConnectionsStep` (id `"gmail"` →
+`"connections"`), Gmail et Telegram affichés côte à côte plutôt qu'un 5e
+step séparé.
+
+- **Vérifié avant de coder** : `telegramChatId` est déjà renvoyé par
+  `POST /organizations` (la valeur que l'utilisateur vient de saisir à
+  l'étape organisation) — propagé à travers le wizard
+  (`OrganizationStep.onCreated` gagne un 3e paramètre) plutôt que rappelé
+  via une requête séparée.
+- **Vérifié côté Beclose, pas de procédure packagée pour Telegram**
+  (contrairement à Gmail/`connect_gmail_cli.py`) : la seule fois où un
+  `chat_id` client a été récupéré (`avancement.md` Beclose, 16/09), c'était
+  manuel — `telegram_client.call("getUpdates")` après un `/start` envoyé
+  dans le groupe, pas de script dédié. L'étape décrit donc la procédure en
+  langage naturel plutôt que d'inventer une fausse commande — **signalé à
+  Orion comme piste pour Vega** (un petit script équivalent à
+  `connect_gmail_cli.py` serait un vrai gain).
+- **Limite assumée et dite dans l'UI** : aucun endpoint `PATCH
+  /organizations/{id}` n'existe — si le champ est laissé vide à la
+  création, pas de moyen de le corriger depuis cette interface aujourd'hui.
+- **Vérifié réellement** : lint (0 erreur/warning), typecheck (seul, 0
+  erreur), 102/102 tests (2 nouveaux sur les scénarios Telegram, tests
+  existants renommés/étendus), build (13 routes, inchangé).
+- **Non fait, sur consigne du coordinateur** : pas de PR ouverte, commit/
+  push sur branche seulement.

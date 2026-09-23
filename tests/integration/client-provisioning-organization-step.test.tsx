@@ -69,7 +69,7 @@ describe("OrganizationStep (client-provisioning)", () => {
     await user.type(screen.getByLabelText("Nom"), "Acme");
     await user.click(screen.getByRole("button", { name: "Créer et continuer" }));
 
-    await waitFor(() => expect(onCreated).toHaveBeenCalledWith("org-1", "Acme"));
+    await waitFor(() => expect(onCreated).toHaveBeenCalledWith("org-1", "Acme", null));
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit];
     expect(String(url)).toContain("/organizations");

@@ -18,7 +18,7 @@ import {
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 
 interface OrganizationStepProps {
-  onCreated: (workspaceId: WorkspaceId, name: string) => void;
+  onCreated: (workspaceId: WorkspaceId, name: string, telegramChatId: string | null) => void;
 }
 
 export function OrganizationStep({ onCreated }: OrganizationStepProps) {
@@ -36,7 +36,7 @@ export function OrganizationStep({ onCreated }: OrganizationStepProps) {
     }
     setShowValidationError(false);
     mutation.mutate(data, {
-      onSuccess: (client) => onCreated(client.workspaceId, client.name),
+      onSuccess: (client) => onCreated(client.workspaceId, client.name, client.telegramChatId),
     });
   }
 
