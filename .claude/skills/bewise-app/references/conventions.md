@@ -317,3 +317,52 @@ plutôt que réutiliser le nom déjà pris par le modèle spéculatif.
 `shared/api/api-envelope.ts` centralise l'enveloppe `{data}`/
 `{data,pagination}` commune à ces 6 endpoints — à réutiliser pour tout
 nouvel endpoint Beclose plutôt que de la redéfinir.
+
+## Piège : healthcheck Docker `wget --spider http://localhost:3000` faux négatif (2026-09-23)
+
+Diagnostiqué en reconstruisant le conteneur `bewise-app` (resté sur un build
+du 11/09, d'où le "bug d'affichage" que Rochinel croyait encore voir — en
+réalité EF-705 et le rendu structuré BANT/ICP n'y étaient simplement pas).
+Après `docker compose build && docker compose up -d` sur `main` à jour, le
+conteneur passait `unhealthy` alors que l'appli répondait correctement
+(`curl http://localhost:3000/login` → 200 depuis l'hôte).
+
+Cause : dans le conteneur (Alpine/musl), `wget --spider http://localhost:3000`
+résout `localhost` en IPv6 (`::1`, premier dans `/etc/hosts`) et wget
+n'essaie pas l'IPv4 en repli — `Connection refused`. Le serveur Next.js
+(`HOSTNAME=0.0.0.0` dans le `Dockerfile`) n'écoute qu'en IPv4
+(`0.0.0.0:3000`, confirmé avec `ss -tlnp` dans le conteneur), jamais en
+IPv6. `wget --spider http://127.0.0.1:3000` réussit immédiatement. Corrigé
+dans `docker-compose.yml` : `http://127.0.0.1:3000` au lieu de
+`http://localhost:3000`.
+
+**Jamais détecté avant** car les vérifications précédentes (2026-09-11)
+utilisaient `docker run` direct (pas de healthcheck déclenché) et le job CI
+`docker` (`build-push-action`, `push: false`) ne fait que builder l'image,
+jamais la démarrer — première fois que `docker compose up` tournait
+réellement avec le healthcheck actif.
+
+**`NEXT_PUBLIC_API_BASE_URL` — vérifié, rien à changer** : toutes les
+requêtes HTTP de ce dépôt partent du navigateur (`backendClient`
+uniquement importé par des modules `"use client"`, aucune route API
+Next.js/Server Component ne l'utilise). Dans cette topologie (navigateur et
+conteneur sur la même machine hôte), le navigateur atteint directement
+`http://localhost:8000` (repli déjà codé en dur dans `backend-client.ts`),
+sans jamais transiter par le conteneur — le variable d'env n'a donc aucun
+effet à corriger ici. À noter pour plus tard : un `NEXT_PUBLIC_*` ne peut de
+toute façon être changé qu'au *build* de l'image (`ARG`/`ENV` dans le stage
+`builder` du `Dockerfile`, pas encore câblé — voir son commentaire), jamais
+via `environment:` dans `docker-compose.yml` au runtime — ce dernier ne
+changerait rien au bundle client déjà généré. CORS (`API_CORS_ORIGINS=
+http://localhost:3000`) et cookie (`API_COOKIE_SECURE=false`) vérifiés
+corrects côté Beclose (`.env`), preflight CORS testé en direct (`curl -X
+OPTIONS`, 200 avec les bons en-têtes `access-control-*`).
+
+**Vérifié réellement** : `docker compose build` (image reconstruite depuis
+`main` à jour, commit `139c8df`), `docker compose up -d`, conteneur
+`healthy` après le correctif, `GET /login` → 200, `GET /` → 307 (attendu),
+`GET http://localhost:8000/` (Beclose) → 404 (attendu, pas de route
+racine), `GET /auth/me` → 401 (attendu, pas de session), preflight CORS
+`OPTIONS /auth/login` avec `Origin: http://localhost:3000` → 200 avec
+`access-control-allow-origin: http://localhost:3000` et
+`access-control-allow-credentials: true`.
