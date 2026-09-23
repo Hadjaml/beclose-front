@@ -453,3 +453,46 @@ le schéma Zod `bantEvaluationSchema` :
   forme est figée.
 - **Vérifié réellement le 2026-09-23** : lint (0 erreur), typecheck seul
   (0 erreur), 47/47 tests, build (succès, 14 routes).
+
+## Rendu structuré BANT/ICP en configuration (2026-09-23, branche `feat/configuration-bant-icp-structured`)
+
+Dépendance en avant notée à l'étape 6a, résolue.
+
+- Vérification préalable de la vraie forme `/configuration` avant tout code
+  (demandée explicitement, contrat partagé) : lecture directe de
+  `api/routers/organizations.py` (Beclose) + `core/profiles/bant_schema.py`
+  + `core/profiles/icp_schema.py` (Pydantic `extra="forbid"`, la validation
+  réelle à l'écriture du JSONB). Écart significatif avec les schémas cibles
+  spéculatifs (`bant-criteria-schema.ts`/`icp-profile-schema.ts`) sur
+  plusieurs points : enveloppe (`/configuration` n'expose ni id/status/
+  supersedesId/activatedAt/createdBy/notes, pas de `name` pour la grille
+  BANT), `authority`/`timing` sans `positiveSignals` réels, `need` en 3
+  signaux (strong/moderate/negative) au lieu de positive/negative,
+  `qualificationRules` en dict libre (pas la forme figée par critère),
+  `nurtureRules`/`profileName`/`customCriteria` (BANT) et `purpose`/
+  `profileName`/`levels`/`rejectBelow`/`rejectAbove` (ICP) réels absents de
+  la cible, secteurs prioritaires pouvant être des objets `{id, labelFr}`
+  pas seulement des chaînes. Détail envoyé à l'utilisateur avant tout code ;
+  décision (confirmée par le coordinateur transverse) : nouveau schéma
+  aligné sur la forme réelle, à côté du schéma cible spéculatif — même
+  principe que pour `icpEvaluation`/`qualificationEvaluation` (EF-705),
+  pas de retraitement du cas par cas la prochaine fois.
+- **`bant-criteria-wire-schema.ts`/`icp-criteria-wire-schema.ts`** (nouveaux,
+  `client-configuration/schemas/`) : forme réelle snake_case (passthrough
+  JSONB, pas camelCasée par `CamelModel` — même constat que
+  `qualification_evaluation`/`icp_evaluation` sur EF-705), normalisée en
+  camelCase via `.transform()`. `qualificationCriteriaVersionSchema`/
+  `icpProfileVersionSchema` (`workspace-configuration-schema.ts`) les
+  utilisent désormais au lieu de `z.record(string, unknown)`.
+- **`BantCriteriaView`/`IcpCriteriaView`** (nouveaux composants) remplacent
+  le `<pre>{JSON.stringify(...)}</pre>` dans `WorkspaceConfigurationView` —
+  rendu structuré des 4 critères BANT (définition, statuts, signaux,
+  règles de qualification/handoff/nurture) et du profil ICP (marché,
+  adéquation entreprise, secteurs, maturité, décideurs, signaux).
+  Présentation pure, aucune règle métier dans les composants.
+- **Vérifié réellement** : lint (0 erreur, 0 warning), typecheck (seul, 0
+  erreur), 55/55 tests (7 nouveaux : 3+4 sur les schémas wire, 1 nouveau
+  cas sur l'API de configuration), build (succès, 15 routes, inchangé).
+- **Non fait** : pas de push/PR à ce stade (pas demandé pour cette tâche,
+  contrairement à EF-705) — reste sur la branche locale
+  `feat/configuration-bant-icp-structured` en attente d'instruction.

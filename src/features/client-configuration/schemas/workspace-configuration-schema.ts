@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { workspaceIdSchema } from "@/shared/workspace/workspace";
+import { bantCriteriaWireSchema } from "./bant-criteria-wire-schema";
+import { icpCriteriaWireSchema } from "./icp-criteria-wire-schema";
 
 /**
  * Matches Beclose's real `/organizations/{id}/configuration`
@@ -7,15 +9,17 @@ import { workspaceIdSchema } from "@/shared/workspace/workspace";
  * separate from `clientConfigurationSchema` (`client-configuration-schema.ts`,
  * reuses the onboarding wizard's rich company/offer/target/qualification/
  * approach/tools sections) — Beclose stores none of that structure. It only
- * has `pitch`/`signature` as free text and `qualification_criteria.criteria`
- * as an intentionally unstructured JSONB blob (no fixed BANT columns, "une
- * structure fixe serait un pari prématuré" per Beclose's own model
- * docstring) — there is no honest way to split either into the wizard's
- * many typed fields.
+ * has `pitch`/`signature` as free text; `criteria` itself is JSONB with no
+ * fixed SQL columns ("une structure fixe serait un pari prématuré" per
+ * Beclose's own model docstring), but its *content* is validated on write
+ * by Beclose's own Pydantic models — `bantCriteriaWireSchema`/
+ * `icpCriteriaWireSchema` mirror that real, already-enforced shape (see
+ * `bant-criteria-wire-schema.ts`/`icp-criteria-wire-schema.ts`) rather than
+ * treating it as an opaque blob.
  */
 export const qualificationCriteriaVersionSchema = z.object({
   version: z.number().int().positive(),
-  criteria: z.record(z.string(), z.unknown()),
+  criteria: bantCriteriaWireSchema,
   createdAt: z.string(),
 });
 
@@ -25,7 +29,7 @@ export const qualificationCriteriaVersionSchema = z.object({
 export const icpProfileVersionSchema = z.object({
   name: z.string().trim().min(1),
   version: z.number().int().positive(),
-  criteria: z.record(z.string(), z.unknown()),
+  criteria: icpCriteriaWireSchema,
   createdAt: z.string(),
 });
 
