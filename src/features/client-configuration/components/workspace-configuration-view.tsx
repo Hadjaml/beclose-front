@@ -1,4 +1,6 @@
 import type { WorkspaceConfiguration } from "../model/workspace-configuration";
+import { BantCriteriaView } from "./bant-criteria-view";
+import { IcpCriteriaView } from "./icp-criteria-view";
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
@@ -34,9 +36,9 @@ export function WorkspaceConfigurationView({
           {configuration.qualificationCriteria === null ? (
             "Non définie."
           ) : (
-            <pre className="mt-2 overflow-x-auto rounded-app-md bg-surface-muted p-3 text-xs">
-              {JSON.stringify(configuration.qualificationCriteria.criteria, null, 2)}
-            </pre>
+            <div className="mt-2">
+              <BantCriteriaView criteria={configuration.qualificationCriteria.criteria} />
+            </div>
           )}
         </dd>
       </div>
@@ -51,9 +53,9 @@ export function WorkspaceConfigurationView({
           {configuration.icpProfile === null ? (
             "Non défini."
           ) : (
-            <pre className="mt-2 overflow-x-auto rounded-app-md bg-surface-muted p-3 text-xs">
-              {JSON.stringify(configuration.icpProfile.criteria, null, 2)}
-            </pre>
+            <div className="mt-2">
+              <IcpCriteriaView criteria={configuration.icpProfile.criteria} />
+            </div>
           )}
         </dd>
       </div>
