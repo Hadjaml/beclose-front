@@ -28,3 +28,18 @@ export {
   performanceMetricSchema,
   workspacePerformanceSchema,
 } from "./schemas/performance-schemas";
+
+// Real, read-only endpoints (Beclose, 24/09/2026) — no single "precision" figure.
+export {
+  createWorkspacePerformanceApi,
+  type WorkspacePerformanceApi,
+} from "./api/workspace-performance-api";
+export {
+  useApprovalMetricsQuery,
+  usePrecisionQuery,
+} from "./api/use-workspace-performance-queries";
+export { ApprovalMetricsView } from "./components/approval-metrics-view";
+export { PrecisionView } from "./components/precision-view";
+export { WorkspacePerformanceSection } from "./components/workspace-performance-section";
+export { approvalMetricsSchema, type ApprovalMetrics } from "./schemas/approval-metrics-schema";
+export { precisionSchema, type Precision } from "./schemas/precision-schema";

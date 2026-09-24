@@ -954,3 +954,63 @@ Prospection sous le bouton « Lancer un sourcing » : derniers runs, statut
   (`/openapi.json` : `POST /organizations/{id}/archive`,
   `GET`+`POST /organizations/{id}/sourcing-runs`) — donc le contrat lu sur
   la branche correspond à ce qui tourne.
+
+## Compteurs explicites, `cancelled`, gagné/perdu, onglet Performance
+## (2026-09-24, même branche `feat/backoffice-archive-and-sourcing-runs`, PAS de PR)
+
+Contrats lus dans `api/routers/organizations.py`, `core/precision.py`,
+`core/approval_metrics.py`, `core/leads.py` de `feat/opt-out-detection`.
+
+**Bilan de sourcing — compteurs explicites.** Vega expose
+`companies_without_domain` et `companies_without_email` : affichés tels
+quels, **plus aucune soustraction côté front** (la version précédente
+dérivait ces deux lignes de ma propre lecture de `workers/sourcing.py`).
+`companies_failed` n'est dans aucun des deux (on ne sait pas lequel c'était).
+Absents d'un ancien bilan → lignes omises, pas devinées.
+
+**`cancelled` (statut de message).** Piège latent trouvé en relisant : l'enum
+`interactionStatusSchema` était fermé — un seul message `cancelled`
+(annulation système d'une relance à la désinscription/disqualification, ≠
+`rejected` = décision humaine) aurait fait échouer **toute** la liste des
+messages. Ajouté + libellé.
+
+**Gagné/perdu** (`PUT .../prospects/{leadId}/outcome`) — `LeadOutcomePanel`
+sur la fiche prospect. `outcome`/`outcomeAt` ajoutés (tolérants, `null` par
+défaut) sur les schémas prospect.
+- **Écart assumé avec la consigne d'Orion** : l'éligibilité n'est pas
+  « `handed_off` seul » mais `TRANSMITTED_STATUSES` de Beclose =
+  `booked` / `handed_off` / `converted` (un lead `booked` peut porter une
+  issue). `availableOutcomeActions` reproduit `record_outcome` : rien avant
+  transmission ; gagné+perdu sans issue ; seulement gagné si déjà perdu
+  (`lost → won` accepté) **ou** déjà `converted` (jamais « perdu ») ; rien
+  une fois gagné (`won → lost` refusé, `converted` terminal). L'UI n'offre
+  donc jamais ce que l'API refuserait — Beclose reste l'autorité : un 409
+  `OUTCOME_NOT_ALLOWED` affiche **sa propre raison en français**
+  (`getApiErrorMessage`, nouveau, à côté de `getApiErrorCode`).
+- Confirmation : « gagné » → statut « Converti », état final, **« une erreur
+  de saisie sur « gagné » ne se corrige pas depuis l'interface »** ;
+  « perdu » → statut inchangé, encore marquable gagné plus tard. La mutation
+  invalide les prospects du workspace + `precision`.
+
+**Onglet Performance** — `GET .../precision` et `GET .../approval-metrics`,
+nouveaux schémas alignés sur le réel **à côté** du modèle spéculatif
+(metrics/funnel/insights, aucun équivalent Beclose, laissé tel quel côté
+Portail).
+- **Aucun chiffre unique de « précision »** (définition à arrêter avec
+  Hadja) : dit en toutes lettres à l'écran, composantes séparées — volumes
+  transmis ; mesure automatique (part qualifiée selon la grille = proxy,
+  pas la pertinence) ; issues déclarées avec **couverture affichée à côté de
+  chaque taux** (« 3 issues déclarées sur 40 leads transmis », « 2 gagnés sur
+  3 issues déclarées… 37 n'ont aucune issue déclarée ») pour qu'un 67 % ne
+  soit jamais lu seul ; taux de closing explicitement « pas une précision ».
+  Ratio `null` → « — », jamais « 0 % ». « Cause technique » signalée comme
+  pas un signal de pertinence.
+- `approval-metrics` : taux de correction + constat (durablement faible /
+  pas encore / pas assez de données) présenté comme **purement informatif** —
+  rien n'est automatisé, aucun envoi sans validation n'existe ni n'est
+  activable d'ici ; les seuils du critère sont dits « propositions, pas
+  encore validées ».
+- **Vérifié réellement** : lint (0 erreur/warning), typecheck (seul, 0
+  erreur), 167/167 tests (27 nouveaux), build (13 routes, inchangé). **Non
+  vérifié** : navigateur réel, et aucun appel authentifié réel à ces
+  endpoints (seule l'existence des routes est confirmée côté Beclose local).

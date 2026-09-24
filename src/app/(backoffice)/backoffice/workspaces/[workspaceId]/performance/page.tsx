@@ -1,4 +1,4 @@
-import { PerformanceView } from "@/features/performance";
+import { WorkspacePerformanceSection } from "@/features/performance";
 
 export default function WorkspacePerformancePage() {
   return (
@@ -9,10 +9,10 @@ export default function WorkspacePerformancePage() {
           Performance
         </h1>
         <p className="mt-3 text-base leading-7 text-text-secondary">
-          Comprenez les résultats obtenus, les écarts observés et les améliorations recommandées.
+          Lecture seule : ce qui est réellement mesuré aujourd’hui, composante par composante — sans chiffre de précision unique, dont la définition n’est pas arrêtée.
         </p>
       </header>
-      <PerformanceView performance={null} />
+      <WorkspacePerformanceSection />
     </div>
   );
 }
