@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { pickForEnumValue } from "@/shared/schemas/tolerant-enum";
 import {
-  handoffReasonKind,
-  handoffReasonLabels,
+  handoffReasonLabel,
+  handoffReasonToneClass,
   leadStatusLabel,
-  qualificationResultLabels,
+  qualificationResultLabel,
+  type KnownQualificationResult,
   type LeadProspect,
 } from "../model/lead-prospect";
 import { ProspectingEmptyState } from "./prospecting-empty-state";
@@ -13,7 +15,10 @@ const resultBadgeClasses = {
   qualified: "bg-emerald-50 text-emerald-700",
   nurture: "bg-amber-50 text-amber-700",
   not_qualified: "bg-surface-muted text-text-tertiary",
-} as const;
+} as const satisfies Record<KnownQualificationResult, string>;
+
+/** A result we do not know gets the neutral badge, never a guessed colour. */
+const UNKNOWN_RESULT_BADGE_CLASS = "bg-surface-muted text-text-secondary";
 
 export function LeadProspectsList({
   prospects,
@@ -61,14 +66,8 @@ export function LeadProspectsList({
               <td className="px-4 py-3 text-text-primary">
                 {leadStatusLabel(prospect.status)}
                 {prospect.status === "handed_off" && prospect.handoffReason !== null ? (
-                  <p
-                    className={
-                      handoffReasonKind[prospect.handoffReason] === "success"
-                        ? "text-emerald-700"
-                        : "text-red-700"
-                    }
-                  >
-                    {handoffReasonLabels[prospect.handoffReason]}
+                  <p className={handoffReasonToneClass(prospect.handoffReason)}>
+                    {handoffReasonLabel(prospect.handoffReason)}
                   </p>
                 ) : null}
               </td>
@@ -77,9 +76,9 @@ export function LeadProspectsList({
                   <span className="text-text-tertiary">Non évalué</span>
                 ) : (
                   <span
-                    className={`inline-flex rounded-app-sm px-2 py-1 text-xs font-semibold ${resultBadgeClasses[prospect.qualificationResult]}`}
+                    className={`inline-flex rounded-app-sm px-2 py-1 text-xs font-semibold ${pickForEnumValue(resultBadgeClasses, prospect.qualificationResult, UNKNOWN_RESULT_BADGE_CLASS)}`}
                   >
-                    {qualificationResultLabels[prospect.qualificationResult]}
+                    {qualificationResultLabel(prospect.qualificationResult)}
                   </span>
                 )}
                 {prospect.qualificationResult === "nurture" && prospect.nurtureFollowUpsSent > 0 ? (

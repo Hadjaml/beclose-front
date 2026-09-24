@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { tolerantEnum } from "./tolerant-enum";
 
 /**
  * Shared shape for a versioned, append-only business policy scoped to one
@@ -11,7 +12,12 @@ import { z } from "zod";
  * extended `qualification_criteria` with these fields. See
  * `.claude/skills/bewise-app/references/conventions.md` for status.
  */
-export const policyStatusSchema = z.enum(["draft", "active", "archived"]);
+export const policyStatusValues = ["draft", "active", "archived"] as const;
+/** Tolerant (`tolerantEnum`, transverse rule 24/09/2026): it also comes back
+ * on the response of creating an ICP/BANT version — an unknown status must
+ * not turn a creation that succeeded into an error screen. */
+export const policyStatusSchema = tolerantEnum(policyStatusValues);
+export type KnownPolicyStatus = (typeof policyStatusValues)[number];
 export type PolicyStatus = z.infer<typeof policyStatusSchema>;
 
 export function versionedPolicyEnvelopeSchema<T extends z.ZodTypeAny>(criteriaSchema: T) {

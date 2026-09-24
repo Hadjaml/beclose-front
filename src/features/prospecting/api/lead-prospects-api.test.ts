@@ -396,4 +396,20 @@ describe("createLeadProspectsApi", () => {
     const detail = await createLeadProspectsApi(detailClient).getDetail("workspace-1", "lead-1");
     expect(detail.status).toBe("some_future_status");
   });
+
+  it("list() does not fail on new qualificationResult / icpFit / handoffReason / outcome values", async () => {
+    const client = fakeClient(() => ({
+      data: [
+        { ...prospectWire, qualificationResult: "future_result", icpFit: "future_fit", handoffReason: "future_reason", outcome: "future_outcome" },
+        { ...prospectWire, leadId: "lead-2", qualificationResult: "qualified", icpFit: "strong", handoffReason: "strong_need_signal", outcome: "won" },
+      ],
+      pagination: { limit: 20, offset: 0, total: 2 },
+    }));
+
+    const page = await createLeadProspectsApi(client).list("workspace-1");
+
+    expect(page.data).toHaveLength(2);
+    expect(page.data[0]?.handoffReason).toBe("future_reason");
+    expect(page.data[1]?.outcome).toBe("won");
+  });
 });

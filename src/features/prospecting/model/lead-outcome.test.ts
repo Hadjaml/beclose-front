@@ -28,4 +28,8 @@ describe("availableOutcomeActions (mirrors Beclose's record_outcome rules)", () 
   it("offers nothing for a status it does not know, rather than guessing", () => {
     expect(availableOutcomeActions({ status: "some_future_status", outcome: null })).toEqual([]);
   });
+
+  it("offers nothing when the declared outcome is one it does not know", () => {
+    expect(availableOutcomeActions({ status: "handed_off", outcome: "postponed" })).toEqual([]);
+  });
 });

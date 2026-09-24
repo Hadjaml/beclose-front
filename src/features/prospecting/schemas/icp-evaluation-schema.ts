@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { tolerantEnum } from "@/shared/schemas/tolerant-enum";
 
 /**
  * Target per-lead ICP evaluation contract — HOW WELL a lead matches the
@@ -15,7 +16,10 @@ import { z } from "zod";
  * unbuilt). Types/schemas only.
  */
 
-export const icpFitSchema = z.enum(["strong", "moderate", "weak", "none"]);
+export const icpFitValues = ["strong", "moderate", "weak", "none"] as const;
+/** Tolerant: Beclose owns this vocabulary and the per-lead ICP evaluation is
+ * about to evolve it (`tolerantEnum`, transverse rule 24/09/2026). */
+export const icpFitSchema = tolerantEnum(icpFitValues);
 export type IcpFit = z.infer<typeof icpFitSchema>;
 
 /**

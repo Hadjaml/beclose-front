@@ -94,3 +94,11 @@ describe("LeadOutcomePanel", () => {
     expect(await screen.findByText(/déjà « gagné »/)).toBeInTheDocument();
   });
 });
+
+describe("LeadOutcomePanel — unknown outcome", () => {
+  it("shows an outcome it does not know neutrally and offers no action rather than guessing", () => {
+    renderPanel("handed_off", "postponed" as LeadOutcome);
+    expect(screen.getByText("Issue inconnue : postponed")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Marquer/ })).not.toBeInTheDocument();
+  });
+});

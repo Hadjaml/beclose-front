@@ -6,12 +6,13 @@ import type { WorkspaceId } from "@/shared/workspace/workspace";
 import { useSetLeadOutcomeMutation } from "../api/use-set-lead-outcome-mutation";
 import {
   availableOutcomeActions,
-  leadOutcomeLabels,
+  leadOutcomeLabel,
+  type KnownLeadOutcome,
   type LeadOutcome,
   type LeadStatus,
 } from "../model/lead-prospect";
 
-const confirmations: Record<LeadOutcome, { title: string; points: readonly string[] }> = {
+const confirmations: Record<KnownLeadOutcome, { title: string; points: readonly string[] }> = {
   won: {
     title: "Marquer ce prospect comme gagné ?",
     points: [
@@ -61,7 +62,7 @@ export function LeadOutcomePanel({
   outcome: LeadOutcome | null;
   outcomeAt: string | null;
 }) {
-  const [pending, setPending] = useState<LeadOutcome | null>(null);
+  const [pending, setPending] = useState<KnownLeadOutcome | null>(null);
   const mutation = useSetLeadOutcomeMutation(workspaceId, leadId);
   const actions = availableOutcomeActions({ status, outcome });
 
@@ -79,7 +80,7 @@ export function LeadOutcomePanel({
           <>
             Déclarée :{" "}
             <span className={outcome === "won" ? "font-semibold text-emerald-800" : "font-semibold text-text-primary"}>
-              {leadOutcomeLabels[outcome]}
+              {leadOutcomeLabel(outcome)}
             </span>
             {outcomeAt === null ? null : ` le ${formatDate(outcomeAt)}`}.
           </>
@@ -105,7 +106,7 @@ export function LeadOutcomePanel({
                 }}
                 className="rounded-app-md border border-border px-4 py-2 text-sm font-semibold text-text-secondary hover:bg-surface-muted hover:text-text-primary"
               >
-                Marquer {leadOutcomeLabels[action].toLowerCase()}
+                Marquer {leadOutcomeLabel(action).toLowerCase()}
               </button>
             ))}
           </div>

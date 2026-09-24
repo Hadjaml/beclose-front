@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { tolerantEnum } from "@/shared/schemas/tolerant-enum";
 import {
   authorityStatusSchema,
   budgetStatusSchema,
@@ -35,7 +36,10 @@ import {
  * independently (two sources of truth could diverge otherwise).
  */
 
-export const qualificationResultSchema = z.enum(["qualified", "nurture", "not_qualified"]);
+export const qualificationResultValues = ["qualified", "nurture", "not_qualified"] as const;
+/** Tolerant like the same vocabulary on the prospects list (`tolerantEnum`,
+ * transverse rule 24/09/2026). */
+export const qualificationResultSchema = tolerantEnum(qualificationResultValues);
 
 const optionalText = z.string().trim().min(1).optional();
 

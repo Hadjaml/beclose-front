@@ -1030,5 +1030,23 @@ messages, une liste/fiche de prospects et une liste de runs qui continuent de
 s'afficher avec un statut inconnu au milieu de valeurs connues. **Vérifié** :
 lint 0/0, typecheck, 181/181 tests (14 nouveaux), build 13 routes. Un ancien
 test « rejette un statut de run inconnu » a été **remplacé** (il affirmait
-l'inverse de la règle). **Reste fermé** : `handoffReason`,
-`qualificationResult`, `icpFit`, `leadOutcome`, `policyStatus`.
+l'inverse de la règle). **Reste fermé** : voir ci-dessous (traité ensuite).
+
+### Suite : les 5 enums restants passés sous la règle (même jour, feu vert d'Orion)
+
+`handoffReason`, `qualificationResult` (prospects + évaluation BANT
+`conversations`), `icpFit`, `leadOutcome`, `policyStatus`. Deux vont bouger
+bientôt (l'évaluation ICP par lead fait évoluer `icpFit`, la disqualification/
+opt-out ajoute des motifs). Règle d'Orion appliquée à la lettre : **jamais
+deviner une gravité à partir d'une valeur inconnue** — `handoffReasonKind`
+renvoie `"unknown"` (gris neutre, « Motif inconnu : <valeur> »), badge de
+résultat neutre, issue inconnue → aucune action gagné/perdu proposée.
+`pickForEnumValue` ajouté à `tolerant-enum.ts` pour tout ce qui est *dérivé*
+d'une valeur (sévérité, couleur, action). Réponse tolérante / requête
+fermée (`LeadOutcome` vs `KnownLeadOutcome`). `policyStatus` compte aussi :
+il revient sur la réponse d'une **création** d'ICP/BANT — un statut inconnu
+aurait transformé une création réussie en écran d'erreur. **Vérifié** : lint
+0/0, typecheck, 191/191 tests (10 nouveaux : libellés/sévérité connus et
+inconnus, liste de prospects qui garde chaque ligne avec motif/résultat/
+statut inconnus — motif inconnu vérifié ni vert ni rouge —, API, panneau
+d'issue, `policyStatus`), build 13 routes. Pas de PR.

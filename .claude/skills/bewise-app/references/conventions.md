@@ -390,8 +390,21 @@ décalage de vocabulaire se voie en dev.
   `KnownInteractionStatus`, pas sur le type ouvert.
 - Ne s'applique **pas** à une valeur que le front décide lui-même (corps de
   requête, état d'UI) : celle-là reste un `z.enum` fermé.
-- Appliqué : statut de lead, statut de message, statut de run de sourcing.
-- **Encore fermés (même risque, non traités)** : `handoffReason`,
-  `qualificationResult`, `icpFit`, `leadOutcome` (`won`/`lost`),
-  `policyStatus` — chacun casserait la liste des prospects ou une page si
-  Beclose en ajoutait un. À traiter avec la même règle.
+- Appliqué : statut de lead, statut de message, statut de run de sourcing,
+  `handoffReason`, `qualificationResult` (prospects **et** évaluation BANT
+  côté `conversations`), `icpFit`, `leadOutcome`, `policyStatus`.
+- **Ce qui est *dérivé* d'une valeur n'est jamais deviné non plus** :
+  sévérité, couleur de badge, action proposée passent par
+  `pickForEnumValue(table, valeur, repli neutre)`. Un motif de transfert
+  inconnu n'est ni vert (succès) ni rouge (échec) — gris neutre, libellé
+  « Motif inconnu : <valeur> » (`handoffReasonKind` renvoie `"unknown"`) ;
+  un résultat inconnu a un badge neutre ; une issue inconnue n'offre aucune
+  action gagné/perdu.
+- **Distinguer ce que Beclose renvoie de ce que le front envoie** : la
+  réponse est tolérante (`LeadOutcome`, union ouverte), la requête reste un
+  choix fermé que le front décide lui-même (`KnownLeadOutcome`).
+- **Pas couverts** : les statuts BANT par critère (`budget`/`authority`/
+  `need`/`timing`) — vocabulaire libre par organisation côté Beclose, déjà
+  reçu en `z.string()` sur le chemin réel de la fiche prospect, mais leurs
+  tables de libellés (`*StatusLabels`) sont indexées directement : à
+  vérifier avant d'y compter.

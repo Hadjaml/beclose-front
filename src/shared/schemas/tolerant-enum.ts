@@ -49,3 +49,18 @@ export function describeEnumValue<Known extends string>(
 ): string {
   return Object.hasOwn(labels, value) ? labels[value as Known] : `${unknownPrefix} : ${value}`;
 }
+
+/**
+ * Same idea for anything *derived* from a value — a severity, a badge colour,
+ * a kind: the entry for a known value, otherwise `fallback`. The fallback must
+ * be a deliberately neutral one: never guess a severity from a value we do not
+ * know (an unknown handoff reason is neither "success" nor "failure").
+ */
+export function pickForEnumValue<Known extends string, Result>(
+  table: Readonly<Record<Known, Result>>,
+  value: TolerantEnum<Known>,
+  fallback: Result,
+): Result {
+  return Object.hasOwn(table, value) ? table[value as Known] : fallback;
+}
+

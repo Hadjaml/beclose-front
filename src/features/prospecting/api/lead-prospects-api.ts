@@ -4,7 +4,7 @@ import { detailEnvelopeSchema, paginatedEnvelopeSchema } from "@/shared/api/api-
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 import { leadProspectSchema } from "../schemas/lead-prospect-schema";
 import { leadProspectDetailSchema } from "../schemas/lead-prospect-detail-schema";
-import type { LeadOutcome, LeadProspect, LeadStatus } from "../model/lead-prospect";
+import type { KnownLeadOutcome, LeadProspect, LeadStatus } from "../model/lead-prospect";
 import type { LeadProspectDetail } from "../model/lead-prospect-detail";
 
 export interface LeadProspectsPage {
@@ -33,7 +33,7 @@ export interface LeadProspectsApi {
   setOutcome: (
     workspaceId: WorkspaceId,
     leadId: string,
-    outcome: LeadOutcome,
+    outcome: KnownLeadOutcome,
     signal?: AbortSignal,
   ) => Promise<LeadProspectDetail>;
 }

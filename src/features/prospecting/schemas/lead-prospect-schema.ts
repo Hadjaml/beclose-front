@@ -60,26 +60,34 @@ export const leadProspectContactSchema = z.object({
  * "not evaluated", not a rich per-value breakdown, per the coordination's
  * own instruction not to build UI around a field that stays empty.
  */
-export const qualificationResultSchema = z.enum(["qualified", "nurture", "not_qualified"]);
+export const qualificationResultValues = ["qualified", "nurture", "not_qualified"] as const;
+/** Tolerant like every backend-owned vocabulary (`tolerantEnum`, transverse
+ * rule 24/09/2026) — it sits on every row of the prospects list. */
+export const qualificationResultSchema = tolerantEnum(qualificationResultValues);
 
 /** `strong_need_signal` is a deliberate early handoff (EF-403b, the product
  * working as intended); the other four are booking-negotiation failures.
  * Distinguishing the two is the whole point of this field — a broken
  * calendar integration must never look like a normal handoff. */
-export const handoffReasonSchema = z.enum([
+export const handoffReasonValues = [
   "strong_need_signal",
   "booking_calendar_not_connected",
   "booking_no_availability",
   "booking_no_convergence",
   "booking_error",
-]);
+] as const;
+/** Tolerant: disqualification/opt-out are about to add reasons. */
+export const handoffReasonSchema = tolerantEnum(handoffReasonValues);
 
 /** Commercial outcome of a *transmitted* lead, declared by hand (Beclose
  * `PUT .../prospects/{leadId}/outcome`, 24/09/2026 — the CRM webhook that
  * would send it automatically does not exist). Additive on `/prospects` and
  * `/prospects/{leadId}`: `null` until declared, and for every lead that was
  * never transmitted. */
-export const leadOutcomeSchema = z.enum(["won", "lost"]);
+export const leadOutcomeValues = ["won", "lost"] as const;
+/** What Beclose *returns* is tolerant; what this frontend *sends*
+ * (`KnownLeadOutcome`) stays a closed choice — it decides that one itself. */
+export const leadOutcomeSchema = tolerantEnum(leadOutcomeValues);
 
 export const leadProspectSchema = z.object({
   leadId: z.string().trim().min(1),

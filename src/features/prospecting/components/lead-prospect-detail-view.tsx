@@ -6,11 +6,11 @@ import {
   timingStatusLabels,
 } from "@/features/client-configuration";
 import {
-  handoffReasonKind,
-  handoffReasonLabels,
-  icpFitLabels,
+  handoffReasonLabel,
+  handoffReasonToneClass,
+  icpFitLabel,
   leadStatusLabel,
-  qualificationResultLabels,
+  qualificationResultLabel,
 } from "../model/lead-prospect";
 import type { LeadProspectDetail as LeadProspectDetailModel } from "../model/lead-prospect-detail";
 
@@ -79,14 +79,8 @@ export function LeadProspectDetailView({ prospect }: { prospect: LeadProspectDet
             <dd className="mt-1 text-sm text-text-primary">
               {leadStatusLabel(prospect.status)}
               {prospect.status === "handed_off" && prospect.handoffReason !== null ? (
-                <span
-                  className={
-                    handoffReasonKind[prospect.handoffReason] === "success"
-                      ? "ml-2 text-emerald-700"
-                      : "ml-2 text-red-700"
-                  }
-                >
-                  {handoffReasonLabels[prospect.handoffReason]}
+                <span className={`ml-2 ${handoffReasonToneClass(prospect.handoffReason)}`}>
+                  {handoffReasonLabel(prospect.handoffReason)}
                 </span>
               ) : null}
             </dd>
@@ -98,7 +92,7 @@ export function LeadProspectDetailView({ prospect }: { prospect: LeadProspectDet
             <dd className="mt-1 text-sm text-text-primary">
               {prospect.qualificationResult === null
                 ? "Non évalué"
-                : qualificationResultLabels[prospect.qualificationResult]}
+                : qualificationResultLabel(prospect.qualificationResult)}
             </dd>
           </div>
           <div>
@@ -106,7 +100,7 @@ export function LeadProspectDetailView({ prospect }: { prospect: LeadProspectDet
               Adéquation ICP
             </dt>
             <dd className="mt-1 text-sm text-text-primary">
-              {prospect.icpFit === null ? "Non évalué" : icpFitLabels[prospect.icpFit]}
+              {prospect.icpFit === null ? "Non évalué" : icpFitLabel(prospect.icpFit)}
             </dd>
           </div>
         </dl>
