@@ -9,6 +9,10 @@ import { ClientRow } from "./client-row";
 
 const archiveMock = vi.hoisted(() => vi.fn());
 
+vi.mock("./client-setup-status", () => ({
+  ClientSetupStatus: ({ workspaceId }: { workspaceId: string }) => <p>setup-status:{workspaceId}</p>,
+}));
+
 vi.mock("../api/use-archive-client-mutation", () => ({
   useArchiveClientMutation: () => useMutation({ mutationFn: archiveMock }),
 }));
@@ -36,6 +40,15 @@ function renderRow(client = activeClient, onArchived: ((result: ArchiveResult) =
 }
 
 describe("ClientRow", () => {
+  it("shows the setup status of an active client, and none for an archived one", () => {
+    const { unmount } = renderRow();
+    expect(screen.getByText("setup-status:org-1")).toBeInTheDocument();
+    unmount();
+
+    renderRow({ ...activeClient, archivedAt: "2026-09-24T10:00:00Z" });
+    expect(screen.queryByText("setup-status:org-1")).not.toBeInTheDocument();
+  });
+
   it("offers no archive action without a callback from the composition layer", () => {
     renderRow(activeClient, null);
     expect(screen.queryByRole("button", { name: "Archiver" })).not.toBeInTheDocument();

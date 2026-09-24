@@ -76,6 +76,9 @@ describe("IcpStep (client-provisioning)", () => {
     expect(request.criteria.profileName).toBe("Profil ICP Acme");
     expect(request.criteria.purpose).toBe("Cibler les PME B2B.");
     await waitFor(() => expect(onCreated).toHaveBeenCalledTimes(1));
+    // Still on screen until the configuration is refetched: a second click
+    // must not create one more version (audit A06/A07).
+    expect(screen.getByRole("button", { name: "Création…" })).toBeDisabled();
   }, 20_000); // types into a ~50-field form: ~4.5s alone, over the 5s default under parallel load
 
   it("lists every failing field in the validation banner when required fields are left blank", async () => {

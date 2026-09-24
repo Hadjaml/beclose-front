@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { getApiErrorCode } from "@/shared/api/api-error-code";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 import { useStartSourcingRunMutation } from "../api/use-start-sourcing-run-mutation";
@@ -18,19 +19,42 @@ function isAlreadyInProgress(error: unknown): boolean {
   return getApiErrorCode(error) === "SOURCING_RUN_ALREADY_IN_PROGRESS";
 }
 
-export function StartSourcingRunButton({ workspaceId }: { workspaceId: WorkspaceId }) {
+/** A run known to fail (e.g. an ICP profile with nothing to target) is not
+ * offered: the composition layer passes why, and where to fix it. */
+export interface SourcingRunBlock {
+  reasons: readonly string[];
+  fixHref: string;
+}
+
+export function StartSourcingRunButton({
+  workspaceId,
+  blocked,
+}: {
+  workspaceId: WorkspaceId;
+  blocked?: SourcingRunBlock;
+}) {
   const mutation = useStartSourcingRunMutation(workspaceId);
 
   return (
     <div className="flex flex-wrap items-center gap-3">
       <button
         type="button"
-        disabled={mutation.isPending}
+        disabled={mutation.isPending || blocked !== undefined}
         onClick={() => mutation.mutate()}
         className="brand-gradient-action brand-gradient-hover rounded-app-md px-5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet disabled:cursor-not-allowed disabled:opacity-60"
       >
         {mutation.isPending ? "Lancement…" : "Lancer un sourcing"}
       </button>
+      {blocked === undefined ? null : (
+        <div role="status" className="max-w-md text-sm text-red-800">
+          {blocked.reasons.map((reason) => (
+            <p key={reason}>{reason}</p>
+          ))}
+          <Link href={blocked.fixHref} className="font-semibold underline underline-offset-2">
+            Corriger le profil ICP
+          </Link>
+        </div>
+      )}
       {mutation.isSuccess ? (
         <p className="text-sm text-text-secondary" role="status">
           Recherche lancée — les nouveaux prospects apparaîtront ici progressivement.

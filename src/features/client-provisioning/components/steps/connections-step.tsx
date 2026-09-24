@@ -98,7 +98,7 @@ function TelegramStatus({
 }: {
   workspaceId: WorkspaceId;
   telegramChatId: string | null;
-  onSaved: (next: string | null) => void;
+  onSaved: ((next: string | null) => void) | undefined;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(telegramChatId ?? "");
@@ -115,7 +115,7 @@ function TelegramStatus({
       { telegramChatId: trimmed === "" ? null : trimmed },
       {
         onSuccess: (client) => {
-          onSaved(client.telegramChatId);
+          onSaved?.(client.telegramChatId);
           setIsEditing(false);
         },
       },
@@ -209,7 +209,9 @@ function TelegramStatus({
 interface ConnectionsStepProps {
   workspaceId: WorkspaceId;
   telegramChatId: string | null;
-  onTelegramChatIdChange: (next: string | null) => void;
+  /** Optional: the stored value comes back through the configuration query
+   * (invalidated by the update), so most callers need not track it. */
+  onTelegramChatIdChange?: (next: string | null) => void;
   onFinish: () => void;
 }
 

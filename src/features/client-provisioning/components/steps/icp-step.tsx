@@ -39,11 +39,15 @@ export function IcpStep({ workspaceId, workspaceName, onCreated }: IcpStepProps)
   );
   const { draft, errors, updateField } = form;
   const mutation = useCreateIcpProfileVersionMutation(workspaceId);
+  // Stays busy after success too: the step only goes away once the
+  // configuration is refetched, and a second click in between would create
+  // one more version of the same policy.
+  const isBusy = mutation.isPending || mutation.isSuccess;
   const [showValidationError, setShowValidationError] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (mutation.isPending) return;
+    if (isBusy) return;
     const criteria = form.validate();
     if (criteria === null) {
       setShowValidationError(true);
@@ -67,8 +71,8 @@ export function IcpStep({ workspaceId, workspaceName, onCreated }: IcpStepProps)
       description="Qui cibler. Cette version devient active dès sa création — indépendante de la grille BANT qui suit."
       onSubmit={handleSubmit}
       onBack={null}
-      submitLabel={mutation.isPending ? "Création…" : "Créer et continuer"}
-      isSubmitting={mutation.isPending}
+      submitLabel={isBusy ? "Création…" : "Créer et continuer"}
+      isSubmitting={isBusy}
     >
       {showValidationError ? <ValidationErrorBanner errors={errors} /> : null}
       {mutation.isError ? <MutationErrorBanner error={mutation.error} /> : null}

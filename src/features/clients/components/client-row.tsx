@@ -6,6 +6,7 @@ import { getApiErrorCode } from "@/shared/api/api-error-code";
 import type { ArchiveResult } from "../api/clients-api";
 import { useArchiveClientMutation } from "../api/use-archive-client-mutation";
 import type { ClientSummary } from "../schemas/client-summary-schema";
+import { ClientSetupStatus } from "./client-setup-status";
 
 function archiveErrorMessage(error: unknown): string {
   switch (getApiErrorCode(error)) {
@@ -126,6 +127,11 @@ export function ClientRow({
           </button>
         )}
       </div>
+      {isArchived ? null : (
+        <div className="px-5 pb-3">
+          <ClientSetupStatus workspaceId={client.workspaceId} />
+        </div>
+      )}
       {confirming && onArchived !== undefined ? (
         <ArchiveConfirmation
           client={client}

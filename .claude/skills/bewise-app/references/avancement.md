@@ -1087,3 +1087,49 @@ purgé activement (clés distinctes par workspaceId → aucune fuite d'affichage
 entre workspaces, seulement de la mémoire jusqu'au GC de TanStack). Non traité
 : purger pendant que la page est encore montée risquerait un refetch/clignotement.
 **Vérifié** : lint 0/0, typecheck, 198/198 tests (7 nouveaux), build 13 routes.
+
+## 2026-09-24 (soir) — Lot 2 « onboarding utilisable » (audit indépendant)
+
+Origine : audit navigateur réel (`beclose_tech_lead/audit-2026-09-24/rapport.md`,
+ce que je ne pouvais pas faire ici). Chaque correctif a d'abord eu un test qui
+échoue.
+
+- **A07 — double clic.** `StepFormLayout` reçoit `isSubmitting` : bouton
+  désactivé + garde dans le handler (un submit reçu pendant la requête est
+  ignoré — couvre le double clic et Entrée répétée pour les 3 étapes). Les
+  étapes ICP/BANT restent occupées **aussi après succès** (l'étape ne disparaît
+  qu'au rechargement de la configuration ; un 2e clic aurait créé une version de
+  trop). `ORGANIZATION_NAME_TAKEN` : titre + message de Beclose + « ne le
+  recréez pas, retrouvez-le dans la liste » + lien ; le formulaire garde la
+  saisie. `MutationErrorBanner` accepte `title`/`description`/`action`
+  (agnostique, c'est l'appelant qui sait).
+- **C04 — session expirée.** `SessionProvider` s'abonne aux caches TanStack :
+  tout 401 (requête ou mutation, hors la requête de session elle-même) passe la
+  session à `EXPIRED` (état qui existait mais n'était jamais produit), purge le
+  cache et `RequireSession` renvoie vers `/login?redirectTo=<page>`. La page de
+  login lit `redirectTo` via `safeLoginRedirect` (chemin interne `/backoffice` ou
+  `/portal` uniquement : pas de redirection ouverte). `QueryProvider` ne
+  retente plus un 401. Un logout explicite n'est pas une expiration.
+- **A06 — reprise.** L'organisation est dans l'URL :
+  `/backoffice/clients/new?organization=<id>` (`resumeOnboardingHref`, dans
+  `shared/workspace/onboarding-route.ts`). L'étape courante est **déduite de
+  l'API** (`deriveProvisioningProgress` : ICP absent → ICP, BANT absent → BANT,
+  sinon Connexions), plus jamais de la mémoire du navigateur. Après création de
+  l'organisation : `router.replace` vers cette URL (+ id local immédiat, pour
+  qu'on ne puisse pas re-soumettre l'étape 1 entre-temps). Points d'entrée :
+  bannière « Configuration incomplète » + « Reprendre la configuration » sur la
+  page Configuration ; puce + « Reprendre » sur chaque ligne de la liste des
+  clients (`ClientSetupStatus`, 1 requête de configuration par ligne, en cache
+  partagé avec la page Configuration ; muette si non chargée/illisible).
+  **Limites assumées** : le brouillon d'un formulaire en cours de saisie n'est
+  pas conservé au rechargement (seule l'étape l'est) ; pas d'édition d'un
+  profil existant (nouvelle version à ressaisir en entier).
+- **A08 (front) — ne pas annoncer « prêt ».** `sourcingBlockers` reproduit la
+  précondition de Beclose (`workers/sourcing.py`) : profil ICP actif avec au
+  moins un secteur de rang 1 ayant un `label_fr`. La page Configuration dit
+  « Sourcing impossible » (jamais « prêt » : Gmail/Telegram échappent à ces
+  données), le bouton de sourcing est désactivé avec la raison + lien
+  « Corriger le profil ICP » (`?step=icp` = nouvelle version d'ICP sur la même
+  organisation, la sortie d'un profil inutilisable). Non bloquant tant que la
+  configuration charge ou est illisible (Beclose reste l'autorité). **Règle
+  dupliquée côté front** : à remplacer par un signal explicite de l'API.

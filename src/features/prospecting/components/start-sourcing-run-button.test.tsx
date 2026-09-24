@@ -67,4 +67,31 @@ describe("StartSourcingRunButton", () => {
       ).toBeInTheDocument(),
     );
   });
+
+  it("is disabled and says why when the ICP profile cannot source (audit A08)", async () => {
+    const user = userEvent.setup();
+    startMock.mockClear();
+    const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <StartSourcingRunButton
+          workspaceId="workspace-1"
+          blocked={{
+            reasons: ["Le profil ICP n’a aucun secteur prioritaire de rang 1 avec un libellé français."],
+            fixHref: "/backoffice/clients/new?organization=workspace-1&step=icp",
+          }}
+        />
+      </QueryClientProvider>,
+    );
+
+    const button = screen.getByRole("button", { name: "Lancer un sourcing" });
+    expect(button).toBeDisabled();
+    expect(screen.getByText(/aucun secteur prioritaire de rang 1/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Corriger le profil ICP" })).toHaveAttribute(
+      "href",
+      "/backoffice/clients/new?organization=workspace-1&step=icp",
+    );
+    await user.click(button);
+    expect(startMock).not.toHaveBeenCalled();
+  });
 });

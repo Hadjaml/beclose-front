@@ -1,0 +1,54 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import { ConfigurationStatusBanner } from "./configuration-status-banner";
+
+const labelled = { criteria: { prioritySectors: [{ tier: 1, sectors: [{ id: "s", labelFr: "Conseil" }] }] } };
+const noSector = { criteria: { prioritySectors: [] } };
+
+describe("ConfigurationStatusBanner", () => {
+  it("says the configuration is incomplete and offers to resume the same organization", () => {
+    render(
+      <ConfigurationStatusBanner
+        workspaceId="org-1"
+        configuration={{ icpProfile: null, qualificationCriteria: null }}
+      />,
+    );
+
+    expect(screen.getByText("Configuration incomplète")).toBeInTheDocument();
+    expect(screen.getByText(/le profil ICP, la grille BANT/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Reprendre la configuration" })).toHaveAttribute(
+      "href",
+      "/backoffice/clients/new?organization=org-1",
+    );
+    expect(screen.queryByText(/prêt/i)).not.toBeInTheDocument();
+  });
+
+  it("does not announce the setup as fine when the active ICP cannot source (audit A08)", () => {
+    render(
+      <ConfigurationStatusBanner
+        workspaceId="org-1"
+        configuration={{ icpProfile: noSector, qualificationCriteria: {} }}
+      />,
+    );
+
+    expect(screen.getByText("Sourcing impossible")).toBeInTheDocument();
+    expect(screen.getByText(/aucun secteur prioritaire de rang 1/)).toBeInTheDocument();
+    expect(screen.queryByText("Profils en place")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Nouvelle version du profil ICP" })).toHaveAttribute(
+      "href",
+      "/backoffice/clients/new?organization=org-1&step=icp",
+    );
+  });
+
+  it("confirms the profiles are in place when nothing is missing or blocking", () => {
+    render(
+      <ConfigurationStatusBanner
+        workspaceId="org-1"
+        configuration={{ icpProfile: labelled, qualificationCriteria: {} }}
+      />,
+    );
+
+    expect(screen.getByText("Profils en place")).toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  });
+});
