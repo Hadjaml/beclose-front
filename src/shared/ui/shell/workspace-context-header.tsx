@@ -1,28 +1,37 @@
+import Link from "next/link";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 
-export function WorkspaceSwitcherPlaceholder() {
+/**
+ * The switcher is a plain link to wherever the composition layer says the
+ * workspace list lives. It used to be a permanently `disabled` placeholder
+ * button ("sera connecté lorsque les workspaces seront disponibles") that
+ * outlived the moment they became available — a real user hit it as a button
+ * that "does nothing" (2026-09-24). No `switcherHref` → no switcher rendered
+ * (a control is shown only when it has somewhere real to go, e.g. the client
+ * portal, where a client must not browse other workspaces).
+ */
+export function WorkspaceSwitcherLink({ href }: { href: string }) {
   return (
-    <button
-      type="button"
-      disabled
-      className="rounded-app-md border border-border bg-surface px-3 py-2 text-sm font-medium text-text-tertiary"
-      title="Le sélecteur sera connecté lorsque les workspaces seront disponibles"
+    <Link
+      href={href}
+      className="rounded-app-md border border-border bg-surface px-3 py-2 text-sm font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet"
     >
       Changer de workspace
-    </button>
+    </Link>
   );
 }
 
 interface WorkspaceContextHeaderProps {
   workspaceId: WorkspaceId;
-  showSwitcher?: boolean;
+  /** Where "Changer de workspace" leads; omit to show no switcher. */
+  switcherHref?: string;
   label?: string;
   description?: string;
 }
 
 export function WorkspaceContextHeader({
   workspaceId,
-  showSwitcher = true,
+  switcherHref,
   label = "Workspace actif",
   description = "Vous travaillez actuellement dans l’environnement de ce client.",
 }: WorkspaceContextHeaderProps) {
@@ -33,7 +42,7 @@ export function WorkspaceContextHeader({
         <h1 className="mt-1 break-all text-xl font-semibold tracking-tight text-brand-navy">{workspaceId}</h1>
         <p className="mt-1 text-sm text-text-secondary">{description}</p>
       </div>
-      {showSwitcher ? <WorkspaceSwitcherPlaceholder /> : null}
+      {switcherHref === undefined ? null : <WorkspaceSwitcherLink href={switcherHref} />}
     </header>
   );
 }

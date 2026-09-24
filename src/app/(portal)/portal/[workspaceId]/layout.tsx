@@ -33,7 +33,6 @@ export default async function PortalLayout({
         <div className="space-y-6">
           <WorkspaceContextHeader
             workspaceId={workspaceId}
-            showSwitcher={false}
             label="Espace client"
             description="Vous consultez les informations de ce workspace."
           />

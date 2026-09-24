@@ -1050,3 +1050,40 @@ aurait transformé une création réussie en écran d'erreur. **Vérifié** : li
 inconnus, liste de prospects qui garde chaque ligne avec motif/résultat/
 statut inconnus — motif inconnu vérifié ni vert ni rouge —, API, panneau
 d'issue, `policyStatus`), build 13 routes. Pas de PR.
+
+## Statuts BANT par critère + « Changer de workspace » (2026-09-24, même
+## branche, PAS de PR)
+
+**1) Statuts BANT d'une organisation à vocabulaire propre.** Une organisation
+onboardée depuis l'interface définit ses propres `status_values` : le statut
+BANT d'un lead peut être n'importe quelle chaîne. Les tables `*StatusLabels`
+(`budget`/`authority`/`need`/`timing`) ne sont que le vocabulaire de la grille
+Bewise. Vérifié : le chemin réel de la fiche prospect les reçoit déjà en
+`z.string()` (donc ne casse pas au parsing) ; l'affichage faisait
+`labels[status] ?? status` sur un objet simple — repli correct mais indexation
+directe, donc une valeur nommée `constructor`/`toString` aurait rendu une
+**fonction**. Remplacé par `bantStatusLabel(critère, statut)` (repli = valeur
+brute, choix d'Orion : c'est le mot de l'organisation ; `Object.hasOwn`).
+Tests : vocabulaire personnalisé, valeur qui n'existe que sous un autre
+critère (`strong` en budget → `strong`), clés de prototype, et un vrai
+payload wire à grille sur mesure à travers l'API + la fiche. **Limite
+assumée** : une valeur personnalisée qui *coïncide* avec une valeur Bewise
+(ex. `unknown`) reçoit le libellé Bewise — même sens dans la pratique, mais
+pas garanti.
+
+**2) « Changer de workspace » ne faisait rien.** Cause : ce n'était pas un
+bug de handler — c'était un bouton `disabled` en dur
+(`WorkspaceSwitcherPlaceholder`, « sera connecté lorsque les workspaces
+seront disponibles »), placeholder de scaffold jamais retiré alors que les
+workspaces existent. Corrigé : `WorkspaceSwitcherLink`, un vrai lien vers
+`/backoffice/clients` fourni par la composition (`switcherHref`) ; sans
+`switcherHref`, aucun sélecteur (le Portail ne l'a jamais affiché —
+un client ne doit pas naviguer entre workspaces). Le composant partagé
+reste agnostique : la destination vient de l'app. **Écart à signaler** :
+`AGENTS.md` demande de vider le cache du workspace précédent au changement ;
+le layout remonte le `WorkspaceProvider` (`key={workspaceId}`) sans passer
+par `setActiveWorkspaceId`, donc le cache de l'ancien workspace n'est pas
+purgé activement (clés distinctes par workspaceId → aucune fuite d'affichage
+entre workspaces, seulement de la mémoire jusqu'au GC de TanStack). Non traité
+: purger pendant que la page est encore montée risquerait un refetch/clignotement.
+**Vérifié** : lint 0/0, typecheck, 198/198 tests (7 nouveaux), build 13 routes.

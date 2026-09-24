@@ -6,5 +6,5 @@ export { Sidebar } from "./sidebar";
 export { Topbar } from "./topbar";
 export {
   WorkspaceContextHeader,
-  WorkspaceSwitcherPlaceholder,
+  WorkspaceSwitcherLink,
 } from "./workspace-context-header";

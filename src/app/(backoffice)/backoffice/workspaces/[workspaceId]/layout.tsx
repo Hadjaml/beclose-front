@@ -20,7 +20,7 @@ export default async function BackofficeWorkspaceLayout({
   return (
     <WorkspaceProvider key={workspaceId} initialWorkspaceId={workspaceId}>
       <div className="space-y-5">
-        <WorkspaceContextHeader workspaceId={workspaceId} />
+        <WorkspaceContextHeader workspaceId={workspaceId} switcherHref="/backoffice/clients" />
         <ContextNavigation items={navigation} />
         {children}
       </div>
