@@ -21,4 +21,28 @@ describe("createSourcingRunsApi", () => {
       "already running",
     );
   });
+
+  it("list() gets /organizations/{id}/sourcing-runs and parses each run", async () => {
+    const client = fakeClient((path, options) => {
+      expect(path).toBe("/organizations/workspace-1/sourcing-runs");
+      expect(options.method).toBe("GET");
+      return {
+        data: [
+          {
+            id: "run-1",
+            status: "running",
+            startedAt: "2026-09-24T09:00:00Z",
+            finishedAt: null,
+            errorMessage: null,
+            report: null,
+          },
+        ],
+      };
+    });
+
+    const runs = await createSourcingRunsApi(client).list("workspace-1");
+
+    expect(runs).toHaveLength(1);
+    expect(runs[0]?.status).toBe("running");
+  });
 });

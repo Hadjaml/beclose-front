@@ -880,3 +880,76 @@ tout. Corrigé :
   inchangé).
 - **Non fait, sur consigne du coordinateur** : pas de PR ouverte, commit/
   push sur branche seulement.
+
+## Archivage d'un client + suivi des sourcings (2026-09-24, branche
+## `feat/backoffice-archive-and-sourcing-runs`, PAS de PR — règle en vigueur)
+
+Contrats lus directement dans `api/routers/organizations.py` de la branche
+Beclose `feat/opt-out-detection` (pas encore sur `main`), pas sur relais.
+
+**1) Archivage** — `POST /organizations/{id}/archive`. **Archivage, pas
+suppression** (décision Vega validée par Orion : un `DELETE` effacerait en
+cascade l'historique de désinscription/consentement). Le nom reste réservé,
+l'historique reste consultable, aucun worker ne traite plus l'organisation.
+- `clients` : `archivedAt` ajouté au résumé client (tolérant : `null` par
+  défaut si un Beclose plus ancien ne le renvoie pas) ; `ClientsApi.list`
+  accepte `{ includeArchived }` (`?includeArchived=true`, clé de cache
+  distincte mais sous le même préfixe `globalKeys.workspaces()` — une seule
+  invalidation couvre les deux listes) ; `ClientsApi.archive` +
+  `useArchiveClientMutation` (invalide la liste + tout ce qui est en cache
+  sous ce workspace — Gmail/Telegram viennent d'être coupés).
+- UI : action « Archiver » **par ligne** de la liste (`ClientRow`), avec
+  confirmation qui explique exactement ce qui sera déconnecté (Gmail : accès
+  révoqué chez Google puis connexion supprimée ; Telegram : le bot quitte le
+  groupe, identifiant effacé ; plus aucun traitement ; historique et
+  désinscriptions conservés ; pas de moyen de réactiver depuis l'interface).
+  Interrupteur « Afficher les archivées » dans la liste ; badge « Archivé »,
+  pas d'action sur un client déjà archivé. L'action n'est rendue que si la
+  composition fournit `onArchived` (règle `AGENTS.md`).
+- **Rapport de déconnexion jamais réduit à un « OK »** : `ArchiveResultBanner`
+  affiche chaque étape (Gmail/Telegram). `removed_locally_only` /
+  `cleared_locally_only` **et tout statut inconnu** sont signalés « ⚠ à
+  vérifier à la main » avec le geste précis (ambre, bannière titrée
+  « une vérification manuelle est nécessaire ») — jamais présentés comme un
+  succès. Le résultat vit au niveau de la page (le client archivé disparaît
+  de la liste juste après, la ligne ne peut pas le porter).
+- Erreurs 409 distinguées par leur **code Beclose**, pas par le seul statut
+  HTTP : `SOURCING_RUN_IN_PROGRESS` (« un sourcing est en cours, ~30 min »),
+  `ORGANIZATION_ALREADY_ARCHIVED`. Nouvel utilitaire partagé
+  `shared/api/api-error-code.ts` (`getApiErrorCode`), réutilisé par le bouton
+  de sourcing (qui dupliquait ce parsing à la main).
+
+**2) Suivi des sourcings** — `GET /organizations/{id}/sourcing-runs` (table
+`sourcing_runs`, statut/erreur/bilan par étape). Affiché dans l'onglet
+Prospection sous le bouton « Lancer un sourcing » : derniers runs, statut
+(En cours / Terminé / Échoué / **Interrompu**), et bilan par étape.
+- « Interrompu » = `failed` + `errorMessage` « interrompu » (service
+  redémarré en plein run, marqué au démarrage de l'API) — affiché à part
+  d'un vrai échec, avec ce que ça implique (leads déjà trouvés conservés).
+- Bilan par étape = ce qui explique « pourquoi si peu de leads » : déjà en
+  base, exclues par l'effectif, nouvelles traitées, avec/sans site, avec/sans
+  e-mail, taux de couverture. `report` est le JSONB brut de Beclose
+  (snake_case, non camelCasé) — normalisé côté front, compteurs absents d'un
+  ancien bilan = 0. **Deux lignes sont dérivées, pas rapportées par Beclose**
+  (« sans site » = traitées − en échec − avec site ; « sans e-mail » = avec
+  site − avec e-mail) : déduites de la lecture de `workers/sourcing.py`
+  (l'échec sort avant la recherche de site), bornées à 0, libellées comme
+  sous-lignes — à re-vérifier si Beclose change l'ordre des étapes.
+- **Rafraîchissement pendant un run** (~30 min, leads commités entreprise par
+  entreprise) : `useSourcingRunsQuery` poll toutes les 10 s **tant qu'un run
+  est `running`**, rien sinon ; la liste des prospects suit la même cadence
+  pendant un run et se rafraîchit **une dernière fois quand le run se
+  termine** (les derniers leads tombent juste avant le passage à « Terminé »).
+  Lancer un sourcing rafraîchit aussitôt la liste des runs (la ligne existe
+  déjà quand le 202 arrive).
+- **Vérifié réellement** : lint (0 erreur/warning), typecheck (seul, 0
+  erreur), 140/140 tests (22 nouveaux : archivage API/libellés/ligne/409,
+  runs schéma/statut interrompu/bilan dérivé/liste), build (13 routes,
+  inchangé). Un test existant (`IcpStep`, ~4,5 s à vide) dépassait le
+  timeout par défaut de 5 s sous charge parallèle — timeout explicite de
+  20 s, pas un bug applicatif.
+- **Non vérifié** : rendu en navigateur réel (Playwright indisponible en
+  local) ; comportement contre l'API Beclose réelle — la branche
+  `feat/opt-out-detection` n'est pas déployée sur `localhost:8000` à ma
+  connaissance, donc les nouveaux endpoints ne répondront pas tant qu'elle
+  n'y tourne pas.

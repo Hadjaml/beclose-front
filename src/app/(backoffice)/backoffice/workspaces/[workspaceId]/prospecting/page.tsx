@@ -1,4 +1,4 @@
-import { LeadProspectsSection, SourcingRunSection } from "@/features/prospecting";
+import { LeadProspectsSection, SourcingRunSection, SourcingRunsSection } from "@/features/prospecting";
 
 export default function WorkspaceProspectingPage() {
   return (
@@ -17,7 +17,12 @@ export default function WorkspaceProspectingPage() {
         <SourcingRunSection />
       </header>
 
-      <LeadProspectsSection />
+      <SourcingRunsSection />
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold text-text-primary">Prospects</h2>
+        <LeadProspectsSection />
+      </section>
     </div>
   );
 }

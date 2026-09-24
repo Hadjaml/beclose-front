@@ -21,8 +21,28 @@ export interface OrganizationUpdateValue {
   telegramChatId?: string | null;
 }
 
+/**
+ * Outcome of `POST /organizations/{id}/archive` (24/09/2026). Each
+ * disconnection carries a status string, kept as-is (not narrowed to the
+ * currently-known values) so a value Beclose adds later degrades to a
+ * generic "check by hand" instead of failing the whole response. Known
+ * values — gmail: `none` | `revoked` | `removed_locally_only`; telegram:
+ * `none` | `left_group` | `cleared_locally_only`. Every `*_locally_only`
+ * means Beclose could clean its own side but NOT the external one — needs
+ * a manual check, never a plain "OK".
+ */
+export interface ArchiveResult {
+  client: ClientSummary;
+  disconnections: { gmail: string; telegram: string };
+}
+
+export interface ClientsListOptions {
+  includeArchived?: boolean;
+}
+
 export interface ClientsApi {
-  list: (signal?: AbortSignal) => Promise<readonly ClientSummary[]>;
+  list: (options?: ClientsListOptions, signal?: AbortSignal) => Promise<readonly ClientSummary[]>;
+  archive: (workspaceId: string, signal?: AbortSignal) => Promise<ArchiveResult>;
   create: (request: OrganizationCreateValue, signal?: AbortSignal) => Promise<ClientSummary>;
   update: (
     workspaceId: string,
@@ -42,6 +62,8 @@ const organizationResponseSchema = z
     pitch: z.string().trim().min(1).nullable(),
     signature: z.string().trim().min(1).nullable(),
     telegramChatId: z.string().trim().min(1).nullable(),
+    // Tolerant: absent on a Beclose build that predates archiving.
+    archivedAt: z.string().nullable().default(null),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
@@ -52,6 +74,7 @@ const organizationResponseSchema = z
       pitch: org.pitch,
       signature: org.signature,
       telegramChatId: org.telegramChatId,
+      archivedAt: org.archivedAt,
       createdAt: org.createdAt,
       updatedAt: org.updatedAt,
     }),
@@ -59,16 +82,35 @@ const organizationResponseSchema = z
 
 const organizationsListResponseSchema = listEnvelopeSchema(organizationResponseSchema);
 const organizationEnvelopeResponseSchema = detailEnvelopeSchema(organizationResponseSchema);
+const archiveResponseSchema = detailEnvelopeSchema(
+  z.object({
+    organization: organizationResponseSchema,
+    disconnections: z.object({ gmail: z.string(), telegram: z.string() }),
+  }),
+);
 
 export function createClientsApi(client: ApiClient): ClientsApi {
   return {
-    async list(signal) {
+    async list(options, signal) {
       const response = await client.request("/organizations", {
         method: "GET",
         schema: organizationsListResponseSchema,
+        ...(options?.includeArchived === true ? { query: { includeArchived: true } } : {}),
         ...(signal === undefined ? {} : { signal }),
       });
       return response.data;
+    },
+    async archive(workspaceId, signal) {
+      const response = await client.request(`/organizations/${workspaceId}/archive`, {
+        method: "POST",
+        context: { workspaceId },
+        schema: archiveResponseSchema,
+        ...(signal === undefined ? {} : { signal }),
+      });
+      return {
+        client: response.data.organization,
+        disconnections: response.data.disconnections,
+      };
     },
     async create(request, signal) {
       const response = await client.request("/organizations", {

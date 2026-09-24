@@ -1,6 +1,6 @@
 "use client";
 
-import { ApiError } from "@/shared/api/api-error";
+import { getApiErrorCode } from "@/shared/api/api-error-code";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 import { useStartSourcingRunMutation } from "../api/use-start-sourcing-run-mutation";
 
@@ -15,17 +15,7 @@ import { useStartSourcingRunMutation } from "../api/use-start-sourcing-run-mutat
  * simply show up in the prospects list over time (no run-tracking in V1).
  */
 function isAlreadyInProgress(error: unknown): boolean {
-  if (!(error instanceof ApiError) || error.status !== 409) return false;
-  const details = error.details;
-  return (
-    typeof details === "object" &&
-    details !== null &&
-    "error" in details &&
-    typeof details.error === "object" &&
-    details.error !== null &&
-    "code" in details.error &&
-    details.error.code === "SOURCING_RUN_ALREADY_IN_PROGRESS"
-  );
+  return getApiErrorCode(error) === "SOURCING_RUN_ALREADY_IN_PROGRESS";
 }
 
 export function StartSourcingRunButton({ workspaceId }: { workspaceId: WorkspaceId }) {

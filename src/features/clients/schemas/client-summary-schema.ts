@@ -15,6 +15,10 @@ export const clientSummarySchema = z.object({
   pitch: z.string().trim().min(1).nullable(),
   signature: z.string().trim().min(1).nullable(),
   telegramChatId: z.string().trim().min(1).nullable(),
+  /** Set once an organization is archived (`POST /organizations/{id}/archive`,
+   * 24/09/2026 — archiving, not deleting: a DELETE would wipe opt-out
+   * history). `null` = active. */
+  archivedAt: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
