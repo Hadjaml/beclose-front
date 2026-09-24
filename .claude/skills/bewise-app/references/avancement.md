@@ -1244,3 +1244,14 @@ géographiquement »), zone appliquée sinon. `report.geography` d'un run = ce q
 a réellement été appliqué à CE run (+ source icp/request/none). Le libellé du
 champ « Zones géographiques » du formulaire ICP reprend le vocabulaire accepté
 par Beclose. `describeGeographyScope` est partagé (client-configuration).
+
+**Rendez-vous branchés (C01).** `GET /organizations/{id}/appointments?status=
+confirmed` (contrat de Vega : tri décroissant, `limit` ≤ 200, enveloppe
+paginée). Schéma réel à côté du schéma spéculatif (`workspace-appointment-
+schema.ts`, company/contact réduits à ce qui est affiché — importer
+`prospecting` via son index déclenche un cycle d'import préexistant
+prospecting↔conversations). Liste : date FR, prospect (lien vers sa fiche),
+contact, statut tolérant, « Ouvrir dans Google Agenda » seulement si `eventUrl`
+est une URL http(s) (`noopener`), sinon « Lien Google Agenda indisponible »
+(rendez-vous confirmés avant l'ajout du champ). 404 (serveur sans l'endpoint) =
+« Non disponible dans cette version », jamais une fausse erreur ni un faux vide.

@@ -1,4 +1,4 @@
-import { AppointmentsView } from "@/features/appointments";
+import { WorkspaceAppointmentsSection } from "@/features/appointments";
 
 export default function WorkspaceAppointmentsPage() {
   return (
@@ -13,7 +13,7 @@ export default function WorkspaceAppointmentsPage() {
         </p>
       </header>
 
-      <AppointmentsView items={null} />
+      <WorkspaceAppointmentsSection />
     </div>
   );
 }

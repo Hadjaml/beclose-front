@@ -33,3 +33,6 @@ export {
   schedulingSlotSchema,
   schedulingStatusSchema,
 } from "./schemas/appointment-schemas";
+export { WorkspaceAppointmentsSection } from "./components/workspace-appointments-section";
+export { createWorkspaceAppointmentsApi, type WorkspaceAppointmentsApi } from "./api/workspace-appointments-api";
+export { useWorkspaceAppointmentsQuery } from "./api/use-workspace-appointments-query";
