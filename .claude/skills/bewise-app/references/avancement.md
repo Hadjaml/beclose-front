@@ -1255,3 +1255,26 @@ contact, statut tolérant, « Ouvrir dans Google Agenda » seulement si `eventUr
 est une URL http(s) (`noopener`), sinon « Lien Google Agenda indisponible »
 (rendez-vous confirmés avant l'ajout du champ). 404 (serveur sans l'endpoint) =
 « Non disponible dans cette version », jamais une fausse erreur ni un faux vide.
+
+## 2026-09-24 (nuit, fin) — Santé Gmail (C05) et nouveau brouillon (C07)
+
+- **Gmail (C05).** `connected` ne vaut plus « jeton d'accès non expiré » :
+  `false` seulement si Google a refusé le refresh token. Affichage piloté par
+  `status` (`googleConnectionHealth`, partagé onglet Intégrations + étape
+  Connexions) : `healthy` = Connecté ; `unknown` = « Non encore vérifié » (JAMAIS
+  « connecté ») ; `stale` = dernière vérification ancienne ; `degraded` =
+  incident transitoire, connexion non révoquée ; `reconnect_required` = seul état
+  qui affiche la commande de reconnexion. Statut inconnu = « Statut inconnu : x ».
+  `expiresAt` = échéance du jeton d'ACCÈS, présentée comme une info (« se
+  renouvelle seul »), plus comme un état. Dernier succès/échec + cause
+  (`refresh_refused`/`error`, jamais le message brut). Sans `status` (backend
+  ancien) : repli sur `connected`.
+- **Nouveau brouillon (C07).** `POST .../draft-regeneration` (202 ; 409
+  `DRAFT_REGENERATION_NOT_ALLOWED` / `_LIMIT_REACHED`) piloté par
+  `draftRegeneration {available, requested, rejectedDrafts, remaining}` de la
+  fiche prospect : bouton « Nouveau brouillon » (avec confirmation, reprises
+  restantes, « le brouillon rejeté est conservé ») seulement si `available` ;
+  « Demande enregistrée… moins d'une minute » si `requested` ; « Limite de
+  reprises atteinte » à 0 ; rien si l'API ne le dit pas. Borné à 3 par lead
+  côté Beclose. `nurtureFollowUpsSent` compte désormais des envois réels (pas de
+  changement de forme).

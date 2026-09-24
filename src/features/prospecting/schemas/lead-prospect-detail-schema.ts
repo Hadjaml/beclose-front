@@ -80,5 +80,16 @@ export const leadProspectDetailSchema = leadProspectSchema.extend({
   qualificationEvaluation: leadQualificationEvaluationSchema.nullable(),
   qualificationCriteria: policyReferenceSchema.nullable(),
   icpProfile: policyReferenceSchema.nullable(),
+  /** Whether a rejected draft can be regenerated (Beclose, 24/09/2026);
+   * `null` = a backend that predates it: offer nothing. */
+  draftRegeneration: z
+    .object({
+      available: z.boolean(),
+      requested: z.boolean(),
+      rejectedDrafts: z.number().int().nonnegative(),
+      remaining: z.number().int().nonnegative(),
+    })
+    .nullable()
+    .default(null),
 });
 

@@ -31,7 +31,8 @@ vi.mock("@/features/client-configuration", async () => {
   };
 });
 
-vi.mock("@/features/integrations", () => ({
+vi.mock("@/features/integrations", async () => ({
+  ...(await vi.importActual<typeof import("@/features/integrations")>("@/features/integrations")),
   useWorkspaceIntegrationStatusQuery: () => ({
     isPending: false,
     isError: false,
