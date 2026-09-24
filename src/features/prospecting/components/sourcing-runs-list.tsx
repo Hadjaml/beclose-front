@@ -1,7 +1,7 @@
 import {
   sourcingFunnel,
   sourcingRunDisplayStatus,
-  sourcingRunStatusLabels,
+  sourcingRunStatusLabel,
   type SourcingRunDisplayStatus,
 } from "../model/sourcing-run";
 import type { SourcingRun } from "../schemas/sourcing-run-schema";
@@ -11,6 +11,7 @@ const statusBadgeClasses: Record<SourcingRunDisplayStatus, string> = {
   succeeded: "bg-emerald-100 text-emerald-900",
   failed: "bg-red-100 text-red-900",
   interrupted: "bg-amber-100 text-amber-900",
+  unknown: "bg-surface-muted text-text-secondary",
 };
 
 function formatDateTime(iso: string): string {
@@ -26,7 +27,7 @@ function SourcingRunItem({ run }: { run: SourcingRun }) {
         <span
           className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusBadgeClasses[status]}`}
         >
-          {sourcingRunStatusLabels[status]}
+          {sourcingRunStatusLabel(run)}
         </span>
         <span className="text-sm text-text-primary">Lancé le {formatDateTime(run.startedAt)}</span>
         {run.finishedAt === null ? null : (

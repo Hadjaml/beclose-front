@@ -9,7 +9,7 @@ import {
   handoffReasonKind,
   handoffReasonLabels,
   icpFitLabels,
-  leadStatusLabels,
+  leadStatusLabel,
   qualificationResultLabels,
 } from "../model/lead-prospect";
 import type { LeadProspectDetail as LeadProspectDetailModel } from "../model/lead-prospect-detail";
@@ -77,7 +77,7 @@ export function LeadProspectDetailView({ prospect }: { prospect: LeadProspectDet
           <div>
             <dt className="text-xs font-semibold uppercase tracking-wide text-text-tertiary">Statut</dt>
             <dd className="mt-1 text-sm text-text-primary">
-              {leadStatusLabels[prospect.status]}
+              {leadStatusLabel(prospect.status)}
               {prospect.status === "handed_off" && prospect.handoffReason !== null ? (
                 <span
                   className={

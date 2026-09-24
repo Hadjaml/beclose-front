@@ -55,3 +55,18 @@ describe("SourcingRunsList", () => {
     expect(screen.getByText("Interrompu")).toBeInTheDocument();
   });
 });
+
+describe("SourcingRunsList — status vocabulary drift", () => {
+  it("still lists every run, labelling an unknown status neutrally", () => {
+    render(
+      <SourcingRunsList
+        runs={[
+          sourcingRunSchema.parse({ ...base, id: "a", status: "running" }),
+          sourcingRunSchema.parse({ ...base, id: "b", status: "some_future_status" }),
+        ]}
+      />,
+    );
+    expect(screen.getByText("En cours")).toBeInTheDocument();
+    expect(screen.getByText("Statut inconnu : some_future_status")).toBeInTheDocument();
+  });
+});

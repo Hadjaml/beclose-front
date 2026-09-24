@@ -366,3 +366,32 @@ racine), `GET /auth/me` → 401 (attendu, pas de session), preflight CORS
 `OPTIONS /auth/login` avec `Origin: http://localhost:3000` → 200 avec
 `access-control-allow-origin: http://localhost:3000` et
 `access-control-allow-credentials: true`.
+
+## Règle transverse : un statut du backend ne doit jamais faire échouer une
+## liste ou une page (2026-09-24, tranchée par le coordinateur)
+
+Déclencheur réel : Beclose a ajouté le statut de message `cancelled` ; l'enum
+fermé côté front aurait fait échouer **toute** la liste des messages (un
+seul message inconnu → `ZodError` → « Impossible de charger »).
+
+**Règle** : une valeur que le backend possède et peut étendre (statuts) est
+parsée avec `tolerantEnum([...] as const)` (`shared/schemas/tolerant-enum.ts`),
+jamais `z.enum`. Le type de sortie est l'union **ouverte**
+`Known | (string & {})` : les comparaisons (`status === "handed_off"`) et
+l'autocomplétion des valeurs connues marchent toujours, mais rien ne
+« réduit » une valeur inconnue dans une table de libellés — d'où
+`describeEnumValue(labels, valeur)` (→ « Statut inconnu : <valeur> », neutre,
+jamais une erreur ni un blanc) et des helpers dédiés (`leadStatusLabel`,
+`interactionStatusLabel`, `sourcingRunStatusLabel`). `tolerantEnum` rejette
+toujours un non-string (payload réellement malformé) et **loggue une fois par
+valeur inconnue hors production** — tolérant mais pas muet, pour qu'un
+décalage de vocabulaire se voie en dev.
+- Une table `Record<Known, string>` se type sur `KnownLeadStatus` /
+  `KnownInteractionStatus`, pas sur le type ouvert.
+- Ne s'applique **pas** à une valeur que le front décide lui-même (corps de
+  requête, état d'UI) : celle-là reste un `z.enum` fermé.
+- Appliqué : statut de lead, statut de message, statut de run de sourcing.
+- **Encore fermés (même risque, non traités)** : `handoffReason`,
+  `qualificationResult`, `icpFit`, `leadOutcome` (`won`/`lost`),
+  `policyStatus` — chacun casserait la liste des prospects ou une page si
+  Beclose en ajoutait un. À traiter avec la même règle.

@@ -55,4 +55,16 @@ describe("createMessageLogApi", () => {
 
     expect(page.data[0]?.status).toBe("cancelled");
   });
+
+  it("list() does not fail the whole list on a status Beclose added after this was written", async () => {
+    const client = fakeClient(() => ({
+      data: [messageWire, { ...messageWire, id: "msg-2", status: "some_future_status" }],
+      pagination: { limit: 50, offset: 0, total: 2 },
+    }));
+
+    const page = await createMessageLogApi(client).list("workspace-1");
+
+    expect(page.data).toHaveLength(2);
+    expect(page.data[1]?.status).toBe("some_future_status");
+  });
 });

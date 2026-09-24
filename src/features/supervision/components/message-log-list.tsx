@@ -1,7 +1,7 @@
 import { EmptyState } from "@/shared/ui/states";
 import {
   interactionDirectionLabels,
-  interactionStatusLabels,
+  interactionStatusLabel,
   type MessageLogEntry,
 } from "../model/message-log";
 
@@ -39,7 +39,7 @@ export function MessageLogList({
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-tertiary">
             <span>
               {interactionDirectionLabels[message.direction]} · {message.channel}
-              {message.status === null ? null : ` · ${interactionStatusLabels[message.status]}`}
+              {message.status === null ? null : ` · ${interactionStatusLabel(message.status)}`}
             </span>
             <span>{message.sentAt ?? message.createdAt}</span>
           </div>

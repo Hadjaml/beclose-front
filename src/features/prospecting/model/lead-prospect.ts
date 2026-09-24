@@ -4,10 +4,14 @@ import type {
   leadOutcomeSchema,
   leadProspectSchema,
   leadStatusSchema,
+  leadStatusValues,
   qualificationResultSchema,
 } from "../schemas/lead-prospect-schema";
+import { describeEnumValue, type TolerantEnum } from "@/shared/schemas/tolerant-enum";
 import { icpFitLabels, type IcpFit } from "./icp-evaluation";
 
+/** Every status this frontend knows; the backend may send others. */
+export type KnownLeadStatus = (typeof leadStatusValues)[number];
 export type LeadStatus = z.infer<typeof leadStatusSchema>;
 export type LeadProspect = z.infer<typeof leadProspectSchema>;
 export type QualificationResult = z.infer<typeof qualificationResultSchema>;
@@ -27,7 +31,12 @@ export const leadStatusLabels = {
   opted_out: "Désinscrit",
   bounced: "E-mail rejeté",
   disqualified: "Disqualifié",
-} as const satisfies Record<LeadStatus, string>;
+} as const satisfies Record<KnownLeadStatus, string>;
+
+/** Never throws on a status added by Beclose after this was written. */
+export function leadStatusLabel(status: LeadStatus): string {
+  return describeEnumValue(leadStatusLabels, status);
+}
 
 export const qualificationResultLabels = {
   qualified: "Qualifié",
@@ -63,7 +72,7 @@ export const leadOutcomeLabels = {
  * (`core.leads.TRANSMITTED_STATUSES`) — the only ones that can carry an
  * outcome; anything else is refused with a 409. Mirrors that list, so it is
  * the one place to update if Beclose changes it. */
-const OUTCOME_ELIGIBLE_STATUSES: readonly LeadStatus[] = ["booked", "handed_off", "converted"];
+const OUTCOME_ELIGIBLE_STATUSES: readonly TolerantEnum<KnownLeadStatus>[] = ["booked", "handed_off", "converted"];
 
 /**
  * Which outcome actions to offer for a lead — Beclose's own rules

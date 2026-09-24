@@ -23,9 +23,11 @@ export {
 } from "./model/lead-pipeline";
 export {
   interactionDirectionLabels,
+  interactionStatusLabel,
   interactionStatusLabels,
   type InteractionDirection,
   type InteractionStatus,
+  type KnownInteractionStatus,
   type MessageLogEntry,
 } from "./model/message-log";
 export {

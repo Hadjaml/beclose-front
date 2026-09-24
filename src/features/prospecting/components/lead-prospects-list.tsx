@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   handoffReasonKind,
   handoffReasonLabels,
-  leadStatusLabels,
+  leadStatusLabel,
   qualificationResultLabels,
   type LeadProspect,
 } from "../model/lead-prospect";
@@ -59,7 +59,7 @@ export function LeadProspectsList({
                 )}
               </td>
               <td className="px-4 py-3 text-text-primary">
-                {leadStatusLabels[prospect.status]}
+                {leadStatusLabel(prospect.status)}
                 {prospect.status === "handed_off" && prospect.handoffReason !== null ? (
                   <p
                     className={

@@ -1,6 +1,6 @@
 import type { SourcingReport, SourcingRun } from "../schemas/sourcing-run-schema";
 
-export type SourcingRunDisplayStatus = "running" | "succeeded" | "failed" | "interrupted";
+export type SourcingRunDisplayStatus = "running" | "succeeded" | "failed" | "interrupted" | "unknown";
 
 /** A run killed by a service restart is stored as `failed` with the message
  * "interrompu" (Beclose marks leftover `running` rows at API startup) —
@@ -8,7 +8,25 @@ export type SourcingRunDisplayStatus = "running" | "succeeded" | "failed" | "int
  * itself. */
 export function sourcingRunDisplayStatus(run: SourcingRun): SourcingRunDisplayStatus {
   if (run.status === "failed" && /interrompu/i.test(run.errorMessage ?? "")) return "interrupted";
-  return run.status;
+  // A status Beclose added after this was written: neutral, never an error.
+  switch (run.status) {
+    case "running":
+      return "running";
+    case "succeeded":
+      return "succeeded";
+    case "failed":
+      return "failed";
+    default:
+      return "unknown";
+  }
+}
+
+/** Label of the badge; an unknown status keeps its raw value visible. */
+export function sourcingRunStatusLabel(run: SourcingRun): string {
+  const display = sourcingRunDisplayStatus(run);
+  return display === "unknown"
+    ? `Statut inconnu : ${run.status}`
+    : sourcingRunStatusLabels[display];
 }
 
 export const sourcingRunStatusLabels: Record<SourcingRunDisplayStatus, string> = {
@@ -16,6 +34,7 @@ export const sourcingRunStatusLabels: Record<SourcingRunDisplayStatus, string> =
   succeeded: "Terminé",
   failed: "Échoué",
   interrupted: "Interrompu",
+  unknown: "Statut inconnu",
 };
 
 export interface SourcingFunnelLine {

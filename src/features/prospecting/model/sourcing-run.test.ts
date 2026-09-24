@@ -36,8 +36,10 @@ describe("sourcingRunSchema", () => {
     expect(sourcingRunSchema.parse({ ...wireRun, status: "running", report: null }).report).toBeNull();
   });
 
-  it("rejects an unknown status", () => {
-    expect(() => sourcingRunSchema.parse({ ...wireRun, status: "paused" })).toThrow();
+  it("accepts a status Beclose added later, shown as unknown rather than failing the list", () => {
+    const run = sourcingRunSchema.parse({ ...wireRun, status: "paused", report: null });
+    expect(run.status).toBe("paused");
+    expect(sourcingRunDisplayStatus(run)).toBe("unknown");
   });
 });
 

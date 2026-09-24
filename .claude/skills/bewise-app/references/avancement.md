@@ -1014,3 +1014,21 @@ Portail).
   erreur), 167/167 tests (27 nouveaux), build (13 routes, inchangé). **Non
   vérifié** : navigateur réel, et aucun appel authentifié réel à ces
   endpoints (seule l'existence des routes est confirmée côté Beclose local).
+
+## Parsing tolérant des statuts (2026-09-24, même branche, PAS de PR)
+
+Règle transverse tranchée par Orion après le cas `cancelled` : voir
+`conventions.md` (« un statut du backend ne doit jamais faire échouer une
+liste ou une page »). `shared/schemas/tolerant-enum.ts` (`tolerantEnum`,
+`describeEnumValue`, type ouvert `TolerantEnum`). Appliqué au statut de
+lead, au statut de message et au statut de run de sourcing ; valeur inconnue
+→ « Statut inconnu : <valeur> », la page s'affiche. `availableOutcomeActions`
+n'offre rien sur un statut de lead inconnu plutôt que de deviner. Tests :
+helper (inconnu accepté, non-string rejeté, log unique, clés
+`Object.prototype` non confondues avec une valeur connue) + une liste de
+messages, une liste/fiche de prospects et une liste de runs qui continuent de
+s'afficher avec un statut inconnu au milieu de valeurs connues. **Vérifié** :
+lint 0/0, typecheck, 181/181 tests (14 nouveaux), build 13 routes. Un ancien
+test « rejette un statut de run inconnu » a été **remplacé** (il affirmait
+l'inverse de la règle). **Reste fermé** : `handoffReason`,
+`qualificationResult`, `icpFit`, `leadOutcome`, `policyStatus`.

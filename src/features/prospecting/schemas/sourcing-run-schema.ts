@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { tolerantEnum } from "@/shared/schemas/tolerant-enum";
 
 /**
  * `GET /organizations/{id}/sourcing-runs` (`SourcingRunOut`, Beclose,
@@ -11,7 +12,10 @@ import { z } from "zod";
  * camelCased), only set on a `succeeded` run. Counters absent from an older
  * report default to 0.
  */
-export const sourcingRunStatusSchema = z.enum(["running", "succeeded", "failed"]);
+export const sourcingRunStatusValues = ["running", "succeeded", "failed"] as const;
+/** Tolerant like every backend-owned status: an unknown one must not fail the
+ * whole runs list (`tolerantEnum`, transverse rule 24/09/2026). */
+export const sourcingRunStatusSchema = tolerantEnum(sourcingRunStatusValues);
 export type SourcingRunStatus = z.infer<typeof sourcingRunStatusSchema>;
 
 const sourcingReportWireSchema = z

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { tolerantEnum } from "@/shared/schemas/tolerant-enum";
 import { icpFitSchema } from "./icp-evaluation-schema";
 
 /**
@@ -12,7 +13,7 @@ import { icpFitSchema } from "./icp-evaluation-schema";
  * something to decide here). `status` below stays `LeadStatus`, pass-through,
  * per the contract.
  */
-export const leadStatusSchema = z.enum([
+export const leadStatusValues = [
   "identified",
   "contacted",
   "replied",
@@ -23,7 +24,12 @@ export const leadStatusSchema = z.enum([
   "bounced",
   "disqualified",
   "handed_off",
-]);
+] as const;
+
+/** Tolerant: Beclose owns this vocabulary (`core/state_machine.LeadStatus`)
+ * and may add a status — an unknown one must not fail the whole prospects
+ * list or a prospect page (`tolerantEnum`, transverse rule 24/09/2026). */
+export const leadStatusSchema = tolerantEnum(leadStatusValues);
 
 const nullableTimestamp = z.string().nullable();
 

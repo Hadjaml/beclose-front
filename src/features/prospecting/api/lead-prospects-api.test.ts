@@ -370,4 +370,30 @@ describe("createLeadProspectsApi", () => {
     expect(detail.outcome).toBeNull();
     expect(detail.outcomeAt).toBeNull();
   });
+
+  it("list() and getDetail() do not fail on a lead status Beclose added after this was written", async () => {
+    const listClient = fakeClient(() => ({
+      data: [
+        { ...prospectWire, status: "some_future_status" },
+        { ...prospectWire, leadId: "lead-2" },
+      ],
+      pagination: { limit: 20, offset: 0, total: 2 },
+    }));
+    const page = await createLeadProspectsApi(listClient).list("workspace-1");
+    expect(page.data).toHaveLength(2);
+    expect(page.data[0]?.status).toBe("some_future_status");
+
+    const detailClient = fakeClient(() => ({
+      data: {
+        ...prospectWire,
+        status: "some_future_status",
+        icpEvaluation: null,
+        qualificationEvaluation: null,
+        qualificationCriteria: null,
+        icpProfile: null,
+      },
+    }));
+    const detail = await createLeadProspectsApi(detailClient).getDetail("workspace-1", "lead-1");
+    expect(detail.status).toBe("some_future_status");
+  });
 });

@@ -24,4 +24,8 @@ describe("availableOutcomeActions (mirrors Beclose's record_outcome rules)", () 
   it("offers nothing once won: won → lost is refused, converted is terminal", () => {
     expect(availableOutcomeActions({ status: "converted", outcome: "won" })).toEqual([]);
   });
+
+  it("offers nothing for a status it does not know, rather than guessing", () => {
+    expect(availableOutcomeActions({ status: "some_future_status", outcome: null })).toEqual([]);
+  });
 });
