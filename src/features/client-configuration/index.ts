@@ -36,12 +36,14 @@ export {
 } from "./schemas/bant-criteria-schema";
 export {
   authorityStatusLabels,
+  bantStatusLabel,
   budgetStatusLabels,
   needStatusLabels,
   timingStatusLabels,
   type AuthorityStatus,
   type BantCriteria,
   type BantCriteriaVersion,
+  type BantCriterionKey,
   type BudgetStatus,
   type NeedStatus,
   type TimingStatus,

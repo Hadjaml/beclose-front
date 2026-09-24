@@ -1,10 +1,5 @@
 import { MessageLogSection } from "@/features/supervision";
-import {
-  authorityStatusLabels,
-  budgetStatusLabels,
-  needStatusLabels,
-  timingStatusLabels,
-} from "@/features/client-configuration";
+import { bantStatusLabel } from "@/features/client-configuration";
 import {
   handoffReasonLabel,
   handoffReasonToneClass,
@@ -13,13 +8,6 @@ import {
   qualificationResultLabel,
 } from "../model/lead-prospect";
 import type { LeadProspectDetail as LeadProspectDetailModel } from "../model/lead-prospect-detail";
-
-const criterionLabels = {
-  budget: budgetStatusLabels,
-  authority: authorityStatusLabels,
-  need: needStatusLabels,
-  timing: timingStatusLabels,
-} as const;
 
 const criterionTitles = {
   budget: "Budget",
@@ -146,12 +134,11 @@ export function LeadProspectDetailView({ prospect }: { prospect: LeadProspectDet
           <div className="grid gap-3 sm:grid-cols-2">
             {(["budget", "authority", "need", "timing"] as const).map((criterion) => {
               const field = qualificationEvaluation[criterion];
-              const labels = criterionLabels[criterion] as Record<string, string>;
               return (
                 <CriterionCard
                   key={criterion}
                   title={criterionTitles[criterion]}
-                  statusLabel={labels[field.status] ?? field.status}
+                  statusLabel={bantStatusLabel(criterion, field.status)}
                   {...(field.evidence === undefined ? {} : { evidence: field.evidence })}
                   {...(field.sourceInteractionId === undefined
                     ? {}

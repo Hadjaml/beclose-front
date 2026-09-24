@@ -43,3 +43,29 @@ export const timingStatusLabels = {
   over_6_months: "Plus de 6 mois",
   unknown: "Inconnu",
 } as const satisfies Record<z.infer<typeof timingStatusSchema>, string>;
+
+export type BantCriterionKey = "budget" | "authority" | "need" | "timing";
+
+const bantStatusLabelTables: Readonly<Record<BantCriterionKey, Readonly<Record<string, string>>>> = {
+  budget: budgetStatusLabels,
+  authority: authorityStatusLabels,
+  need: needStatusLabels,
+  timing: timingStatusLabels,
+};
+
+/**
+ * Label of one BANT criterion's status. The `*StatusLabels` tables above are
+ * Bewise's own grid wording only: since an organization onboarded from the
+ * interface defines its OWN `status_values` (free vocabulary, Beclose's own
+ * docstring), the status of a lead evaluated against another grid can be any
+ * string. A value with no known label is shown as-is — never blank, never
+ * `undefined`, and never mistaken for an inherited `Object.prototype` member
+ * (a custom value named `constructor` or `toString` must not render a
+ * function). Fallback wording is the raw value, on purpose: it is the
+ * organization's own word for it.
+ */
+export function bantStatusLabel(criterion: BantCriterionKey, status: string): string {
+  const table = bantStatusLabelTables[criterion];
+  return Object.hasOwn(table, status) ? (table[status] ?? status) : status;
+}
+
