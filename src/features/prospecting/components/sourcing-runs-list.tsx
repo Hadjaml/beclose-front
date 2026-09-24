@@ -59,7 +59,7 @@ function SourcingRunItem({ run }: { run: SourcingRun }) {
             <div
               key={line.label}
               className={`flex items-baseline justify-between gap-3 text-sm ${
-                line.derived === true ? "pl-4 text-text-secondary" : "font-medium text-text-primary"
+                line.nested === true ? "pl-4 text-text-secondary" : "font-medium text-text-primary"
               }`}
             >
               <dt>{line.label}</dt>

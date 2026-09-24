@@ -31,13 +31,13 @@ describe("SourcingRunsList", () => {
             ...base,
             status: "succeeded",
             finishedAt: "2026-09-24T09:30:00Z",
-            report: { companies_found: 20, companies_with_domain: 8, companies_with_email: 3, email_coverage_rate: 0.15 },
+            report: { companies_found: 20, companies_with_domain: 8, companies_without_domain: 10, companies_with_email: 3, companies_without_email: 5, email_coverage_rate: 0.15 },
           }),
         ]}
       />,
     );
     expect(screen.getByText("Terminé")).toBeInTheDocument();
-    expect(screen.getByText("sans site web trouvé")).toBeInTheDocument();
+    expect(screen.getByText("sans site officiel trouvé")).toBeInTheDocument();
     expect(screen.getByText("15 %")).toBeInTheDocument();
   });
 

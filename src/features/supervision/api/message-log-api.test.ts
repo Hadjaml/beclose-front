@@ -44,4 +44,15 @@ describe("createMessageLogApi", () => {
     expect(page.data[0]?.direction).toBe("inbound");
     expect(page.data[0]?.status).toBeNull();
   });
+
+  it("list() accepts the system-cancelled status (a follow-up cancelled on opt-out/disqualification)", async () => {
+    const client = fakeClient(() => ({
+      data: [{ ...messageWire, status: "cancelled" }],
+      pagination: { limit: 50, offset: 0, total: 1 },
+    }));
+
+    const page = await createMessageLogApi(client).list("workspace-1");
+
+    expect(page.data[0]?.status).toBe("cancelled");
+  });
 });

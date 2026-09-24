@@ -21,32 +21,41 @@ export const sourcingRunStatusLabels: Record<SourcingRunDisplayStatus, string> =
 export interface SourcingFunnelLine {
   label: string;
   value: number;
-  /** Indented "of which" line, derived rather than reported. */
-  derived?: boolean;
+  /** Indented "of which" line. */
+  nested?: boolean;
 }
 
 /**
- * The per-step breakdown that answers "why so few leads". `companiesFound`
- * counts only NEW companies actually processed (already-known and
- * headcount-excluded ones are counted apart, before that point); of those,
- * the ones that raised an error stop before the site lookup. The two
- * "sans …" lines are derived from Beclose's counters, not reported by it —
- * clamped at 0 so an odd report can never show a negative number.
+ * The per-step breakdown that answers "why so few leads", every figure
+ * exactly as Beclose reports it (no arithmetic here — an earlier version
+ * derived "sans site"/"sans e-mail" by subtraction; Beclose now sends both
+ * explicitly). `companiesFailed` (an error on one specific company) is in
+ * neither "sans site" nor "sans e-mail": we do not know which it was. The
+ * two "sans …" lines are simply left out of a report written before those
+ * counters existed, rather than guessed.
  */
 export function sourcingFunnel(report: SourcingReport): SourcingFunnelLine[] {
-  const withoutSite = Math.max(
-    0,
-    report.companiesFound - report.companiesFailed - report.companiesWithDomain,
-  );
-  const withoutEmail = Math.max(0, report.companiesWithDomain - report.companiesWithEmail);
-  return [
+  const lines: SourcingFunnelLine[] = [
     { label: "Déjà en base (ignorées)", value: report.companiesSkippedExisting },
     { label: "Exclues par l’effectif (hors ICP)", value: report.companiesExcludedByHeadcount },
     { label: "Nouvelles entreprises traitées", value: report.companiesFound },
-    { label: "en échec de traitement", value: report.companiesFailed, derived: true },
-    { label: "sans site web trouvé", value: withoutSite, derived: true },
-    { label: "avec site web", value: report.companiesWithDomain, derived: true },
-    { label: "dont sans e-mail trouvé", value: withoutEmail, derived: true },
-    { label: "Avec e-mail exploitable (leads)", value: report.companiesWithEmail },
+    { label: "en échec de traitement", value: report.companiesFailed, nested: true },
   ];
+  if (report.companiesWithoutDomain !== null) {
+    lines.push({
+      label: "sans site officiel trouvé",
+      value: report.companiesWithoutDomain,
+      nested: true,
+    });
+  }
+  lines.push({ label: "avec site officiel", value: report.companiesWithDomain, nested: true });
+  if (report.companiesWithoutEmail !== null) {
+    lines.push({
+      label: "site trouvé, mais aucun e-mail exploitable",
+      value: report.companiesWithoutEmail,
+      nested: true,
+    });
+  }
+  lines.push({ label: "Avec e-mail exploitable (leads)", value: report.companiesWithEmail });
+  return lines;
 }

@@ -15,6 +15,7 @@ export const interactionStatusLabels = {
   rejected: "Rejeté",
   sent: "Envoyé",
   superseded: "Remplacé par une correction",
+  cancelled: "Annulé (désinscription ou disqualification)",
 } as const satisfies Record<InteractionStatus, string>;
 
 export const interactionDirectionLabels = {

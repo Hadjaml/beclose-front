@@ -13,7 +13,9 @@ const wireRun = {
     naf_codes: ["81.21Z"],
     companies_found: 20,
     companies_with_domain: 8,
+    companies_without_domain: 10,
     companies_with_email: 3,
+    companies_without_email: 5,
     companies_skipped_existing: 5,
     companies_failed: 2,
     companies_excluded_by_headcount: 4,
@@ -48,23 +50,34 @@ describe("sourcingRunDisplayStatus", () => {
 });
 
 describe("sourcingFunnel", () => {
-  it("derives the no-site / no-email drop-offs from Beclose's counters", () => {
+  it("shows Beclose's explicit no-site / no-email counters as-is", () => {
     const report = sourcingRunSchema.parse(wireRun).report;
     if (report === null) throw new Error("report expected");
     const lines = Object.fromEntries(sourcingFunnel(report).map((l) => [l.label, l.value]));
-    // 20 processed - 2 failed - 8 with a site = 10 without a site.
-    expect(lines["sans site web trouvé"]).toBe(10);
-    // 8 with a site - 3 with an e-mail = 5 without an e-mail.
-    expect(lines["dont sans e-mail trouvé"]).toBe(5);
+    expect(lines["sans site officiel trouvé"]).toBe(10);
+    expect(lines["site trouvé, mais aucun e-mail exploitable"]).toBe(5);
+    expect(lines["en échec de traitement"]).toBe(2);
     expect(lines["Avec e-mail exploitable (leads)"]).toBe(3);
   });
 
-  it("never shows a negative derived count", () => {
+  it("does no arithmetic: the shown counters are exactly the reported ones, even if they do not add up", () => {
     const report = sourcingRunSchema.parse({
       ...wireRun,
-      report: { companies_found: 1, companies_with_domain: 5, companies_with_email: 9 },
+      report: { ...wireRun.report, companies_without_domain: 99 },
     }).report;
     if (report === null) throw new Error("report expected");
-    expect(sourcingFunnel(report).every((l) => l.value >= 0)).toBe(true);
+    const noSite = sourcingFunnel(report).find((l) => l.label === "sans site officiel trouvé");
+    expect(noSite?.value).toBe(99);
+  });
+
+  it("leaves the two counters out of a report written before they existed, instead of guessing", () => {
+    const report = sourcingRunSchema.parse({
+      ...wireRun,
+      report: { companies_found: 20, companies_with_domain: 8, companies_with_email: 3 },
+    }).report;
+    if (report === null) throw new Error("report expected");
+    const labels = sourcingFunnel(report).map((l) => l.label);
+    expect(labels).not.toContain("sans site officiel trouvé");
+    expect(labels).not.toContain("site trouvé, mais aucun e-mail exploitable");
   });
 });
