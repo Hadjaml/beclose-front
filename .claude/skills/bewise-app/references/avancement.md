@@ -949,7 +949,8 @@ Prospection sous le bouton « Lancer un sourcing » : derniers runs, statut
   timeout par défaut de 5 s sous charge parallèle — timeout explicite de
   20 s, pas un bug applicatif.
 - **Non vérifié** : rendu en navigateur réel (Playwright indisponible en
-  local) ; comportement contre l'API Beclose réelle — la branche
-  `feat/opt-out-detection` n'est pas déployée sur `localhost:8000` à ma
-  connaissance, donc les nouveaux endpoints ne répondront pas tant qu'elle
-  n'y tourne pas.
+  local), et aucun appel authentifié réel aux nouveaux endpoints. Vérifié
+  seulement que le Beclose local sur `localhost:8000` les expose bien
+  (`/openapi.json` : `POST /organizations/{id}/archive`,
+  `GET`+`POST /organizations/{id}/sourcing-runs`) — donc le contrat lu sur
+  la branche correspond à ce qui tourne.
