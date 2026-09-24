@@ -408,3 +408,33 @@ décalage de vocabulaire se voie en dev.
   reçu en `z.string()` sur le chemin réel de la fiche prospect, mais leurs
   tables de libellés (`*StatusLabels`) sont indexées directement : à
   vérifier avant d'y compter.
+
+## Écart connu à `AGENTS.md` : pas de purge du cache au changement de
+## workspace (2026-09-24, décision d'Orion : ne pas traiter maintenant)
+
+`AGENTS.md` demande de vider le cache appartenant au workspace précédent lors
+d'un changement de contexte. `WorkspaceProvider.setActiveWorkspaceId` le fait
+(`cancelQueries` + `removeQueries` sur `workspaceKeys.scope(précédent)`), mais
+**le chemin réel n'y passe jamais** : le layout Back Office monte
+`<WorkspaceProvider key={workspaceId} initialWorkspaceId={workspaceId}>` et un
+changement de workspace (« Changer de workspace » → liste des clients → autre
+client) démonte/remonte le provider sans appeler ce setter. Le cache de
+l'ancien workspace reste donc en mémoire jusqu'au ramasse-miettes de
+TanStack Query (`gcTime`, 5 min par défaut, une fois plus aucun observateur).
+
+**Pourquoi c'est toléré** : aucune fuite visible — toutes les clés portent le
+`workspaceId` (`workspaceKeys.*`), une donnée d'un workspace ne peut pas
+s'afficher dans un autre ; le coût est de la mémoire, pas de la confidentialité
+d'affichage. Et purger *pendant que la page est encore montée* (au clic sur le
+lien) ferait retomber les observateurs actifs en chargement/refetch — un
+clignotement visible, pire que le gain.
+
+**Piste si la mémoire devient un vrai sujet — « purge après démontage »** :
+retirer `workspaceKeys.scope(id)` dans le nettoyage d'un `useEffect` du
+provider (donc quand la page n'est plus là, pas avant). Deux pièges à
+prévoir : (1) en développement React StrictMode simule un démontage/remontage
+— la purge s'exécuterait à tort (sans gravité, juste un refetch, mais à ne pas
+prendre pour un bug) ; (2) ne purger que le workspace *quitté*, jamais celui
+vers lequel on navigue (même `key` si on revient sur le même client).
+Écart, pas dette cachée : à reprendre seulement si la mémoire pose un
+problème mesuré.
