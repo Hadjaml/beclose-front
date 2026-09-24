@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { EmptyState } from "@/shared/ui/states";
+import { EmptyState, NotAvailableState } from "@/shared/ui/states";
 import type { ConversationInboxItem } from "../model/conversation";
 import { ConversationContextPanel } from "./conversation-context-panel";
 import {
@@ -45,9 +45,8 @@ export function ConversationsView(props: ConversationsViewProps) {
   const [filter, setFilter] = useState<ConversationFilter>("ALL");
   const [activeConversationId, setActiveConversationId] = useState<string>();
 
-  if (props.items === null || props.items.length === 0) {
-    return <ConversationsEmptyState />;
-  }
+  if (props.items === null) return <NotAvailableState />;
+  if (props.items.length === 0) return <ConversationsEmptyState />;
 
   const visibleItems = props.items.filter((item) => matchesFilter(item, filter));
   const activeItem =

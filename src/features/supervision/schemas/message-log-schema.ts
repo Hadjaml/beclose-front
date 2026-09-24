@@ -9,7 +9,10 @@ import { tolerantEnum } from "@/shared/schemas/tolerant-enum";
  * contract). `status` is `null` for every `INBOUND` row by design (only
  * outbound messages go through an approval cycle) — not an anomaly.
  */
-export const interactionDirectionSchema = z.enum(["outbound", "inbound"]);
+export const interactionDirectionValues = ["outbound", "inbound"] as const;
+/** Tolerant like the status (transverse rule): a direction added by Beclose
+ * must not fail the whole list. */
+export const interactionDirectionSchema = tolerantEnum(interactionDirectionValues);
 
 export const interactionStatusValues = [
   "pending_approval",

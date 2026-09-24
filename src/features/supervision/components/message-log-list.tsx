@@ -1,7 +1,7 @@
 import { formatDateTime } from "@/shared/format/format-date-time";
 import { EmptyState } from "@/shared/ui/states";
 import {
-  interactionDirectionLabels,
+  interactionDirectionLabel,
   interactionStatusLabel,
   type MessageLogEntry,
 } from "../model/message-log";
@@ -39,7 +39,7 @@ export function MessageLogList({
         >
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-tertiary">
             <span>
-              {interactionDirectionLabels[message.direction]} · {message.channel}
+              {interactionDirectionLabel(message.direction)} · {message.channel}
               {message.status === null ? null : ` · ${interactionStatusLabel(message.status)}`}
             </span>
             <span>{formatDateTime(message.sentAt ?? message.createdAt)}</span>

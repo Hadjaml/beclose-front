@@ -1154,3 +1154,27 @@ règles de qualification, délais de relance) redeviennent des paires
 Tests : aller-retour `payload == version active` (secteurs par tier, niveaux,
 règles, délais, custom_criteria) ; formulaire ICP/BANT soumis intact = version
 identique ; wizard `step=icp|bant` prérempli.
+
+## 2026-09-24 (nuit, suite) — Lot 5 front : Conversations en chat, écrans non branchés, C11
+
+- **C02 — Conversations en vrai fil de chat.** `ProspectConversationsSection`
+  (feature `conversations`) : liste des prospects ayant au moins un message
+  (récents d'abord, nom via `/prospects`, repli « Prospect <8 car.> » si le
+  prospect n'est pas dans la page chargée) + fil du prospect choisi
+  (`/messages?leadId=`), du plus ancien au plus récent, entrant à gauche /
+  sortant à droite. **Seul `sent` est un message réellement parti** ; brouillons
+  (`pending_approval`, `approved`) et écartés (`rejected`, `superseded`,
+  `cancelled`) restent visibles mais en pointillés avec « pas encore envoyé » /
+  « jamais envoyé — <motif> » ; statut ou sens inconnu = neutre, jamais deviné
+  (`chatMessageKind`). Le bloc contradictoire « Aucune conversation » et le
+  journal brut sont retirés de la page ; `direction` devient tolérante (règle
+  transverse). Limite : 200 messages les plus récents chargés (avertissement si
+  `total` dépasse).
+- **C03 — écrans non branchés.** `NotAvailableState` (« Non disponible dans
+  cette version ») quand la donnée vaut `null` : supervision globale, reste de la
+  vue d'ensemble, Apprentissage, Abonnement (×2), Équipe, Paramètres,
+  Rendez-vous (ajouté : même mensonge que C01, un RDV existant n'y apparaît pas),
+  Conversations du Portail. `[]` reste un vrai état vide. Écrans conservés.
+- **C11.** Titre du workspace = nom du client (`ClientWorkspaceHeader`, via la
+  configuration en cache), l'identifiant reste en référence secondaire ; dates en
+  français lisibles via `shared/format/format-date-time.ts` (fini l'ISO brut).

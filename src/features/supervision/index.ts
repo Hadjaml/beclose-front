@@ -22,6 +22,7 @@ export {
   type WorkspaceLeadPipeline,
 } from "./model/lead-pipeline";
 export {
+  interactionDirectionLabel,
   interactionDirectionLabels,
   interactionStatusLabel,
   interactionStatusLabels,

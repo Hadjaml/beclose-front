@@ -2,11 +2,13 @@ import type { z } from "zod";
 import { describeEnumValue } from "@/shared/schemas/tolerant-enum";
 import type {
   interactionDirectionSchema,
+  interactionDirectionValues,
   interactionStatusSchema,
   interactionStatusValues,
   messageLogEntrySchema,
 } from "../schemas/message-log-schema";
 
+export type KnownInteractionDirection = (typeof interactionDirectionValues)[number];
 export type InteractionDirection = z.infer<typeof interactionDirectionSchema>;
 /** Every message status this frontend knows; the backend may send others. */
 export type KnownInteractionStatus = (typeof interactionStatusValues)[number];
@@ -30,4 +32,8 @@ export function interactionStatusLabel(status: InteractionStatus): string {
 export const interactionDirectionLabels = {
   outbound: "Sortant",
   inbound: "Entrant",
-} as const satisfies Record<InteractionDirection, string>;
+} as const satisfies Record<KnownInteractionDirection, string>;
+
+export function interactionDirectionLabel(direction: InteractionDirection): string {
+  return describeEnumValue(interactionDirectionLabels, direction, "Sens inconnu");
+}

@@ -4,6 +4,7 @@ export { ConversationFilters, type ConversationFilter } from "./components/conve
 export { ConversationList } from "./components/conversation-list";
 export { ConversationsEmptyState } from "./components/conversations-empty-state";
 export { ConversationsView } from "./components/conversations-view";
+export { ProspectConversationsSection } from "./components/prospect-conversations-section";
 export { MessageThread } from "./components/message-thread";
 export { QualificationPanel } from "./components/qualification-panel";
 export { RecommendedActionCard } from "./components/recommended-action-card";

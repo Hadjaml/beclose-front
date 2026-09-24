@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { AppointmentsView } from "@/features/appointments/components/appointments-view";
+import { ConversationsView } from "@/features/conversations";
 import { LearningOverview } from "@/features/learning";
 import { SettingsView } from "@/features/settings";
 import { SubscriptionView } from "@/features/subscriptions/components/subscription-view";
@@ -24,6 +25,7 @@ const screens: [string, () => React.ReactElement][] = [
   ["workspace subscription", () => <SubscriptionView subscription={null} />],
   ["subscriptions overview", () => <SubscriptionsOverview subscriptions={null} />],
   ["team", () => <TeamView team={null} />],
+  ["portal conversations", () => <ConversationsView items={null} />],
   ["appointments", () => <AppointmentsView items={null} />],
 ];
 
