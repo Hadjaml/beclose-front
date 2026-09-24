@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@/shared/format/format-date-time";
 import { useState } from "react";
 import { getApiErrorCode, getApiErrorMessage } from "@/shared/api/api-error-code";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
@@ -35,10 +36,6 @@ function refusalMessage(error: unknown): string {
     return getApiErrorMessage(error) ?? "Cette issue ne peut pas être enregistrée dans l’état actuel du prospect.";
   }
   return "Impossible d’enregistrer l’issue. Réessayez dans quelques instants.";
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("fr-FR", { dateStyle: "long" });
 }
 
 /**

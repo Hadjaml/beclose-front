@@ -1,3 +1,4 @@
+import { formatDateTime } from "@/shared/format/format-date-time";
 import {
   sourcingFunnel,
   sourcingRunDisplayStatus,
@@ -13,10 +14,6 @@ const statusBadgeClasses: Record<SourcingRunDisplayStatus, string> = {
   interrupted: "bg-amber-100 text-amber-900",
   unknown: "bg-surface-muted text-text-secondary",
 };
-
-function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
-}
 
 function SourcingRunItem({ run }: { run: SourcingRun }) {
   const status = sourcingRunDisplayStatus(run);

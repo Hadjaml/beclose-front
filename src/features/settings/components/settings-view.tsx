@@ -1,4 +1,4 @@
-import { EmptyState } from "@/shared/ui/states";
+import { EmptyState, NotAvailableState } from "@/shared/ui/states";
 import type { Settings, SettingsAction } from "../model/settings";
 
 export function SettingsView({
@@ -10,10 +10,7 @@ export function SettingsView({
 }) {
   if (settings === null) {
     return (
-      <EmptyState
-        title="Aucun paramètre disponible"
-        description="Les paramètres de compte et préférences autorisés apparaîtront ici."
-      />
+      <NotAvailableState />
     );
   }
 

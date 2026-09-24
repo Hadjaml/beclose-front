@@ -14,4 +14,17 @@ describe("WorkspaceContextHeader", () => {
     render(<WorkspaceContextHeader workspaceId="ws-1" />);
     expect(screen.queryByText("Changer de workspace")).not.toBeInTheDocument();
   });
+
+  it("puts the client's name first and keeps the identifier as a secondary reference", () => {
+    render(<WorkspaceContextHeader workspaceId="0b7e-uuid" workspaceName="Acme" />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Acme" })).toBeInTheDocument();
+    expect(screen.getByText(/0b7e-uuid/)).toBeInTheDocument();
+  });
+
+  it("falls back to the identifier as the title while the name is unknown", () => {
+    render(<WorkspaceContextHeader workspaceId="0b7e-uuid" />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "0b7e-uuid" })).toBeInTheDocument();
+  });
 });

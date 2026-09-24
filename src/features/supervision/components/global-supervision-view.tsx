@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { EmptyState } from "@/shared/ui/states";
+import { NotAvailableState } from "@/shared/ui/states";
 import type {
   GlobalSupervision,
   RequiredAction,
@@ -21,10 +21,7 @@ type GlobalSupervisionViewProps =
 export function GlobalSupervisionView(props: GlobalSupervisionViewProps) {
   if (props.supervision === null) {
     return (
-      <EmptyState
-        title="Aucune donnée de supervision disponible"
-        description="L’état des workspaces, les interventions requises et l’activité récente apparaîtront ici."
-      />
+      <NotAvailableState description="La supervision globale (état des workspaces, interventions requises, activité récente) n’est pas encore raccordée." />
     );
   }
 

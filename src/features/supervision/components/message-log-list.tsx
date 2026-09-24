@@ -1,3 +1,4 @@
+import { formatDateTime } from "@/shared/format/format-date-time";
 import { EmptyState } from "@/shared/ui/states";
 import {
   interactionDirectionLabels,
@@ -41,7 +42,7 @@ export function MessageLogList({
               {interactionDirectionLabels[message.direction]} · {message.channel}
               {message.status === null ? null : ` · ${interactionStatusLabel(message.status)}`}
             </span>
-            <span>{message.sentAt ?? message.createdAt}</span>
+            <span>{formatDateTime(message.sentAt ?? message.createdAt)}</span>
           </div>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-text-secondary">
             {message.content}

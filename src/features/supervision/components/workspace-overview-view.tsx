@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { EmptyState } from "@/shared/ui/states";
+import { NotAvailableState } from "@/shared/ui/states";
 import type {
   RequiredAction,
   WorkspaceSupervision,
@@ -20,10 +20,7 @@ type WorkspaceOverviewViewProps =
 export function WorkspaceOverviewView(props: WorkspaceOverviewViewProps) {
   if (props.supervision === null) {
     return (
-      <EmptyState
-        title="Aucun état disponible pour le moment"
-        description="L’état du système, les interventions et les résultats apparaîtront ici lorsqu’ils seront fournis."
-      />
+      <NotAvailableState description="L’état du système et les interventions requises ne sont pas encore raccordés. Le résumé du pipeline ci-dessus, lui, est réel." />
     );
   }
 

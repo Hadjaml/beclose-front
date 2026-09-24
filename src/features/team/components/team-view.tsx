@@ -1,4 +1,4 @@
-import { EmptyState } from "@/shared/ui/states";
+import { EmptyState, NotAvailableState } from "@/shared/ui/states";
 import type { TeamOverview } from "../model/team";
 import { InviteMemberAction } from "./invite-member-action";
 import { InvitationList } from "./invitation-list";
@@ -11,7 +11,9 @@ export function TeamView({
   team: TeamOverview | null;
   onInvite?: () => void;
 }) {
-  if (team === null || (team.members.length === 0 && team.invitations.length === 0)) {
+  if (team === null) return <NotAvailableState />;
+
+  if (team.members.length === 0 && team.invitations.length === 0) {
     return (
       <EmptyState
         title="Aucun membre disponible"

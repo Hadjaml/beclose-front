@@ -1,4 +1,4 @@
-import { EmptyState } from "@/shared/ui/states";
+import { NotAvailableState } from "@/shared/ui/states";
 import type {
   Invoice,
   Subscription,
@@ -40,10 +40,7 @@ export function SubscriptionView({
 }) {
   if (subscription === null) {
     return (
-      <EmptyState
-        title="Aucun abonnement disponible"
-        description="Le plan, l’usage et les informations de facturation apparaîtront ici lorsqu’ils seront fournis."
-      />
+      <NotAvailableState description="Le plan, l’usage et la facturation ne sont pas encore raccordés." />
     );
   }
 

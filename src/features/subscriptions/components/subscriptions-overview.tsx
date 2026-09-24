@@ -1,4 +1,4 @@
-import { EmptyState } from "@/shared/ui/states";
+import { EmptyState, NotAvailableState } from "@/shared/ui/states";
 import type { Subscription } from "../model/subscription";
 import { usageAttentionLabels } from "../model/subscription";
 import { SubscriptionStatusBadge } from "./subscription-status-badge";
@@ -18,7 +18,9 @@ export function SubscriptionsOverview({
 }: {
   subscriptions: readonly Subscription[] | null;
 }) {
-  if (subscriptions === null || subscriptions.length === 0) {
+  if (subscriptions === null) return <NotAvailableState />;
+
+  if (subscriptions.length === 0) {
     return (
       <EmptyState
         title="Aucun abonnement disponible"

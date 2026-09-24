@@ -23,6 +23,9 @@ export function WorkspaceSwitcherLink({ href }: { href: string }) {
 
 interface WorkspaceContextHeaderProps {
   workspaceId: WorkspaceId;
+  /** The client's name — the main title when known; the identifier stays as
+   * a small reference (support, CLI commands) instead of being the title. */
+  workspaceName?: string;
   /** Where "Changer de workspace" leads; omit to show no switcher. */
   switcherHref?: string;
   label?: string;
@@ -31,6 +34,7 @@ interface WorkspaceContextHeaderProps {
 
 export function WorkspaceContextHeader({
   workspaceId,
+  workspaceName,
   switcherHref,
   label = "Workspace actif",
   description = "Vous travaillez actuellement dans l’environnement de ce client.",
@@ -39,7 +43,12 @@ export function WorkspaceContextHeader({
     <header className="flex flex-wrap items-center justify-between gap-4 rounded-app-lg border border-border bg-surface px-5 py-4 sm:px-6">
       <div className="min-w-0">
         <p className="text-sm font-semibold text-text-secondary">{label}</p>
-        <h1 className="mt-1 break-all text-xl font-semibold tracking-tight text-brand-navy">{workspaceId}</h1>
+        <h1 className="mt-1 break-words text-xl font-semibold tracking-tight text-brand-navy">
+          {workspaceName ?? workspaceId}
+        </h1>
+        {workspaceName === undefined ? null : (
+          <p className="mt-0.5 break-all text-xs text-text-tertiary">Identifiant : {workspaceId}</p>
+        )}
         <p className="mt-1 text-sm text-text-secondary">{description}</p>
       </div>
       {switcherHref === undefined ? null : <WorkspaceSwitcherLink href={switcherHref} />}

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { EmptyState } from "@/shared/ui/states";
+import { EmptyState, NotAvailableState } from "@/shared/ui/states";
 import type {
   LearningDomain,
   LearningOverview as LearningOverviewData,
@@ -12,7 +12,9 @@ interface LearningOverviewProps {
 }
 
 export function LearningOverview({ domains, renderHistoryAction }: LearningOverviewProps) {
-  if (domains === null || domains.length === 0) {
+  if (domains === null) return <NotAvailableState />;
+
+  if (domains.length === 0) {
     return (
       <EmptyState
         title="Pas encore de données d’apprentissage"

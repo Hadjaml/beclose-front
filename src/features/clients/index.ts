@@ -1,3 +1,4 @@
+export { ClientWorkspaceHeader } from "./components/client-workspace-header";
 export { ClientsEmptyState } from "./components/clients-empty-state";
 export { ClientsList } from "./components/clients-list";
 export { ClientsPageContent } from "./components/clients-page-content";

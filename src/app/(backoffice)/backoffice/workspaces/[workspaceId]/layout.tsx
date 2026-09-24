@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { resolveNavigation, workspaceNavigation } from "@/features/navigation";
-import { ContextNavigation, WorkspaceContextHeader } from "@/shared/ui/shell";
+import { ClientWorkspaceHeader } from "@/features/clients";
+import { ContextNavigation } from "@/shared/ui/shell";
 import { WorkspaceProvider } from "@/shared/workspace/workspace-context";
 import { parseWorkspaceId } from "@/shared/workspace/workspace";
 
@@ -20,7 +21,7 @@ export default async function BackofficeWorkspaceLayout({
   return (
     <WorkspaceProvider key={workspaceId} initialWorkspaceId={workspaceId}>
       <div className="space-y-5">
-        <WorkspaceContextHeader workspaceId={workspaceId} switcherHref="/backoffice/clients" />
+        <ClientWorkspaceHeader workspaceId={workspaceId} switcherHref="/backoffice/clients" />
         <ContextNavigation items={navigation} />
         {children}
       </div>
