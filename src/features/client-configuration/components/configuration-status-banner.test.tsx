@@ -27,7 +27,11 @@ describe("ConfigurationStatusBanner", () => {
     render(
       <ConfigurationStatusBanner
         workspaceId="org-1"
-        configuration={{ icpProfile: noSector, qualificationCriteria: {} }}
+        configuration={{
+          icpProfile: noSector,
+          qualificationCriteria: {},
+          sourcingReadiness: { ready: false, blockers: ["ICP_NO_PRIORITY_SECTORS"] },
+        }}
       />,
     );
 

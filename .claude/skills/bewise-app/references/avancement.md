@@ -1313,3 +1313,31 @@ messages ENTRANTS. `ReevaluationPanel` sur la fiche prospect : seul le message
 entrant le plus récent compte ; `failed`/`exhausted` → « Relancer l'évaluation »
 (exhausted = 3 tentatives épuisées, alerte back-office déjà envoyée) ;
 `pending` → « en cours ou à reprendre » ; null / done / inconnu → rien.
+
+## 2026-09-24 (nuit, fin) — Backend de Vega déployé : replis supprimés, vérification réelle
+
+- **Replis supprimés** (signal d'Orion, backend `feat/opt-out-detection @ bd463d4`) :
+  `sourcingBlockers` ne dérive plus rien localement (pas de verdict Beclose =
+  inconnu = rien de bloqué ; Beclose refuse de toute façon en 422) et
+  `LegacyClientSetupStatus` est retiré (flag `null` = rien affiché, plus de
+  requête par ligne). `ReadinessInput.icpProfile` n'est plus structuré.
+- **Vérification contre le vrai backend, LECTURE seule** (compte debug, un GET
+  authentifié par endpoint sur l'organisation « Bewise », payloads passés par les
+  vrais modules d'API — fichier temporaire supprimé, non commité) : `/organizations`
+  (icpActive/bantActive true/true), `/configuration` (`sourcingReadiness`
+  ready + `geography` national), `/appointments?status=confirmed` (1 RDV, `eventUrl`
+  null → affiché sans lien), `/integrations` (status `healthy` MALGRÉ un `expiresAt`
+  déjà passé : c'est exactement le faux « reconnexion nécessaire » corrigé),
+  `/precision` (`targeting` : 11 notRecorded, rien de mesurable → « Rien de
+  mesurable »), `/approval-metrics` (`consecutive` 0/20, volume 13/30
+  insuffisant), `/messages` (25, `evaluationStatus` null), `/sourcing-runs` (vide),
+  `/prospects` + les 6 fiches (toutes parsent ; 2 portent l'ANCIENNE forme
+  d'`icpEvaluation`, aucune la nouvelle — elle n'apparaît qu'à la prochaine
+  réponse d'un prospect). Aucune erreur de schéma. **Non exercé sur données
+  réelles** : nouvelle forme d'`icpEvaluation`, `evaluationStatus` failed/exhausted
+  (donc le bouton « Relancer l'évaluation » : couvert par tests seulement),
+  rapport de run vivant/partiel, 422 de sourcing.
+- **Comptes `lyra-debug-temp`** : non supprimables ni désactivables par moi —
+  l'API n'expose que `/auth/{login,logout,me}` et le rôle back-office n'a que
+  `SELECT/INSERT` sur `staff_users` (`is_active` existe mais rien ne le modifie).
+  À faire par quelqu'un ayant un accès base (Vega).

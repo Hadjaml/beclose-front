@@ -6,14 +6,7 @@ import type { GeographyScopeInput } from "./geography-scope";
  * `WorkspaceConfiguration` without depending on its full schema.
  */
 export interface ReadinessInput {
-  icpProfile: {
-    criteria: {
-      prioritySectors: readonly {
-        tier: number;
-        sectors: readonly { id: string; labelFr: string | null }[];
-      }[];
-    };
-  } | null;
+  icpProfile: unknown | null;
   qualificationCriteria: unknown | null;
   /** Beclose's own verdict; absent on a build that predates it. */
   sourcingReadiness?: {
@@ -68,27 +61,14 @@ export function sourcingBlockerLabel(code: SourcingBlocker): string {
     : `Précondition non remplie : ${code}`;
 }
 
-/** The tier a default sourcing run targets (Beclose `DEFAULT_TIERS = [1]`). */
-const DEFAULT_SOURCING_TIER = 1;
-
 /**
- * Why the default (ICP-driven) sourcing run cannot start. Beclose is the
- * authority: when it sends `sourcingReadiness` that is what is used.
- * The local derivation below only covers a Beclose build that predates that
- * field (same rule, same codes) — DELETE it once the field is deployed
- * everywhere; an absent field must then mean "unknown, do not block".
+ * Why the default (ICP-driven) sourcing run cannot start — Beclose's own
+ * verdict (`sourcingReadiness`), never a local guess. No verdict (a backend
+ * that does not send it) means "unknown": nothing is blocked here and Beclose
+ * still refuses a run it cannot do (`422 SOURCING_PRECONDITION_FAILED`).
  */
 export function sourcingBlockers(configuration: ReadinessInput): SourcingBlocker[] {
   const readiness = configuration.sourcingReadiness;
-  if (readiness !== undefined && readiness !== null) {
-    if (readiness.ready) return [];
-    return readiness.blockers.length > 0 ? [...readiness.blockers] : ["UNSPECIFIED"];
-  }
-  if (configuration.icpProfile === null) return ["ICP_PROFILE_MISSING"];
-  const sectors = configuration.icpProfile.criteria.prioritySectors
-    .filter((group) => group.tier === DEFAULT_SOURCING_TIER)
-    .flatMap((group) => group.sectors);
-  if (sectors.length === 0) return ["ICP_NO_PRIORITY_SECTORS"];
-  const hasLabel = sectors.some((sector) => sector.labelFr !== null && sector.labelFr.trim() !== "");
-  return hasLabel ? [] : ["ICP_SECTOR_LABELS_MISSING"];
+  if (readiness === undefined || readiness === null || readiness.ready) return [];
+  return readiness.blockers.length > 0 ? [...readiness.blockers] : ["UNSPECIFIED"];
 }

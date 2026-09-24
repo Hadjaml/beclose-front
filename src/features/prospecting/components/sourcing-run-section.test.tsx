@@ -24,32 +24,30 @@ function renderSection() {
   );
 }
 
-const loaded = (icpProfile: unknown) => ({
+const loaded = (sourcingReadiness: { ready: boolean; blockers: string[] } | null) => ({
   isSuccess: true,
-  data: { icpProfile, qualificationCriteria: {} },
+  data: { icpProfile: {}, qualificationCriteria: {}, sourcingReadiness },
 });
 
 describe("SourcingRunSection (audit A08: no run known to fail)", () => {
   beforeEach(() => configurationQueryMock.mockReset());
 
-  it("blocks the run when the active ICP has no labelled tier-1 sector", () => {
-    configurationQueryMock.mockReturnValue(loaded({ criteria: { prioritySectors: [] } }));
+  it("blocks the run when Beclose says the ICP cannot source", () => {
+    configurationQueryMock.mockReturnValue(loaded({ ready: false, blockers: ["ICP_NO_PRIORITY_SECTORS"] }));
     renderSection();
 
     expect(screen.getByRole("button", { name: "Lancer un sourcing" })).toBeDisabled();
     expect(screen.getByText(/aucun secteur prioritaire de rang 1/)).toBeInTheDocument();
   });
 
-  it("offers the run when a tier-1 sector has a French label", () => {
-    configurationQueryMock.mockReturnValue(
-      loaded({ criteria: { prioritySectors: [{ tier: 1, sectors: [{ id: "s", labelFr: "Conseil" }] }] } }),
-    );
+  it("offers the run when Beclose says it is ready", () => {
+    configurationQueryMock.mockReturnValue(loaded({ ready: true, blockers: [] }));
     renderSection();
 
     expect(screen.getByRole("button", { name: "Lancer un sourcing" })).toBeEnabled();
   });
 
-  it("does not block on a configuration that is still loading or unreadable (Beclose stays the authority)", () => {
+  it("does not block on a configuration that is still loading, unreadable or without a verdict (Beclose stays the authority)", () => {
     configurationQueryMock.mockReturnValue({ isSuccess: false, data: undefined });
     renderSection();
 
