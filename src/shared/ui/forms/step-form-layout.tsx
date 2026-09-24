@@ -15,6 +15,9 @@ export interface StepFormLayoutProps {
   onSubmit: FormEventHandler<HTMLFormElement>;
   onBack: (() => void) | null;
   submitLabel?: string;
+  /** While true the submit button is disabled and a submit event is ignored,
+   * so a double click or a repeated Enter cannot fire the action twice. */
+  isSubmitting?: boolean;
 }
 
 export function StepFormLayout({
@@ -24,9 +27,18 @@ export function StepFormLayout({
   onSubmit,
   onBack,
   submitLabel = "Continuer",
+  isSubmitting = false,
 }: StepFormLayoutProps) {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+    if (isSubmitting) {
+      event.preventDefault();
+      return;
+    }
+    onSubmit(event);
+  };
+
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-8">
+    <form onSubmit={handleSubmit} noValidate aria-busy={isSubmitting} className="space-y-8">
       <header className="max-w-2xl">
         <h1 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">{title}</h1>
         <p className="mt-3 text-sm leading-6 text-text-secondary sm:text-base">{description}</p>
@@ -46,7 +58,8 @@ export function StepFormLayout({
         )}
         <button
           type="submit"
-          className="brand-gradient-action brand-gradient-hover rounded-app-md px-5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet"
+          disabled={isSubmitting}
+          className="brand-gradient-action brand-gradient-hover rounded-app-md px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-violet"
         >
           {submitLabel}
         </button>

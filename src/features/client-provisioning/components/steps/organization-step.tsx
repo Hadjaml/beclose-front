@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import {
   emptyOrganizationCreateDraft,
@@ -7,6 +8,7 @@ import {
   organizationFieldHints,
   useCreateClientMutation,
 } from "@/features/clients";
+import { getApiErrorCode, getApiErrorMessage } from "@/shared/api/api-error-code";
 import {
   MutationErrorBanner,
   StepFormLayout,
@@ -29,6 +31,7 @@ export function OrganizationStep({ onCreated }: OrganizationStepProps) {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (mutation.isPending) return;
     const data = form.validate();
     if (data === null) {
       setShowValidationError(true);
@@ -47,9 +50,10 @@ export function OrganizationStep({ onCreated }: OrganizationStepProps) {
       onSubmit={handleSubmit}
       onBack={null}
       submitLabel={mutation.isPending ? "Création…" : "Créer et continuer"}
+      isSubmitting={mutation.isPending}
     >
       {showValidationError ? <ValidationErrorBanner errors={errors} /> : null}
-      {mutation.isError ? <MutationErrorBanner error={mutation.error} /> : null}
+      {mutation.isError ? <CreateErrorBanner error={mutation.error} /> : null}
       <TextField
         id="organization-name"
         label="Nom"
@@ -87,5 +91,26 @@ export function OrganizationStep({ onCreated }: OrganizationStepProps) {
         optional
       />
     </StepFormLayout>
+  );
+}
+
+/** A taken name is the one failure the user can act on here: the client may
+ * already exist (a previous attempt, an interrupted onboarding), and it is
+ * resumed from the clients list — not by creating it again. */
+function CreateErrorBanner({ error }: { error: unknown }) {
+  if (getApiErrorCode(error) !== "ORGANIZATION_NAME_TAKEN") {
+    return <MutationErrorBanner error={error} />;
+  }
+  return (
+    <MutationErrorBanner
+      error={error}
+      title="Ce nom est déjà utilisé"
+      description={`${getApiErrorMessage(error) ?? "Une organisation porte déjà ce nom."} Si ce client existe déjà, ne le recréez pas : retrouvez-le dans la liste des clients (« Reprendre » s’il n’est pas configuré jusqu’au bout ; les clients archivés s’y affichent via « Afficher les archivées »), ou choisissez un autre nom.`}
+      action={
+        <Link href="/backoffice/clients" className="text-sm font-semibold text-red-900 underline">
+          Voir la liste des clients
+        </Link>
+      }
+    />
   );
 }

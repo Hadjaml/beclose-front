@@ -43,6 +43,7 @@ export function BantStep({ workspaceId, workspaceName, onCreated }: BantStepProp
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (mutation.isPending) return;
     const criteria = form.validate();
     if (criteria === null) {
       setShowValidationError(true);
@@ -67,6 +68,7 @@ export function BantStep({ workspaceId, workspaceName, onCreated }: BantStepProp
       onSubmit={handleSubmit}
       onBack={null}
       submitLabel={mutation.isPending ? "Création…" : "Créer"}
+      isSubmitting={mutation.isPending}
     >
       {showValidationError ? <ValidationErrorBanner errors={errors} /> : null}
       {mutation.isError ? <MutationErrorBanner error={mutation.error} /> : null}

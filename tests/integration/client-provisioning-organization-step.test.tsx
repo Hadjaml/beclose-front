@@ -112,4 +112,66 @@ describe("OrganizationStep (client-provisioning)", () => {
     await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
     expect(onCreated).not.toHaveBeenCalled();
   });
+  it("creates the organization once when the submit button is clicked twice before the response arrives (audit A07)", async () => {
+    const user = userEvent.setup();
+    const onCreated = vi.fn();
+    fetchMock.mockClear();
+    let respond: (response: Response) => void = () => {};
+    fetchMock.mockReturnValueOnce(new Promise<Response>((resolve) => (respond = resolve)));
+
+    renderOrganizationStep(onCreated);
+
+    await user.type(screen.getByLabelText("Nom"), "Acme");
+    const submit = screen.getByRole("button", { name: "Créer et continuer" });
+    await user.click(submit);
+    await user.click(screen.getByRole("button", { name: "Création…" }));
+    await user.keyboard("{Enter}");
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: "Création…" })).toBeDisabled();
+
+    respond(
+      jsonResponse(201, {
+        data: {
+          id: "org-1",
+          name: "Acme",
+          pitch: null,
+          signature: null,
+          telegramChatId: null,
+          createdAt: "2026-09-24T00:00:00Z",
+          updatedAt: "2026-09-24T00:00:00Z",
+        },
+      }),
+    );
+    await waitFor(() => expect(onCreated).toHaveBeenCalledTimes(1));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("explains a taken organization name and points to the clients list (ORGANIZATION_NAME_TAKEN)", async () => {
+    const user = userEvent.setup();
+    const onCreated = vi.fn();
+    fetchMock.mockClear();
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse(409, {
+        error: {
+          code: "ORGANIZATION_NAME_TAKEN",
+          message: "Une organisation nommée « Acme » existe déjà (insensible à la casse).",
+        },
+      }),
+    );
+
+    renderOrganizationStep(onCreated);
+
+    await user.type(screen.getByLabelText("Nom"), "Acme");
+    await user.click(screen.getByRole("button", { name: "Créer et continuer" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Une organisation nommée « Acme » existe déjà");
+    expect(alert).toHaveTextContent("Reprendre");
+    expect(screen.getByRole("link", { name: /clients/i })).toHaveAttribute("href", "/backoffice/clients");
+    expect(alert).not.toHaveTextContent("Les données ont changé");
+    expect(onCreated).not.toHaveBeenCalled();
+    // The form keeps what was typed so the name can be corrected.
+    expect(screen.getByLabelText("Nom")).toHaveValue("Acme");
+  });
 });
