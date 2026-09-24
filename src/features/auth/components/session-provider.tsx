@@ -5,11 +5,12 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useState,
   type ReactNode,
 } from "react";
 import { backendClient } from "@/shared/api/backend-client";
-import { normalizeApiError } from "@/shared/api/api-error";
+import { ApiError, normalizeApiError } from "@/shared/api/api-error";
 import { globalKeys } from "@/shared/query/query-keys";
 import { createAuthApi, type AuthApi } from "../api/auth-api";
 import type { LoginCredentials } from "../model/session";
@@ -38,11 +39,59 @@ export function SessionProvider({
   const queryClient = useQueryClient();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState<string>();
+  const [expired, setExpired] = useState(false);
 
   const sessionQuery = useQuery({
     queryKey: globalKeys.session(),
     queryFn: ({ signal }) => authApi.getCurrentSession(signal),
   });
+
+  // Central 401 handling: any query or mutation refused with 401 while a
+  // session is held means the session is gone server-side. Without this the
+  // page kept showing a generic "Réessayer" that could never succeed.
+  useEffect(() => {
+    const sessionKey = globalKeys.session();
+    const sessionKeyJson = JSON.stringify(sessionKey);
+
+    function expireSession() {
+      if (!queryClient.getQueryData(sessionKey)) return;
+      setExpired(true);
+      // Deferred: this runs inside a cache notification, and removing the
+      // very query that just failed synchronously would re-enter the cache.
+      queueMicrotask(() => {
+        queryClient.removeQueries({
+          predicate: (query) => JSON.stringify(query.queryKey) !== sessionKeyJson,
+        });
+        queryClient.setQueryData(sessionKey, null);
+      });
+    }
+
+    const isUnauthorized = (error: unknown) => error instanceof ApiError && error.status === 401;
+
+    const unsubscribeQueries = queryClient.getQueryCache().subscribe((event) => {
+      if (
+        event.type === "updated" &&
+        event.action.type === "error" &&
+        JSON.stringify(event.query.queryKey) !== sessionKeyJson &&
+        isUnauthorized(event.action.error)
+      ) {
+        expireSession();
+      }
+    });
+    const unsubscribeMutations = queryClient.getMutationCache().subscribe((event) => {
+      if (
+        event.type === "updated" &&
+        event.action.type === "error" &&
+        isUnauthorized(event.action.error)
+      ) {
+        expireSession();
+      }
+    });
+    return () => {
+      unsubscribeQueries();
+      unsubscribeMutations();
+    };
+  }, [queryClient]);
 
   const login = useCallback(
     async (credentials: LoginCredentials) => {
@@ -50,6 +99,7 @@ export function SessionProvider({
       setLoginError(undefined);
       try {
         const session = await authApi.login(credentials);
+        setExpired(false);
         queryClient.setQueryData(globalKeys.session(), session);
       } catch (error) {
         const normalized = normalizeApiError(error);
@@ -67,6 +117,7 @@ export function SessionProvider({
   );
 
   const logout = useCallback(async () => {
+    setExpired(false);
     try {
       await authApi.logout();
     } finally {
@@ -98,7 +149,9 @@ export function SessionProvider({
     : sessionQuery.isError
       ? { status: "ERROR", error: normalizeApiError(sessionQuery.error) }
       : sessionQuery.data === null
-        ? { status: "UNAUTHENTICATED" }
+        ? expired
+          ? { status: "EXPIRED" }
+          : { status: "UNAUTHENTICATED" }
         : { status: "AUTHENTICATED", session: sessionQuery.data };
 
   const value: SessionContextValue = {

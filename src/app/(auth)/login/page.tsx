@@ -1,7 +1,14 @@
 import Link from "next/link";
-import { LoginPage } from "@/features/auth";
+import { LoginPage, safeLoginRedirect } from "@/features/auth";
 
-export default function LoginRoute() {
+export default async function LoginRoute({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { redirectTo } = await searchParams;
+  const returnTo = safeLoginRedirect(typeof redirectTo === "string" ? redirectTo : undefined);
+
   return (
     <section className="rounded-app-lg border border-border bg-surface p-8 shadow-sm shadow-brand-navy/5">
       <h1 className="text-2xl font-semibold tracking-tight text-brand-navy">Accès à l’application</h1>
@@ -10,6 +17,7 @@ export default function LoginRoute() {
       </p>
       <div className="mt-6">
         <LoginPage
+          redirectTo={returnTo}
           forgotPasswordAction={
             <Link
               href="/forgot-password"

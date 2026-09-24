@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
+import { ApiError } from "@/shared/api/api-error";
 
 function createQueryClient() {
   return new QueryClient({
@@ -9,7 +10,10 @@ function createQueryClient() {
       queries: {
         staleTime: 30_000,
         refetchOnWindowFocus: false,
-        retry: 1,
+        // One retry for a transient failure, but never for a 401: the session
+        // is gone and only a new login can fix it (see SessionProvider).
+        retry: (failureCount, error) =>
+          !(error instanceof ApiError && error.status === 401) && failureCount < 1,
         // Default "online" networkMode pauses queries (fetchStatus stays
         // "paused", never fires, never errors) whenever the browser reports
         // navigator.onLine === false. This app has no offline-first UX to
