@@ -37,3 +37,9 @@ export {
   googleIntegrationStatusSchema,
   workspaceIntegrationStatusSchema,
 } from "./schemas/workspace-integration-status-schema";
+export {
+  googleConnectionHealth,
+  googleFailureReasonLabel,
+  type GoogleConnectionHealth,
+  type GoogleConnectionKind,
+} from "./model/google-connection-health";

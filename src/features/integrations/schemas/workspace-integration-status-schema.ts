@@ -11,9 +11,19 @@ import { workspaceIdSchema } from "@/shared/workspace/workspace";
  * Google credential row that is present or not, expired or not.
  */
 export const googleIntegrationStatusSchema = z.object({
+  /** `false` only when Google refused the refresh token (since 24/09/2026);
+   * before, it flipped as soon as the ~1 h access token expired. */
   connected: z.boolean(),
+  /** Expiry of the ACCESS token — information, not a connection state. */
   expiresAt: z.string().nullable(),
   scopes: z.array(z.string()),
+  /** healthy | stale | degraded | reconnect_required | unknown. A plain
+   * string (tolerant): `null` = a backend that predates it. */
+  status: z.string().nullable().default(null),
+  lastSuccessAt: z.string().nullable().default(null),
+  lastFailureAt: z.string().nullable().default(null),
+  /** refresh_refused | error — never the raw provider message. */
+  lastFailureReason: z.string().nullable().default(null),
 });
 
 export const workspaceIntegrationStatusSchema = z.object({

@@ -18,8 +18,36 @@ describe("createWorkspaceIntegrationStatusApi", () => {
 
     expect(status).toEqual({
       workspaceId: "workspace-1",
-      google: { connected: true, expiresAt: "2026-01-01T00:00:00Z", scopes: ["gmail.send"] },
+      google: {
+        connected: true,
+        expiresAt: "2026-01-01T00:00:00Z",
+        scopes: ["gmail.send"],
+        status: null,
+        lastSuccessAt: null,
+        lastFailureAt: null,
+        lastFailureReason: null,
+      },
     });
+  });
+
+  it("get() carries the health fields Beclose added (status, last success/failure, reason)", async () => {
+    const client = fakeClient(() => ({
+      data: {
+        google: {
+          connected: false,
+          expiresAt: null,
+          scopes: [],
+          status: "reconnect_required",
+          lastSuccessAt: "2026-09-23T08:00:00Z",
+          lastFailureAt: "2026-09-24T08:00:00Z",
+          lastFailureReason: "refresh_refused",
+        },
+      },
+    }));
+
+    const { google } = await createWorkspaceIntegrationStatusApi(client).get("workspace-1");
+
+    expect(google).toMatchObject({ status: "reconnect_required", lastFailureReason: "refresh_refused" });
   });
 
   it("get() accepts a null google integration (never connected)", async () => {

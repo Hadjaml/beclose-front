@@ -151,3 +151,52 @@ describe("ConnectionsStep", () => {
     await waitFor(() => expect(onTelegramChatIdChange).toHaveBeenCalledWith("-100999999"));
   });
 });
+
+describe("ConnectionsStep — Gmail health from Beclose's status", () => {
+  const withStatus = (status: string | null, connected = true) => ({
+    isPending: false,
+    isError: false,
+    isSuccess: true,
+    data: {
+      workspaceId: "workspace-1",
+      google: { connected, expiresAt: "2020-01-01T00:00:00Z", scopes: [], status, lastSuccessAt: null, lastFailureAt: null, lastFailureReason: null },
+    },
+  });
+
+  it("an expired access token with a healthy status does not ask for a reconnection", () => {
+    integrationStatusQueryMock.mockReturnValue(withStatus("healthy"));
+    renderStep(null);
+
+    expect(screen.getByText("Gmail connecté")).toBeInTheDocument();
+    expect(screen.queryByText(/connect_gmail_cli/)).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["unknown", "Non encore vérifié"],
+    ["stale", "Dernière vérification ancienne"],
+    ["degraded", "Incident transitoire"],
+  ])("status %s is shown as '%s' — no reconnection command, not 'connecté'", (status, label) => {
+    integrationStatusQueryMock.mockReturnValue(withStatus(status));
+    renderStep(null);
+
+    expect(screen.getByText(label)).toBeInTheDocument();
+    expect(screen.queryByText("Gmail connecté")).not.toBeInTheDocument();
+    expect(screen.queryByText(/connect_gmail_cli/)).not.toBeInTheDocument();
+  });
+
+  it("reconnect_required is the case that shows the reconnection command", () => {
+    integrationStatusQueryMock.mockReturnValue(withStatus("reconnect_required", false));
+    renderStep(null);
+
+    expect(screen.getByText("Reconnexion nécessaire")).toBeInTheDocument();
+    expect(screen.getByText("uv run python -m workers.connect_gmail_cli workspace-1")).toBeInTheDocument();
+  });
+
+  it("an unrecognised status is stated as unknown, never as connected", () => {
+    integrationStatusQueryMock.mockReturnValue(withStatus("brand_new"));
+    renderStep(null);
+
+    expect(screen.getByText("Statut inconnu : brand_new")).toBeInTheDocument();
+    expect(screen.queryByText("Gmail connecté")).not.toBeInTheDocument();
+  });
+});

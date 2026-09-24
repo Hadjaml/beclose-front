@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useWorkspaceIntegrationStatusQuery } from "@/features/integrations";
+import { googleConnectionHealth, useWorkspaceIntegrationStatusQuery } from "@/features/integrations";
 import { useUpdateClientMutation } from "@/features/clients";
 import { ErrorState, LoadingState } from "@/shared/ui/states";
 import { MutationErrorBanner, StepFormLayout, TextField } from "@/shared/ui/forms";
@@ -39,7 +39,9 @@ function GmailStatus({ workspaceId }: { workspaceId: WorkspaceId }) {
     );
   }
 
-  if (query.data.google?.connected === true) {
+  const health = googleConnectionHealth(query.data.google);
+
+  if (health.kind === "healthy") {
     return (
       <div className="rounded-app-lg border border-emerald-200 bg-emerald-50 p-4" role="status">
         <p className="text-sm font-semibold text-emerald-950">Gmail connecté</p>
@@ -50,9 +52,22 @@ function GmailStatus({ workspaceId }: { workspaceId: WorkspaceId }) {
     );
   }
 
+  // Not connected-and-verified, but no reconnection needed: an access token
+  // renews itself, so only say where the connection stands.
+  if (!health.needsReconnect) {
+    return (
+      <div className="rounded-app-lg border border-border bg-surface-muted p-4" role="status">
+        <p className="text-sm font-semibold text-text-primary">{health.label}</p>
+        <p className="mt-1 text-sm text-text-secondary">{health.description}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3 rounded-app-lg border border-amber-200 bg-amber-50 p-4">
-      <p className="text-sm font-semibold text-amber-900">Gmail non connecté</p>
+      <p className="text-sm font-semibold text-amber-900">
+        {health.kind === "reconnect_required" ? "Reconnexion nécessaire" : "Gmail non connecté"}
+      </p>
       <p className="text-sm text-amber-800">
         Sans cette connexion, les messages restent en attente de validation mais ne partent
         jamais. À lancer une fois, depuis un poste où Beclose est installé :
