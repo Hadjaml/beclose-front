@@ -148,4 +148,23 @@ describe("StartSourcingRunButton", () => {
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("Profil ICP inutilisable.");
   });
+
+  it("explains 503 SOURCING_RUN_TRACKING_UNAVAILABLE: nothing was launched", async () => {
+    const user = userEvent.setup();
+    startMock.mockRejectedValueOnce(
+      new ApiError({
+        kind: "http",
+        message: "unavailable",
+        status: 503,
+        details: { error: { code: "SOURCING_RUN_TRACKING_UNAVAILABLE", message: "…" } },
+      }),
+    );
+    renderButton();
+
+    await user.click(screen.getByRole("button", { name: "Lancer un sourcing" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Aucun sourcing n’a été lancé");
+    expect(alert).toHaveTextContent("suivi");
+  });
 });

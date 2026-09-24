@@ -1,4 +1,10 @@
-import type { SourcingReport, SourcingRun } from "../schemas/sourcing-run-schema";
+import { describeEnumValue } from "@/shared/schemas/tolerant-enum";
+import type {
+  sourcingRunStageValues,
+  sourcingStopReasonValues,
+  SourcingReport,
+  SourcingRun,
+} from "../schemas/sourcing-run-schema";
 
 export type SourcingRunDisplayStatus = "running" | "succeeded" | "failed" | "interrupted" | "unknown";
 
@@ -54,12 +60,17 @@ export interface SourcingFunnelLine {
  * counters existed, rather than guessed.
  */
 export function sourcingFunnel(report: SourcingReport): SourcingFunnelLine[] {
-  const lines: SourcingFunnelLine[] = [
+  const lines: SourcingFunnelLine[] = [];
+  if (report.pagesFetched !== null) lines.push({ label: "Pages consultées", value: report.pagesFetched });
+  if (report.companiesConsulted !== null) {
+    lines.push({ label: "Candidats examinés", value: report.companiesConsulted });
+  }
+  lines.push(
     { label: "Déjà en base (ignorées)", value: report.companiesSkippedExisting },
     { label: "Exclues par l’effectif (hors ICP)", value: report.companiesExcludedByHeadcount },
     { label: "Nouvelles entreprises traitées", value: report.companiesFound },
     { label: "en échec de traitement", value: report.companiesFailed, nested: true },
-  ];
+  );
   if (report.companiesWithoutDomain !== null) {
     lines.push({
       label: "sans site officiel trouvé",
@@ -76,5 +87,33 @@ export function sourcingFunnel(report: SourcingReport): SourcingFunnelLine[] {
     });
   }
   lines.push({ label: "Avec e-mail exploitable (leads)", value: report.companiesWithEmail });
+  if (report.companiesRetried !== null) {
+    lines.push({ label: "Entreprises connues re-tentées (sans lead)", value: report.companiesRetried });
+    if (report.companiesRecovered !== null) {
+      lines.push({ label: "dont récupérées", value: report.companiesRecovered, nested: true });
+    }
+  }
   return lines;
+}
+
+export const sourcingStageLabels = {
+  starting: "Démarrage",
+  resolving_targets: "Résolution des secteurs cibles",
+  processing: "Traitement des entreprises",
+  finished: "Terminé",
+} as const satisfies Record<(typeof sourcingRunStageValues)[number], string>;
+
+/** `null` when the backend sent no stage; neutral for one it does not know. */
+export function sourcingStageLabel(stage: SourcingRun["stage"]): string | null {
+  return stage === null ? null : describeEnumValue(sourcingStageLabels, stage, "Étape inconnue");
+}
+
+export const sourcingStopReasonLabels = {
+  target_reached: "Objectif atteint",
+  results_exhausted: "Résultats de la source épuisés",
+  page_budget_exhausted: "Limite de pages atteinte avant l’objectif",
+} as const satisfies Record<(typeof sourcingStopReasonValues)[number], string>;
+
+export function sourcingStopReasonLabel(reason: NonNullable<SourcingReport["stopReason"]>): string {
+  return describeEnumValue(sourcingStopReasonLabels, reason, "Raison d’arrêt inconnue");
 }

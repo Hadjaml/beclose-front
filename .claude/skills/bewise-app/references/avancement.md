@@ -1200,3 +1200,20 @@ sont `null`) — sans eux, le conteneur actuel (backend non reconstruit) perdrai
 les garde-fous A06/A08. Conséquence assumée : la liste Clients n'affiche plus
 « Sourcing impossible » par ligne quand les flags sont là (ils ne disent que
 « incomplet ») ; l'info reste sur la page Configuration et la page Prospection.
+
+## 2026-09-24 (nuit, fin) — Lot 3 sourcing : progression des runs (front)
+
+Contrat de Vega (additif, `GET .../sourcing-runs`) : `stage`
+(`starting|resolving_targets|processing|finished`, tolérant), `lastProgressAt`,
+`report` VIVANT pendant le run et PARTIEL si échec, nouvelles clés
+`companies_consulted`, `pages_fetched`, `stop_reason`
+(`target_reached|results_exhausted|page_budget_exhausted`, tolérant),
+`companies_retried`, `companies_recovered` ; `503
+SOURCING_RUN_TRACKING_UNAVAILABLE` (aucun run lancé) ; un run muet 20 min est
+marqué `failed` par Beclose. Côté front : étape + « Dernier signe de vie » sur un
+run en cours ; compteurs vivants ; « Bilan partiel » sur un run échoué ; raison
+d'arrêt en français (neutre si inconnue) ; reprise d'enrichissement affichée
+seulement si rapportée ; message dédié au 503. **Correction de fond** : un
+rapport vivant peut ne pas porter `email_coverage_rate` — il valait 0 par
+défaut et aurait affiché un faux « 0 % » ; il est désormais `null` = non
+rapporté, donc masqué. Non testé contre le backend déployé (non reconstruit).

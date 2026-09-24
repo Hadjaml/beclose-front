@@ -70,3 +70,88 @@ describe("SourcingRunsList — status vocabulary drift", () => {
     expect(screen.getByText("Statut inconnu : some_future_status")).toBeInTheDocument();
   });
 });
+
+describe("SourcingRunsList — live progress and partial reports (lot 3)", () => {
+  it("shows the stage, the last sign of life and the live counters of a running run", () => {
+    render(
+      <SourcingRunsList
+        runs={[
+          sourcingRunSchema.parse({
+            ...base,
+            status: "running",
+            stage: "processing",
+            lastProgressAt: "2026-09-24T09:12:00Z",
+            report: { companies_consulted: 40, pages_fetched: 2, companies_found: 12, companies_with_email: 3 },
+          }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Traitement des entreprises")).toBeInTheDocument();
+    expect(screen.getByText(/Dernier signe de vie/)).toBeInTheDocument();
+    expect(screen.getByText("Candidats examinés")).toBeInTheDocument();
+    expect(screen.getByText("40")).toBeInTheDocument();
+    expect(screen.getByText("Pages consultées")).toBeInTheDocument();
+  });
+
+  it("never invents a 0 % coverage for a live report that does not carry it", () => {
+    render(
+      <SourcingRunsList
+        runs={[sourcingRunSchema.parse({ ...base, status: "running", report: { companies_found: 1 } })]}
+      />,
+    );
+    expect(screen.queryByText(/Taux de couverture/)).not.toBeInTheDocument();
+  });
+
+  it("says why the run stopped, in French, and stays neutral on an unknown reason", () => {
+    render(
+      <SourcingRunsList
+        runs={[
+          sourcingRunSchema.parse({ ...base, id: "a", status: "succeeded", report: { stop_reason: "results_exhausted" } }),
+          sourcingRunSchema.parse({ ...base, id: "b", status: "succeeded", report: { stop_reason: "page_budget_exhausted" } }),
+          sourcingRunSchema.parse({ ...base, id: "c", status: "succeeded", report: { stop_reason: "brand_new" } }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(/Résultats de la source épuisés/)).toBeInTheDocument();
+    expect(screen.getByText(/Limite de pages atteinte/)).toBeInTheDocument();
+    expect(screen.getByText(/Raison d’arrêt inconnue : brand_new/)).toBeInTheDocument();
+  });
+
+  it("labels the report of a failed run as partial, and keeps its figures", () => {
+    render(
+      <SourcingRunsList
+        runs={[
+          sourcingRunSchema.parse({
+            ...base,
+            status: "failed",
+            errorMessage: "Run sans progression depuis plus de 20 minutes",
+            report: { companies_found: 7, companies_consulted: 15 },
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(/Bilan partiel/)).toBeInTheDocument();
+    expect(screen.getByText("Candidats examinés")).toBeInTheDocument();
+    expect(screen.getByText(/sans progression depuis plus de 20 minutes/)).toBeInTheDocument();
+  });
+
+  it("shows the enrichment retry of already-known companies only when reported", () => {
+    render(
+      <SourcingRunsList
+        runs={[sourcingRunSchema.parse({ ...base, status: "succeeded", report: { companies_retried: 5, companies_recovered: 2 } })]}
+      />,
+    );
+    expect(screen.getByText(/Entreprises connues re-tentées/)).toBeInTheDocument();
+    expect(screen.getByText(/dont récupérées/)).toBeInTheDocument();
+  });
+
+  it("a stage Beclose adds later degrades to a neutral label, never a failure", () => {
+    render(
+      <SourcingRunsList
+        runs={[sourcingRunSchema.parse({ ...base, status: "running", stage: "warming_up" })]}
+      />,
+    );
+    expect(screen.getByText("Étape inconnue : warming_up")).toBeInTheDocument();
+  });
+});

@@ -3,6 +3,8 @@ import {
   sourcingFunnel,
   sourcingRunDisplayStatus,
   sourcingRunStatusLabel,
+  sourcingStageLabel,
+  sourcingStopReasonLabel,
   type SourcingRunDisplayStatus,
 } from "../model/sourcing-run";
 import type { SourcingRun } from "../schemas/sourcing-run-schema";
@@ -35,10 +37,18 @@ function SourcingRunItem({ run }: { run: SourcingRun }) {
       </div>
 
       {status === "running" ? (
-        <p className="text-sm text-text-secondary">
-          Recherche en cours (environ 30 minutes) — les prospects arrivent au fil de l’eau dans la
-          liste ci-dessous.
-        </p>
+        <div className="space-y-1 text-sm text-text-secondary">
+          <p>
+            Recherche en cours (environ 30 minutes) — les prospects arrivent au fil de l’eau dans la
+            liste ci-dessous.
+          </p>
+          {sourcingStageLabel(run.stage) === null ? null : (
+            <p className="font-medium text-text-primary">{sourcingStageLabel(run.stage)}</p>
+          )}
+          {run.lastProgressAt === null ? null : (
+            <p>Dernier signe de vie : {formatDateTime(run.lastProgressAt)}</p>
+          )}
+        </div>
       ) : null}
 
       {status === "failed" && run.errorMessage !== null ? (
@@ -50,6 +60,15 @@ function SourcingRunItem({ run }: { run: SourcingRun }) {
           trouvés sont conservés ; relancez un sourcing pour continuer.
         </p>
       ) : null}
+
+      {run.report !== null && (status === "failed" || status === "interrupted") ? (
+        <p className="text-sm text-text-secondary">Bilan partiel, arrêté au moment de l’échec :</p>
+      ) : null}
+      {run.report === null || run.report.stopReason === null ? null : (
+        <p className="text-sm text-text-secondary">
+          Arrêt : {sourcingStopReasonLabel(run.report.stopReason)}
+        </p>
+      )}
 
       {run.report === null ? null : (
         <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
@@ -64,10 +83,12 @@ function SourcingRunItem({ run }: { run: SourcingRun }) {
               <dd className="tabular-nums">{line.value}</dd>
             </div>
           ))}
-          <div className="flex items-baseline justify-between gap-3 text-sm font-medium text-text-primary sm:col-span-2">
-            <dt>Taux de couverture e-mail</dt>
-            <dd className="tabular-nums">{Math.round(run.report.emailCoverageRate * 100)} %</dd>
-          </div>
+          {run.report.emailCoverageRate === null ? null : (
+            <div className="flex items-baseline justify-between gap-3 text-sm font-medium text-text-primary sm:col-span-2">
+              <dt>Taux de couverture e-mail</dt>
+              <dd className="tabular-nums">{Math.round(run.report.emailCoverageRate * 100)} %</dd>
+            </div>
+          )}
         </dl>
       )}
     </li>

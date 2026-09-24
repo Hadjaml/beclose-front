@@ -97,7 +97,9 @@ export function StartSourcingRunButton({
         <p className="text-sm text-red-700" role="alert">
           {isAlreadyInProgress(mutation.error)
             ? "Un sourcing est déjà en cours pour ce client."
-            : "Impossible de lancer le sourcing. Réessayez dans quelques instants."}
+            : getApiErrorCode(mutation.error) === "SOURCING_RUN_TRACKING_UNAVAILABLE"
+              ? "Aucun sourcing n’a été lancé : le suivi des sourcings est momentanément indisponible. Réessayez dans quelques instants."
+              : "Impossible de lancer le sourcing. Réessayez dans quelques instants."}
         </p>
       ) : null}
     </div>
