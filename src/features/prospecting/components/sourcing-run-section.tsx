@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  sourcingBlockerLabels,
+  sourcingBlockerLabel,
   sourcingBlockers,
   useWorkspaceConfigurationQuery,
 } from "@/features/client-configuration";
@@ -22,15 +22,17 @@ function SourcingRunSectionForWorkspace({ workspaceId }: { workspaceId: Workspac
   // While the configuration loads, or if it cannot be read, the run stays
   // offered: Beclose remains the authority and refuses a run it cannot do.
   const blockers = query.isSuccess ? sourcingBlockers(query.data) : [];
+  const fixHref = resumeOnboardingHref(workspaceId, "icp");
   const blocked: SourcingRunBlock | undefined =
     blockers.length === 0
       ? undefined
-      : {
-          reasons: blockers.map((blocker) => sourcingBlockerLabels[blocker]),
-          fixHref: resumeOnboardingHref(workspaceId, "icp"),
-        };
+      : { reasons: blockers.map((blocker) => sourcingBlockerLabel(blocker)), fixHref };
 
   return (
-    <StartSourcingRunButton workspaceId={workspaceId} {...(blocked === undefined ? {} : { blocked })} />
+    <StartSourcingRunButton
+      workspaceId={workspaceId}
+      fixHref={fixHref}
+      {...(blocked === undefined ? {} : { blocked })}
+    />
   );
 }

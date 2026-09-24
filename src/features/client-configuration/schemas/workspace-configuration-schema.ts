@@ -41,4 +41,7 @@ export const workspaceConfigurationSchema = z.object({
   telegramChatId: z.string().trim().min(1).nullable(),
   qualificationCriteria: qualificationCriteriaVersionSchema.nullable(),
   icpProfile: icpProfileVersionSchema.nullable(),
+  /** Beclose's own verdict for a default sourcing run; `null` when the
+   * backend build predates it. */
+  sourcingReadiness: z.object({ ready: z.boolean(), blockers: z.array(z.string()) }).nullable(),
 });

@@ -48,6 +48,12 @@ const configurationResponseSchema = detailEnvelopeSchema(
       signature: z.string().trim().min(1).nullable(),
       telegramChatId: z.string().trim().min(1).nullable(),
       qualificationCriteria: qualificationCriteriaVersionSchema.nullable(),
+      /** Beclose's verdict on whether a default sourcing run can start;
+       * absent on a build that predates it (`null` = no signal). */
+      sourcingReadiness: z
+        .object({ ready: z.boolean(), blockers: z.array(z.string()) })
+        .nullable()
+        .default(null),
       icpProfile: icpProfileVersionSchema.nullable(),
     })
     .transform(
@@ -59,6 +65,7 @@ const configurationResponseSchema = detailEnvelopeSchema(
         telegramChatId: raw.telegramChatId,
         qualificationCriteria: raw.qualificationCriteria,
         icpProfile: raw.icpProfile,
+        sourcingReadiness: raw.sourcingReadiness,
       }),
     ),
 );

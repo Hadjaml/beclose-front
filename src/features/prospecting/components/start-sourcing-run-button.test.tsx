@@ -94,4 +94,58 @@ describe("StartSourcingRunButton", () => {
     await user.click(button);
     expect(startMock).not.toHaveBeenCalled();
   });
+
+  it("explains a 422 SOURCING_PRECONDITION_FAILED with Beclose's blockers in French, and offers the fix", async () => {
+    const user = userEvent.setup();
+    startMock.mockRejectedValueOnce(
+      new ApiError({
+        kind: "http",
+        message: "unprocessable",
+        status: 422,
+        details: {
+          error: {
+            code: "SOURCING_PRECONDITION_FAILED",
+            message: "Le sourcing ne peut pas démarrer.",
+            details: { blockers: ["ICP_SECTOR_LABELS_MISSING", "NEW_CODE"] },
+          },
+        },
+      }),
+    );
+    const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <StartSourcingRunButton workspaceId="workspace-1" fixHref="/backoffice/clients/new?organization=workspace-1&step=icp" />
+      </QueryClientProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Lancer un sourcing" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Le sourcing ne peut pas démarrer");
+    expect(alert).toHaveTextContent("n’ont aucun libellé français");
+    expect(alert).toHaveTextContent("Précondition non remplie : NEW_CODE");
+    expect(alert).not.toHaveTextContent("Impossible de lancer le sourcing");
+    expect(screen.getByRole("link", { name: "Corriger le profil ICP" })).toHaveAttribute(
+      "href",
+      "/backoffice/clients/new?organization=workspace-1&step=icp",
+    );
+  });
+
+  it("a 422 without readable blockers still says the run cannot start, never the generic retry line", async () => {
+    const user = userEvent.setup();
+    startMock.mockRejectedValueOnce(
+      new ApiError({
+        kind: "http",
+        message: "unprocessable",
+        status: 422,
+        details: { error: { code: "SOURCING_PRECONDITION_FAILED", message: "Profil ICP inutilisable." } },
+      }),
+    );
+    renderButton();
+
+    await user.click(screen.getByRole("button", { name: "Lancer un sourcing" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Profil ICP inutilisable.");
+  });
 });

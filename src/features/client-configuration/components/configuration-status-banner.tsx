@@ -4,7 +4,7 @@ import type { WorkspaceId } from "@/shared/workspace/workspace";
 import {
   missingConfiguration,
   missingConfigurationLabels,
-  sourcingBlockerLabels,
+  sourcingBlockerLabel,
   sourcingBlockers,
   type ReadinessInput,
 } from "../model/configuration-readiness";
@@ -26,7 +26,7 @@ export function ConfigurationStatusBanner({
   const missing = missingConfiguration(configuration);
   const blockers = sourcingBlockers(configuration);
   // A missing ICP profile is already reported as incomplete.
-  const sourcingIssues = blockers.filter((blocker) => blocker !== "no_icp_profile");
+  const sourcingIssues = blockers.filter((blocker) => blocker !== "ICP_PROFILE_MISSING");
 
   if (missing.length === 0 && sourcingIssues.length === 0) {
     return (
@@ -58,7 +58,7 @@ export function ConfigurationStatusBanner({
           <p className="text-sm font-semibold text-red-900">Sourcing impossible</p>
           <ul className="mt-1 list-inside list-disc text-sm text-red-800">
             {sourcingIssues.map((blocker) => (
-              <li key={blocker}>{sourcingBlockerLabels[blocker]}</li>
+              <li key={blocker}>{sourcingBlockerLabel(blocker)}</li>
             ))}
           </ul>
           <Link

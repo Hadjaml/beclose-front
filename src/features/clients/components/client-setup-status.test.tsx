@@ -12,10 +12,10 @@ vi.mock("@/features/client-configuration", async () => {
   return { ...actual, useWorkspaceConfigurationQuery: configurationQueryMock };
 });
 
-function renderStatus() {
+function renderStatus(icpActive: boolean | null = null, bantActive: boolean | null = null) {
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <ClientSetupStatus workspaceId="org-1" />
+      <ClientSetupStatus workspaceId="org-1" icpActive={icpActive} bantActive={bantActive} />
     </QueryClientProvider>,
   );
 }
@@ -26,7 +26,7 @@ const loaded = (icpProfile: unknown, qualificationCriteria: unknown) => ({
   data: { icpProfile, qualificationCriteria },
 });
 
-describe("ClientSetupStatus (audit A06: an unfinished client is never shown as configured)", () => {
+describe("ClientSetupStatus — legacy backend without the flags (falls back to the configuration)", () => {
   beforeEach(() => configurationQueryMock.mockReset());
 
   it("flags an incomplete configuration and links to resume the same organization", () => {
@@ -64,5 +64,35 @@ describe("ClientSetupStatus (audit A06: an unfinished client is never shown as c
     renderStatus();
 
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  });
+});
+
+describe("ClientSetupStatus — from the flags on the client list (no request per row)", () => {
+  beforeEach(() => configurationQueryMock.mockReset());
+
+  it("flags an incomplete configuration from icpActive/bantActive alone and never queries the configuration", () => {
+    renderStatus(true, false);
+
+    expect(screen.getByText("Configuration incomplète")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Reprendre" })).toHaveAttribute(
+      "href",
+      "/backoffice/clients/new?organization=org-1",
+    );
+    expect(configurationQueryMock).not.toHaveBeenCalled();
+  });
+
+  it("shows nothing when both are active", () => {
+    renderStatus(true, true);
+
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(configurationQueryMock).not.toHaveBeenCalled();
+  });
+
+  it("an unknown flag (null) is not 'missing': with one flag unknown it falls back to the configuration", () => {
+    configurationQueryMock.mockReturnValue({ isSuccess: false, data: undefined });
+    renderStatus(true, null);
+
+    expect(screen.queryByText("Configuration incomplète")).not.toBeInTheDocument();
+    expect(configurationQueryMock).toHaveBeenCalled();
   });
 });

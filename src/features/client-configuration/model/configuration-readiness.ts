@@ -13,6 +13,8 @@ export interface ReadinessInput {
     };
   } | null;
   qualificationCriteria: unknown | null;
+  /** Beclose's own verdict; absent on a build that predates it. */
+  sourcingReadiness?: { ready: boolean; blockers: readonly string[] } | null;
 }
 
 export type MissingConfiguration = "icp" | "bant";
@@ -31,33 +33,56 @@ export const missingConfigurationLabels = {
   bant: "la grille BANT",
 } as const satisfies Record<MissingConfiguration, string>;
 
-export type SourcingBlocker = "no_icp_profile" | "no_labelled_tier_one_sector";
+/** Beclose's stable blocker codes (`GET /configuration` →
+ * `sourcingReadiness.blockers`, and `422 SOURCING_PRECONDITION_FAILED`).
+ * Open on purpose: a code added later must degrade to a neutral label,
+ * never fail a page. */
+export const knownSourcingBlockers = [
+  "ICP_PROFILE_MISSING",
+  "ICP_NO_PRIORITY_SECTORS",
+  "ICP_SECTOR_LABELS_MISSING",
+  "ICP_PROFILE_INVALID",
+] as const;
+export type KnownSourcingBlocker = (typeof knownSourcingBlockers)[number];
+export type SourcingBlocker = string;
 
-/** The tier a default sourcing run targets (Beclose `DEFAULT_TIERS = [1]`,
- * and the button sends no tier). */
+export const sourcingBlockerLabels = {
+  ICP_PROFILE_MISSING: "Aucun profil ICP actif n’est enregistré.",
+  ICP_NO_PRIORITY_SECTORS:
+    "Le profil ICP n’a aucun secteur prioritaire de rang 1 : le sourcing n’aurait aucune cible.",
+  ICP_SECTOR_LABELS_MISSING:
+    "Les secteurs prioritaires de rang 1 n’ont aucun libellé français : le sourcing ne saurait pas quoi chercher.",
+  ICP_PROFILE_INVALID: "Le profil ICP actif ne respecte pas le schéma attendu.",
+} as const satisfies Record<KnownSourcingBlocker, string>;
+
+/** Never throws on a code Beclose added after this was written. */
+export function sourcingBlockerLabel(code: SourcingBlocker): string {
+  return Object.hasOwn(sourcingBlockerLabels, code)
+    ? sourcingBlockerLabels[code as KnownSourcingBlocker]
+    : `Précondition non remplie : ${code}`;
+}
+
+/** The tier a default sourcing run targets (Beclose `DEFAULT_TIERS = [1]`). */
 const DEFAULT_SOURCING_TIER = 1;
 
 /**
- * Why the default sourcing run (ICP-driven, tier 1) cannot start, per
- * Beclose's own preconditions in `workers/sourcing.py`: an active ICP
- * profile with at least one tier-1 sector carrying a French label. This
- * duplicates a backend rule on purpose, only to avoid announcing "ready" or
- * offering a run that is known to fail — Beclose stays the authority and
- * still refuses if the rule ever changes. No extra business threshold is
- * invented here.
+ * Why the default (ICP-driven) sourcing run cannot start. Beclose is the
+ * authority: when it sends `sourcingReadiness` that is what is used.
+ * The local derivation below only covers a Beclose build that predates that
+ * field (same rule, same codes) — DELETE it once the field is deployed
+ * everywhere; an absent field must then mean "unknown, do not block".
  */
 export function sourcingBlockers(configuration: ReadinessInput): SourcingBlocker[] {
-  if (configuration.icpProfile === null) return ["no_icp_profile"];
-  const hasLabelledSector = configuration.icpProfile.criteria.prioritySectors.some(
-    (group) =>
-      group.tier === DEFAULT_SOURCING_TIER &&
-      group.sectors.some((sector) => sector.labelFr !== null && sector.labelFr.trim() !== ""),
-  );
-  return hasLabelledSector ? [] : ["no_labelled_tier_one_sector"];
+  const readiness = configuration.sourcingReadiness;
+  if (readiness !== undefined && readiness !== null) {
+    if (readiness.ready) return [];
+    return readiness.blockers.length > 0 ? [...readiness.blockers] : ["UNSPECIFIED"];
+  }
+  if (configuration.icpProfile === null) return ["ICP_PROFILE_MISSING"];
+  const sectors = configuration.icpProfile.criteria.prioritySectors
+    .filter((group) => group.tier === DEFAULT_SOURCING_TIER)
+    .flatMap((group) => group.sectors);
+  if (sectors.length === 0) return ["ICP_NO_PRIORITY_SECTORS"];
+  const hasLabel = sectors.some((sector) => sector.labelFr !== null && sector.labelFr.trim() !== "");
+  return hasLabel ? [] : ["ICP_SECTOR_LABELS_MISSING"];
 }
-
-export const sourcingBlockerLabels = {
-  no_icp_profile: "Aucun profil ICP n’est enregistré.",
-  no_labelled_tier_one_sector:
-    "Le profil ICP n’a aucun secteur prioritaire de rang 1 avec un libellé français : le sourcing n’aurait aucune cible.",
-} as const satisfies Record<SourcingBlocker, string>;

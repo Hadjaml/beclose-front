@@ -129,7 +129,11 @@ export function ClientRow({
       </div>
       {isArchived ? null : (
         <div className="px-5 pb-3">
-          <ClientSetupStatus workspaceId={client.workspaceId} />
+          <ClientSetupStatus
+            workspaceId={client.workspaceId}
+            icpActive={client.icpActive}
+            bantActive={client.bantActive}
+          />
         </div>
       )}
       {confirming && onArchived !== undefined ? (

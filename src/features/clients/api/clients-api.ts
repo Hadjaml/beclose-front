@@ -64,6 +64,8 @@ const organizationResponseSchema = z
     telegramChatId: z.string().trim().min(1).nullable(),
     // Tolerant: absent on a Beclose build that predates archiving.
     archivedAt: z.string().nullable().default(null),
+    icpActive: z.boolean().nullable().default(null),
+    bantActive: z.boolean().nullable().default(null),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
@@ -75,6 +77,8 @@ const organizationResponseSchema = z
       signature: org.signature,
       telegramChatId: org.telegramChatId,
       archivedAt: org.archivedAt,
+      icpActive: org.icpActive,
+      bantActive: org.bantActive,
       createdAt: org.createdAt,
       updatedAt: org.updatedAt,
     }),

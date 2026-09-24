@@ -11,6 +11,7 @@ const base = {
   pitch: null,
   signature: null,
   telegramChatId: null,
+  sourcingReadiness: null,
 };
 
 describe("WorkspaceConfigurationView — correcting a policy", () => {

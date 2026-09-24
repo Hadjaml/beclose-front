@@ -27,3 +27,15 @@ export function getApiErrorMessage(error: unknown): string | null {
   if (typeof envelope !== "object" || envelope === null || !("message" in envelope)) return null;
   return typeof envelope.message === "string" && envelope.message !== "" ? envelope.message : null;
 }
+
+/** The `details` object of Beclose's error envelope
+ * (`{ error: { code, message, details } }`), e.g. the `blockers` of a
+ * refused sourcing run; `null` when absent. Untrusted: narrow before use. */
+export function getApiErrorDetails(error: unknown): unknown {
+  if (!(error instanceof ApiError)) return null;
+  const details = error.details;
+  if (typeof details !== "object" || details === null || !("error" in details)) return null;
+  const envelope = details.error;
+  if (typeof envelope !== "object" || envelope === null || !("details" in envelope)) return null;
+  return envelope.details ?? null;
+}

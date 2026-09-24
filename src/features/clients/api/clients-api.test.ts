@@ -32,6 +32,8 @@ describe("createClientsApi", () => {
         signature: "Sig",
         telegramChatId: null,
         archivedAt: null,
+        icpActive: null,
+        bantActive: null,
         createdAt: "2026-01-01T00:00:00Z",
         updatedAt: "2026-01-01T00:00:00Z",
       },
@@ -152,5 +154,17 @@ describe("createClientsApi", () => {
 
     expect(result.client.archivedAt).toBe("2026-09-24T10:00:00Z");
     expect(result.disconnections).toEqual({ gmail: "removed_locally_only", telegram: "left_group" });
+  });
+
+  it("list() carries icpActive/bantActive from Beclose, and treats absent flags as unknown (null), not false", async () => {
+    const org = { id: "o", name: "A", pitch: null, signature: null, telegramChatId: null, createdAt: "x", updatedAt: "x" };
+    const client = fakeClient(() => ({
+      data: [{ ...org, icpActive: true, bantActive: false }, { ...org, id: "p" }],
+    }));
+
+    const [withFlags, legacy] = await createClientsApi(client).list();
+
+    expect(withFlags).toMatchObject({ icpActive: true, bantActive: false });
+    expect(legacy).toMatchObject({ icpActive: null, bantActive: null });
   });
 });

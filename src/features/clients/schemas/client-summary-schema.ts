@@ -19,6 +19,10 @@ export const clientSummarySchema = z.object({
    * 24/09/2026 — archiving, not deleting: a DELETE would wipe opt-out
    * history). `null` = active. */
   archivedAt: z.string().nullable(),
+  /** Whether an ICP profile / a BANT grid is active (Beclose, 24/09/2026).
+   * `null` = the backend build predates the field: unknown, NOT "missing". */
+  icpActive: z.boolean().nullable().default(null),
+  bantActive: z.boolean().nullable().default(null),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

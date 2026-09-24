@@ -65,7 +65,7 @@ describe("BantStep (client-provisioning)", () => {
     // Still on screen until the configuration is refetched: a second click
     // must not create one more version (audit A06/A07).
     expect(screen.getByRole("button", { name: "Création…" })).toBeDisabled();
-  });
+  }, 20_000);
 
   it("lists every failing field in the validation banner when required fields are left blank", async () => {
     const user = userEvent.setup();

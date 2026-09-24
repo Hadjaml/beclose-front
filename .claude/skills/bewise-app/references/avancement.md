@@ -1178,3 +1178,25 @@ identique ; wizard `step=icp|bant` prérempli.
 - **C11.** Titre du workspace = nom du client (`ClientWorkspaceHeader`, via la
   configuration en cache), l'identifiant reste en référence secondaire ; dates en
   français lisibles via `shared/format/format-date-time.ts` (fini l'ISO brut).
+
+## 2026-09-24 (nuit, fin) — Contrat de Vega adopté (A08 / liste Clients)
+
+Contrat (Beclose `feat/opt-out-detection`, validé par Orion) : `GET
+/configuration` → `sourcingReadiness {ready, blockers[]}` ;
+`POST /sourcing-runs` → `422 SOURCING_PRECONDITION_FAILED` +
+`error.details.blockers[]` (seulement en mode piloté par l'ICP) ; `icpActive` /
+`bantActive` sur `OrganizationOut`. Codes : `ICP_PROFILE_MISSING`,
+`ICP_NO_PRIORITY_SECTORS`, `ICP_SECTOR_LABELS_MISSING`, `ICP_PROFILE_INVALID`.
+Côté front : `sourcingBlockers` utilise le verdict de Beclose (`ready` vrai =
+aucun blocage, quoi que dise la donnée locale) ; codes inconnus →
+« Précondition non remplie : <code> » (`sourcingBlockerLabel`, `Object.hasOwn`) ;
+le 422 est affiché en français avec lien « Corriger le profil ICP » (repli sur le
+message de Beclose si la liste est illisible) ; la liste Clients lit
+`icpActive`/`bantActive` (plus de requête par ligne). Un flag absent = `null` =
+inconnu, JAMAIS « manquant ». **Replis temporaires, à supprimer une fois le
+backend déployé partout** : la dérivation locale des blockers (quand
+`sourcingReadiness` est absent) et `LegacyClientSetupStatus` (quand les flags
+sont `null`) — sans eux, le conteneur actuel (backend non reconstruit) perdrait
+les garde-fous A06/A08. Conséquence assumée : la liste Clients n'affiche plus
+« Sourcing impossible » par ligne quand les flags sont là (ils ne disent que
+« incomplet ») ; l'info reste sur la page Configuration et la page Prospection.

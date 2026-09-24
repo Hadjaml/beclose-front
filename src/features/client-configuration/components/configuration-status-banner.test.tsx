@@ -51,4 +51,36 @@ describe("ConfigurationStatusBanner", () => {
     expect(screen.getByText("Profils en place")).toBeInTheDocument();
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
+
+  it("shows Beclose's own blockers in French, and a neutral line for a code it does not know", () => {
+    render(
+      <ConfigurationStatusBanner
+        workspaceId="org-1"
+        configuration={{
+          icpProfile: labelled,
+          qualificationCriteria: {},
+          sourcingReadiness: { ready: false, blockers: ["ICP_SECTOR_LABELS_MISSING", "BRAND_NEW_CODE"] },
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Sourcing impossible")).toBeInTheDocument();
+    expect(screen.getByText(/n’ont aucun libellé français/)).toBeInTheDocument();
+    expect(screen.getByText("Précondition non remplie : BRAND_NEW_CODE")).toBeInTheDocument();
+  });
+
+  it("trusts Beclose when it says ready, whatever the local data looks like", () => {
+    render(
+      <ConfigurationStatusBanner
+        workspaceId="org-1"
+        configuration={{
+          icpProfile: noSector,
+          qualificationCriteria: {},
+          sourcingReadiness: { ready: true, blockers: [] },
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Profils en place")).toBeInTheDocument();
+  });
 });

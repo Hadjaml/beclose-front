@@ -86,6 +86,7 @@ export { ConfigurationStatusBanner } from "./components/configuration-status-ban
 export {
   missingConfiguration,
   missingConfigurationLabels,
+  sourcingBlockerLabel,
   sourcingBlockerLabels,
   sourcingBlockers,
   type MissingConfiguration,
