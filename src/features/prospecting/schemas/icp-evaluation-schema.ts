@@ -45,7 +45,68 @@ export const icpEvaluationDocumentSchema = z.object({
   reasoningSummary: z.string().trim().min(1).max(500),
 });
 
+const evidenceWireSchema = z.object({
+  text: z.string(),
+  source_interaction_id: z.string().nullable().optional(),
+});
+
+const observedSignalWireSchema = z
+  .object({ signal: z.string(), evidence: z.array(evidenceWireSchema).default([]) })
+  .transform((raw) => ({
+    signal: raw.signal,
+    evidence: raw.evidence.map((item) => ({
+      text: item.text,
+      sourceInteractionId: item.source_interaction_id ?? null,
+    })),
+  }));
+
+/**
+ * The per-lead ICP evaluation Beclose writes once a prospect replies (B06,
+ * 24/09/2026), snake_case as stored. The agent only OBSERVES signals with
+ * cited evidence; the verdict comes from deterministic rules (provisional).
+ * `verdict` and `verdict_basis` codes are Beclose's vocabulary: tolerant.
+ * The verdict never changes the lead's status.
+ */
+export const icpEvaluationRecordSchema = z
+  .object({
+    profile_id: z.string().nullable().optional(),
+    profile_version: z.number().int().nullable().optional(),
+    evaluated_at: z.string().nullable().optional(),
+    verdict: icpFitSchema,
+    verdict_basis: z.array(z.string()).default([]),
+    positive_signals: z.array(observedSignalWireSchema).default([]),
+    negative_signals: z.array(observedSignalWireSchema).default([]),
+    hard_disqualifiers: z.array(observedSignalWireSchema).default([]),
+    commercial_maturity: z
+      .object({ level: z.string(), evidence: z.array(evidenceWireSchema).default([]) })
+      .nullable()
+      .optional(),
+  })
+  .transform((raw) => ({
+    /** Same value as `verdict`: every evaluation shape exposes `fit`. */
+    fit: raw.verdict,
+    verdict: raw.verdict,
+    verdictBasis: raw.verdict_basis,
+    profileId: raw.profile_id ?? null,
+    profileVersion: raw.profile_version ?? null,
+    evaluatedAt: raw.evaluated_at ?? null,
+    positiveSignals: raw.positive_signals,
+    negativeSignals: raw.negative_signals,
+    hardDisqualifiers: raw.hard_disqualifiers,
+    commercialMaturity:
+      raw.commercial_maturity === null || raw.commercial_maturity === undefined
+        ? null
+        : {
+            level: raw.commercial_maturity.level,
+            evidence: raw.commercial_maturity.evidence.map((item) => ({
+              text: item.text,
+              sourceInteractionId: item.source_interaction_id ?? null,
+            })),
+          },
+  }));
+
 export const icpEvaluationSchema = z.union([
+  icpEvaluationRecordSchema,
   icpEvaluationDocumentSchema,
   icpEvaluationWireSchema,
 ]);

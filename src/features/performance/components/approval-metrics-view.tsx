@@ -10,8 +10,6 @@ import type { ApprovalMetrics } from "../schemas/approval-metrics-schema";
  * said so on screen rather than presented as settled thresholds.
  */
 export function ApprovalMetricsView({ metrics }: { metrics: ApprovalMetrics }) {
-  const { criterion } = metrics;
-
   return (
     <div className="space-y-4">
       <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -46,35 +44,93 @@ export function ApprovalMetricsView({ metrics }: { metrics: ApprovalMetrics }) {
         {metrics.pending > 1 ? "s" : ""} dans le taux.
       </p>
 
-      <div
-        className={`rounded-app-lg border p-4 ${
-          criterion.met ? "border-emerald-200 bg-emerald-50" : "border-border bg-surface-muted"
-        }`}
-      >
-        <p className="text-sm font-semibold text-text-primary">
-          {criterion.met
-            ? "Constat : taux de correction durablement faible"
-            : criterion.sufficientData
-              ? "Constat : taux de correction pas (encore) durablement faible"
-              : "Constat : pas assez de messages décidés pour conclure"}
-        </p>
-        <p className="mt-1 text-sm leading-6 text-text-secondary">
-          Critère : les {criterion.windowsRequired} dernières fenêtres complètes de{" "}
-          {criterion.windowSize} messages décidés doivent toutes être à {formatShare(criterion.maxCorrectionRate)} de
-          correction ou moins.
-          {criterion.windowRates.length === 0
-            ? " Aucune fenêtre complète pour l’instant."
-            : ` Fenêtres mesurées (de la plus récente à la plus ancienne) : ${criterion.windowRates
-                .map((rate) => formatShare(rate))
-                .join(", ")}.`}
-        </p>
-        <p className="mt-2 text-xs leading-5 text-text-tertiary">
-          Ce constat est purement informatif : rien n’est automatisé et aucun envoi sans validation
-          n’existe ni ne peut être activé d’ici. Passer un client en envoi sans validation reste une
-          décision humaine explicite. Les seuils du critère sont des propositions, pas encore
-          validées.
-        </p>
-      </div>
+      {metrics.consecutive === null ? (
+        <WindowCriterion metrics={metrics} />
+      ) : (
+        <ConsecutiveCriterion metrics={metrics} consecutive={metrics.consecutive} />
+      )}
+    </div>
+  );
+}
+
+const NOTHING_AUTOMATED =
+  "Ce constat est purement informatif : rien n’est automatisé et aucun envoi sans validation n’existe ni ne peut être activé d’ici. Passer un client en envoi sans validation reste une décision humaine explicite.";
+
+/** The finding since Beclose's `consecutive`: validations in a row without a
+ * correction, only counted above a minimum volume. */
+function ConsecutiveCriterion({
+  metrics,
+  consecutive,
+}: {
+  metrics: ApprovalMetrics;
+  consecutive: NonNullable<ApprovalMetrics["consecutive"]>;
+}) {
+  const { criterion } = metrics;
+  return (
+    <div
+      className={`rounded-app-lg border p-4 ${
+        consecutive.met ? "border-emerald-200 bg-emerald-50" : "border-border bg-surface-muted"
+      }`}
+    >
+      <p className="text-sm font-semibold text-text-primary">
+        {consecutive.met
+          ? "Constat : critère atteint"
+          : consecutive.sufficientVolume
+            ? "Constat : critère pas encore atteint"
+            : "Constat : pas assez de messages décidés pour conclure"}
+      </p>
+      <p className="mt-1 text-sm leading-6 text-text-secondary">
+        {plural(consecutive.count, "validation")} consécutive{consecutive.count > 1 ? "s" : ""} sans
+        correction ({consecutive.required} requises), remis à zéro par une correction ou un rejet.
+        Le critère ne compte qu’à partir d’un volume minimum de {consecutive.minimumVolume} messages
+        décidés ({consecutive.decided} pour l’instant).
+      </p>
+      <p className="mt-2 text-xs leading-5 text-text-tertiary">
+        Indicatif : fenêtres de {criterion.windowSize} messages décidés, {criterion.windowsRequired}{" "}
+        dernières fenêtres à {formatShare(criterion.maxCorrectionRate)} de correction ou moins
+        {criterion.windowRates.length === 0
+          ? " — aucune fenêtre complète."
+          : ` (mesurées, de la plus récente à la plus ancienne : ${criterion.windowRates
+              .map((rate) => formatShare(rate))
+              .join(", ")}).`}
+      </p>
+      <p className="mt-2 text-xs leading-5 text-text-tertiary">
+        {NOTHING_AUTOMATED} Les paramètres du critère ({consecutive.required} validations,{" "}
+        {consecutive.minimumVolume} messages) sont provisoires, en attente de validation.
+      </p>
+    </div>
+  );
+}
+
+/** Kept for a backend that predates `consecutive`. */
+function WindowCriterion({ metrics }: { metrics: ApprovalMetrics }) {
+  const { criterion } = metrics;
+  return (
+    <div
+      className={`rounded-app-lg border p-4 ${
+        criterion.met ? "border-emerald-200 bg-emerald-50" : "border-border bg-surface-muted"
+      }`}
+    >
+      <p className="text-sm font-semibold text-text-primary">
+        {criterion.met
+          ? "Constat : taux de correction durablement faible"
+          : criterion.sufficientData
+            ? "Constat : taux de correction pas (encore) durablement faible"
+            : "Constat : pas assez de messages décidés pour conclure"}
+      </p>
+      <p className="mt-1 text-sm leading-6 text-text-secondary">
+        Critère : les {criterion.windowsRequired} dernières fenêtres complètes de {criterion.windowSize}{" "}
+        messages décidés doivent toutes être à {formatShare(criterion.maxCorrectionRate)} de correction
+        ou moins.
+        {criterion.windowRates.length === 0
+          ? " Aucune fenêtre complète pour l’instant."
+          : ` Fenêtres mesurées (de la plus récente à la plus ancienne) : ${criterion.windowRates
+              .map((rate) => formatShare(rate))
+              .join(", ")}.`}
+      </p>
+      <p className="mt-2 text-xs leading-5 text-text-tertiary">
+        {NOTHING_AUTOMATED} Les seuils du critère sont des propositions, pas encore validées.
+      </p>
     </div>
   );
 }

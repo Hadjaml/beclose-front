@@ -1,5 +1,5 @@
 import { formatShare, plural } from "../model/format-share";
-import type { Precision } from "../schemas/precision-schema";
+import type { Precision, Targeting } from "../schemas/precision-schema";
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
@@ -8,6 +8,83 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
       <dd className="mt-1 text-2xl font-semibold tabular-nums text-text-primary">{value}</dd>
       {hint === undefined ? null : <p className="mt-1 text-xs leading-5 text-text-secondary">{hint}</p>}
     </div>
+  );
+}
+
+/** Conformity to the ICP of the sourced companies. Unknowns and
+ * "not recorded" are shown apart and never as failures or successes. */
+function TargetingSection({ targeting }: { targeting: Targeting }) {
+  return (
+    <section className="space-y-3">
+      <h3 className="text-base font-semibold text-text-primary">
+        Ciblage : entreprises sourcées conformes à l’ICP
+      </h3>
+      <p className="text-sm leading-6 text-text-secondary">
+        Ce que le sourcing a réellement ciblé, jugé sur la version d’ICP avec laquelle chaque
+        entreprise a été sourcée (tranche d’effectif). C’est distinct de la mesure BANT ci-dessous,
+        qui porte sur les leads transmis.
+      </p>
+      {targeting.measurable === 0 ? (
+        <p className="rounded-app-md border border-border bg-surface-muted p-3 text-sm text-text-secondary">
+          Rien de mesurable pour l’instant : {plural(targeting.sourced, "entreprise")} sourcée
+          {targeting.sourced > 1 ? "s" : ""} avec une version d’ICP, aucune dont la tranche d’effectif
+          soit connue.
+        </p>
+      ) : null}
+      <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <Stat
+          label="Part conforme"
+          value={formatShare(targeting.conformShare)}
+          hint={`Calculée sur les ${plural(targeting.measurable, "entreprise")} mesurables (inconnues exclues) — couverture ${formatShare(targeting.coverage)} des entreprises sourcées.`}
+        />
+        <Stat label="Sourcées (avec version d’ICP)" value={String(targeting.sourced)} />
+        <Stat
+          label="Sans version d’ICP enregistrée"
+          value={String(targeting.notRecorded)}
+          hint="Sourcing manuel ou antérieur au suivi : comptées à part, jamais comptées comme conformes."
+        />
+        <Stat label="Conformes" value={String(targeting.conform)} hint="Tranche d’effectif dans la fourchette préférée." />
+        <Stat
+          label="Tolérées"
+          value={String(targeting.tolerated)}
+          hint="Tranche hors de la fourchette préférée mais dans les bornes de rejet."
+        />
+        <Stat label="Non conformes" value={String(targeting.nonConform)} hint="Hors des bornes de rejet." />
+        <Stat
+          label="Inconnues"
+          value={String(targeting.unknown)}
+          hint="Tranche d’effectif inconnue : non évaluables, pas un échec — séparées de la mesure."
+        />
+      </dl>
+      {targeting.byIcpVersion.length === 0 ? null : (
+        <div className="overflow-x-auto rounded-app-lg border border-border bg-surface">
+          <table className="w-full min-w-max text-left text-sm">
+            <thead className="border-b border-border text-xs uppercase tracking-wide text-text-tertiary">
+              <tr>
+                <th className="px-4 py-2 font-semibold">Version d’ICP</th>
+                <th className="px-4 py-2 font-semibold">Sourcées</th>
+                <th className="px-4 py-2 font-semibold">Conformes</th>
+                <th className="px-4 py-2 font-semibold">Tolérées</th>
+                <th className="px-4 py-2 font-semibold">Non conformes</th>
+                <th className="px-4 py-2 font-semibold">Inconnues</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border tabular-nums">
+              {targeting.byIcpVersion.map((row) => (
+                <tr key={row.profileId}>
+                  <td className="px-4 py-2 font-medium text-text-primary">Version {row.version}</td>
+                  <td className="px-4 py-2">{row.sourced}</td>
+                  <td className="px-4 py-2">{row.conform}</td>
+                  <td className="px-4 py-2">{row.tolerated}</td>
+                  <td className="px-4 py-2">{row.nonConform}</td>
+                  <td className="px-4 py-2">{row.unknown}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -30,6 +107,8 @@ export function PrecisionView({ precision }: { precision: Precision }) {
         encore de définition chiffrée arrêtée : <strong>aucun chiffre unique n’est affiché</strong>.
         Voici ce qui est réellement mesuré, composante par composante.
       </p>
+
+      {precision.targeting === null ? null : <TargetingSection targeting={precision.targeting} />}
 
       <section className="space-y-3">
         <h3 className="text-base font-semibold text-text-primary">Leads transmis</h3>

@@ -7,6 +7,8 @@ import {
   leadStatusLabel,
   qualificationResultLabel,
 } from "../model/lead-prospect";
+import { icpVerdictBasisLabel } from "../model/icp-evaluation";
+import { formatDate } from "@/shared/format/format-date-time";
 import type { LeadProspectDetail as LeadProspectDetailModel } from "../model/lead-prospect-detail";
 
 const criterionTitles = {
@@ -43,6 +45,105 @@ function CriterionCard({
         </a>
       )}
     </div>
+  );
+}
+
+type IcpRecord = Extract<NonNullable<LeadProspectDetailModel["icpEvaluation"]>, { verdictBasis: unknown }>;
+
+function EvidenceList({ items }: { items: IcpRecord["positiveSignals"][number]["evidence"] }) {
+  return (
+    <ul className="mt-1 space-y-1">
+      {items.map((item, index) => (
+        <li key={index} className="text-sm leading-6 text-text-secondary">
+          « {item.text} »
+          {item.sourceInteractionId === null ? null : (
+            <a
+              href={`#message-${item.sourceInteractionId}`}
+              className="ml-2 text-xs font-semibold text-brand-blue-violet hover:underline"
+            >
+              Voir le message source ↓
+            </a>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function SignalGroup({ title, signals }: { title: string; signals: IcpRecord["positiveSignals"] }) {
+  if (signals.length === 0) return null;
+  return (
+    <div>
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-text-tertiary">{title}</h3>
+      <ul className="mt-1 space-y-2">
+        {signals.map((signal, index) => (
+          <li key={index}>
+            <p className="text-sm font-medium text-text-primary">{signal.signal}</p>
+            <EvidenceList items={signal.evidence} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** The per-lead ICP evaluation (B06): the agent observes signals with their
+ * evidence, deterministic rules give the verdict. It never changes the lead's
+ * status, and the rules are provisional. */
+function IcpEvaluationSection({
+  evaluation,
+  qualificationResult,
+}: {
+  evaluation: IcpRecord;
+  qualificationResult: LeadProspectDetailModel["qualificationResult"];
+}) {
+  const weak = evaluation.verdict === "weak" || evaluation.verdict === "none";
+  return (
+    <section aria-labelledby="icp-evaluation-title" className="space-y-3">
+      <h2 id="icp-evaluation-title" className="text-lg font-semibold text-text-primary">
+        Évaluation ICP
+      </h2>
+      <div className="space-y-4 rounded-app-lg border border-border bg-surface p-4">
+        <p className="text-sm font-semibold text-text-primary">
+          Adéquation : {icpFitLabel(evaluation.verdict)}
+          {evaluation.profileVersion === null ? null : (
+            <span className="font-normal text-text-secondary"> — profil ICP version {evaluation.profileVersion}</span>
+          )}
+          {evaluation.evaluatedAt === null ? null : (
+            <span className="font-normal text-text-secondary"> — évaluée le {formatDate(evaluation.evaluatedAt)}</span>
+          )}
+        </p>
+        {evaluation.verdictBasis.length === 0 ? null : (
+          <ul className="list-inside list-disc space-y-1 text-sm text-text-secondary">
+            {evaluation.verdictBasis.map((code) => (
+              <li key={code}>{icpVerdictBasisLabel(code)}</li>
+            ))}
+          </ul>
+        )}
+        {qualificationResult === "qualified" && weak ? (
+          <p className="text-sm text-amber-900">
+            Ce prospect est qualifié selon la grille BANT, mais son adéquation ICP est faible : les
+            deux mesures répondent à des questions différentes (l’intérêt exprimé d’un côté, la
+            ressemblance avec la cible de l’autre).
+          </p>
+        ) : null}
+        <SignalGroup title="Critères éliminatoires observés" signals={evaluation.hardDisqualifiers} />
+        <SignalGroup title="Signaux positifs" signals={evaluation.positiveSignals} />
+        <SignalGroup title="Signaux négatifs" signals={evaluation.negativeSignals} />
+        {evaluation.commercialMaturity === null ? null : (
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-text-tertiary">
+              Maturité commerciale : {evaluation.commercialMaturity.level}
+            </h3>
+            <EvidenceList items={evaluation.commercialMaturity.evidence} />
+          </div>
+        )}
+        <p className="text-xs leading-5 text-text-tertiary">
+          Le verdict ICP ne change jamais le statut du prospect. Les règles qui le calculent sont
+          provisoires.
+        </p>
+      </div>
+    </section>
   );
 }
 
@@ -109,6 +210,13 @@ export function LeadProspectDetailView({ prospect }: { prospect: LeadProspectDet
           )}
         </div>
       )}
+
+      {prospect.icpEvaluation !== null && "verdictBasis" in prospect.icpEvaluation ? (
+        <IcpEvaluationSection
+          evaluation={prospect.icpEvaluation}
+          qualificationResult={prospect.qualificationResult}
+        />
+      ) : null}
 
       {prospect.icpEvaluation !== null &&
       "reasons" in prospect.icpEvaluation &&

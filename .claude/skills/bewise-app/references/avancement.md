@@ -1278,3 +1278,30 @@ est une URL http(s) (`noopener`), sinon « Lien Google Agenda indisponible »
   reprises atteinte » à 0 ; rien si l'API ne le dit pas. Borné à 3 par lead
   côté Beclose. `nurtureFollowUpsSent` compte désormais des envois réels (pas de
   changement de forme).
+
+## 2026-09-24 (nuit, fin) — Ciblage réel (B07), critère consécutif (B08), évaluation ICP (B06)
+
+- **B07.** `GET /precision` → `targeting` : conformité à l'ICP des entreprises
+  SOURCÉES (jugées sur la version d'ICP de leur sourcing, tranche d'effectif),
+  section « Ciblage » de l'onglet Performance, distincte du proxy BANT (qui garde
+  son libellé). `unknown` (tranche inconnue) et `notRecorded` (pas de version
+  d'ICP) montrés À PART, jamais comme échec ni comme conformes ; `conformShare`
+  (inconnus exclus) toujours à côté de `coverage` ; `null` = « — » ; « Rien de
+  mesurable » si `measurable = 0` ; tableau par version d'ICP. `tolerated` =
+  hors fourchette préférée mais dans les bornes de rejet (vérifié dans
+  `core/targeting.py`). Absent = section masquée. Toujours pas de chiffre unique
+  de « précision ».
+- **B08.** `approval-metrics.consecutive` : le constat « critère atteint » repose
+  sur `consecutive.met` (validations consécutives sans correction, remises à zéro
+  par correction ou rejet, volume minimum requis avant que ça compte ; 20 et 30
+  PROVISOIRES) ; les fenêtres restent affichées comme « Indicatif ». Volume
+  insuffisant ≠ « pas atteint ». Sans `consecutive` : ancien critère par fenêtres.
+  Toujours un constat, rien d'automatisé.
+- **B06.** `icpEvaluation` a une nouvelle forme snake_case (`verdict`,
+  `verdict_basis[]`, signaux avec preuves, `commercial_maturity`). **Sans une
+  branche dédiée dans l'union, la fiche prospect aurait cessé de se charger**
+  (l'ancienne forme exige `fit`). Section « Évaluation ICP » : verdict, version
+  d'ICP, date, motifs en français (code inconnu = « Motif inconnu : x »), signaux
+  avec citations + lien vers le message source, maturité, explication « BANT
+  qualifié mais ICP faible », et rappel que le verdict ne change jamais le statut
+  (règles provisoires). Anciennes formes toujours lues.

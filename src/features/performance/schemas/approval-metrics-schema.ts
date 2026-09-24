@@ -18,6 +18,19 @@ export const approvalCriterionSchema = z.object({
   met: z.boolean(),
 });
 
+/** Validations in a row without any correction (Beclose, 24/09/2026): reset
+ * by a correction or a rejection, and only counted once a minimum volume of
+ * decided messages exists. `required` (20) and `minimumVolume` (30) are
+ * PROVISIONAL, awaiting validation. This — not the windows — decides `met`. */
+export const consecutiveCriterionSchema = z.object({
+  count: z.number().int().nonnegative(),
+  required: z.number().int().positive(),
+  minimumVolume: z.number().int().nonnegative(),
+  decided: z.number().int().nonnegative(),
+  sufficientVolume: z.boolean(),
+  met: z.boolean(),
+});
+
 export const approvalMetricsSchema = z.object({
   decided: z.number().int().nonnegative(),
   acceptedAsIs: z.number().int().nonnegative(),
@@ -27,6 +40,9 @@ export const approvalMetricsSchema = z.object({
   pending: z.number().int().nonnegative(),
   /** `(corrected + rejected) / decided`; `null` until a message is decided. */
   correctionRate: z.number().nullable(),
+  /** Indicative since `consecutive` exists. */
   criterion: approvalCriterionSchema,
+  /** `null` = a backend that predates it: fall back to `criterion`. */
+  consecutive: consecutiveCriterionSchema.nullable().default(null),
 });
 export type ApprovalMetrics = z.infer<typeof approvalMetricsSchema>;
