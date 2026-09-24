@@ -1224,3 +1224,14 @@ d'arrêt NORMALE (« Quota Hunter atteint pour ce run, les entreprises restantes
 seront reprises au prochain »), le run reste `succeeded`. `maxHunterCalls` n'est
 pas exposé : le défaut serveur (10) suffit ; le quota Hunter (50/mois) est
 partagé par tous les clients.
+
+**Conversations : citation e-mail repliée (bug Rochinel).** La réponse d'un
+prospect embarque notre message précédent (« Le … a écrit : », « On … wrote: »,
+lignes `>`, bloc d'en-têtes Outlook FR/EN, « Original Message / Message
+d'origine ») → notre message apparaissait deux fois. `splitQuotedReply`
+(`conversations/model/quoted-reply.ts`) n'affiche que la partie nouvelle et
+replie le reste derrière « Afficher le message cité » (`<details>`, texte
+toujours dans le DOM). Prudence : aucun séparateur reconnu, séparateur en toute
+première ligne (message = simple citation) ou lignes `>` entrelacées → tout est
+affiché ; seuls les messages ENTRANTS sont découpés. L'aperçu de la liste utilise
+aussi la partie nouvelle.

@@ -42,4 +42,15 @@ describe("summarizeConversations", () => {
     expect(summary?.lastPreview.length).toBeLessThanOrEqual(81);
     expect(summary?.lastPreview.endsWith("…")).toBe(true);
   });
+
+  it("previews only the new part of a prospect's reply, not the quote of our message", () => {
+    const reply = {
+      ...message("1", "a", "2026-09-24T09:00:00Z"),
+      direction: "inbound",
+      status: null,
+      content: "Oui, intéressée !\n\nLe jeu. 24 sept. 2026 à 09:00, Bewise a écrit :\n> Bonjour Ada",
+    };
+    const [summary] = summarizeConversations([reply], []);
+    expect(summary?.lastPreview).toBe("Oui, intéressée !");
+  });
 });

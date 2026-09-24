@@ -1,5 +1,6 @@
 import type { MessageLogEntry } from "@/features/supervision";
 import { sortChronologically } from "./chat-message";
+import { splitQuotedReply } from "./quoted-reply";
 
 export interface ConversationSummary {
   leadId: string;
@@ -36,8 +37,8 @@ export function summarizeConversations(
   const summaries = [...byLead.entries()].map(([leadId, leadMessages]): ConversationSummary => {
     const last = sortChronologically(leadMessages).at(-1) as MessageLogEntry;
     const prospect = prospectById.get(leadId);
-    const preview =
-      last.content.length > PREVIEW_LENGTH ? `${last.content.slice(0, PREVIEW_LENGTH)}…` : last.content;
+    const text = last.direction === "inbound" ? splitQuotedReply(last.content).fresh : last.content;
+    const preview = text.length > PREVIEW_LENGTH ? `${text.slice(0, PREVIEW_LENGTH)}…` : text;
     return {
       leadId,
       title: prospect?.company.name ?? `Prospect ${leadId.slice(0, SHORT_REFERENCE_LENGTH)}`,

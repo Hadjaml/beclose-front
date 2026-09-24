@@ -1,5 +1,6 @@
 import { interactionStatusLabel, type MessageLogEntry } from "@/features/supervision";
 import { formatDateTime } from "@/shared/format/format-date-time";
+import { splitQuotedReply } from "../model/quoted-reply";
 import { chatMessageKind, sortChronologically, type ChatMessageKind } from "../model/chat-message";
 
 const bubbleClass: Record<ChatMessageKind, string> = {
@@ -40,6 +41,10 @@ export function ChatThread({ messages }: { messages: readonly MessageLogEntry[] 
       {sortChronologically(messages).map((message) => {
         const kind = chatMessageKind(message);
         const note = notice(message, kind);
+        // Only what the prospect wrote is split: their reply quotes our
+        // earlier message, which would otherwise appear twice.
+        const { fresh, quoted } =
+          kind === "received" ? splitQuotedReply(message.content) : { fresh: message.content, quoted: null };
         return (
           <li
             key={message.id}
@@ -48,7 +53,13 @@ export function ChatThread({ messages }: { messages: readonly MessageLogEntry[] 
             className={`max-w-[85%] rounded-2xl px-4 py-3 ${bubbleClass[kind]}`}
           >
             {note === null ? null : <p className="mb-1 text-xs font-semibold">{note}</p>}
-            <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
+            <p className="whitespace-pre-wrap text-sm leading-6">{fresh}</p>
+            {quoted === null ? null : (
+              <details className="mt-2 text-xs opacity-80">
+                <summary className="cursor-pointer font-medium">Afficher le message cité</summary>
+                <p className="mt-1 whitespace-pre-wrap border-l-2 border-border-strong pl-3">{quoted}</p>
+              </details>
+            )}
             <p className="mt-1 text-xs opacity-75">
               {message.channel} · {formatDateTime(message.sentAt ?? message.createdAt)}
             </p>

@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { ChatThread } from "./chat-thread";
 
@@ -74,5 +75,32 @@ describe("ChatThread", () => {
   it("says so when there is no message", () => {
     render(<ChatThread messages={[]} />);
     expect(screen.getByText("Aucun message dans cette conversation")).toBeInTheDocument();
+  });
+
+  it("shows only the new part of a reply and folds the quoted earlier message (no duplicate of our message)", async () => {
+    const reply = msg({
+      direction: "inbound",
+      status: null,
+      content:
+        "Oui, intéressée !\n\nLe jeu. 24 sept. 2026 à 09:00, Bewise <hello@bewise.fr> a écrit :\n> Bonjour Ada, une idée pour vous",
+    });
+    render(<ChatThread messages={[reply] as never} />);
+
+    const bubble = screen.getByText("Oui, intéressée !").closest("li")!;
+    expect(within(bubble).getByText("Afficher le message cité")).toBeInTheDocument();
+    // Folded: the quoted text is in the DOM (nothing lost) but not visible.
+    expect(within(bubble).getByText(/une idée pour vous/)).not.toBeVisible();
+
+    await userEvent.click(within(bubble).getByText("Afficher le message cité"));
+    expect(within(bubble).getByText(/une idée pour vous/)).toBeVisible();
+  });
+
+  it("leaves a reply without a recognised quote untouched, and never folds our own messages", () => {
+    const plain = msg({ direction: "inbound", status: null, content: "Merci, rappelez-moi demain." });
+    const ours = msg({ content: "Bonjour\n> ceci est à nous, pas une citation" });
+    render(<ChatThread messages={[plain, ours] as never} />);
+
+    expect(screen.queryByText("Afficher le message cité")).not.toBeInTheDocument();
+    expect(screen.getByText("Merci, rappelez-moi demain.")).toBeInTheDocument();
   });
 });
