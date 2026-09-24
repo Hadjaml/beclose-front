@@ -5,6 +5,7 @@ export { useLeadProspectDetailQuery } from "./api/use-lead-prospect-detail-query
 export { BatchActionBar } from "./components/batch-action-bar";
 export { ContactStrategyActions } from "./components/contact-strategy-actions";
 export { ExclusionForm, type ExclusionReasonOption } from "./components/exclusion-form";
+export { LeadOutcomePanel } from "./components/lead-outcome-panel";
 export { LeadProspectDetailSection } from "./components/lead-prospect-detail-section";
 export { LeadProspectDetailView } from "./components/lead-prospect-detail-view";
 export { LeadProspectsList } from "./components/lead-prospects-list";
@@ -65,18 +66,22 @@ export {
   leadProspectCompanySchema,
   leadProspectContactSchema,
   leadProspectSchema,
+  leadOutcomeSchema,
   leadStatusSchema,
   qualificationResultSchema,
 } from "./schemas/lead-prospect-schema";
 export { leadProspectDetailSchema } from "./schemas/lead-prospect-detail-schema";
 export {
+  availableOutcomeActions,
   handoffReasonKind,
   handoffReasonLabels,
   icpFitLabels,
+  leadOutcomeLabels,
   leadStatusLabels,
   qualificationResultLabels,
   type HandoffReason,
   type IcpFit,
+  type LeadOutcome,
   type LeadProspect,
   type LeadStatus,
   type QualificationResult,

@@ -4,7 +4,7 @@ import { detailEnvelopeSchema, paginatedEnvelopeSchema } from "@/shared/api/api-
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 import { leadProspectSchema } from "../schemas/lead-prospect-schema";
 import { leadProspectDetailSchema } from "../schemas/lead-prospect-detail-schema";
-import type { LeadProspect, LeadStatus } from "../model/lead-prospect";
+import type { LeadOutcome, LeadProspect, LeadStatus } from "../model/lead-prospect";
 import type { LeadProspectDetail } from "../model/lead-prospect-detail";
 
 export interface LeadProspectsPage {
@@ -27,6 +27,13 @@ export interface LeadProspectsApi {
   getDetail: (
     workspaceId: WorkspaceId,
     leadId: string,
+    signal?: AbortSignal,
+  ) => Promise<LeadProspectDetail>;
+  /** `PUT .../prospects/{leadId}/outcome` — returns the updated detail. */
+  setOutcome: (
+    workspaceId: WorkspaceId,
+    leadId: string,
+    outcome: LeadOutcome,
     signal?: AbortSignal,
   ) => Promise<LeadProspectDetail>;
 }
@@ -56,6 +63,20 @@ export function createLeadProspectsApi(client: ApiClient): LeadProspectsApi {
         {
           method: "GET",
           context: { workspaceId },
+          schema: prospectDetailResponseSchema,
+          ...(signal === undefined ? {} : { signal }),
+        },
+      );
+      return response.data;
+    },
+
+    async setOutcome(workspaceId, leadId, outcome, signal) {
+      const response = await client.request(
+        `/organizations/${workspaceId}/prospects/${leadId}/outcome`,
+        {
+          method: "PUT",
+          context: { workspaceId },
+          body: { outcome },
           schema: prospectDetailResponseSchema,
           ...(signal === undefined ? {} : { signal }),
         },

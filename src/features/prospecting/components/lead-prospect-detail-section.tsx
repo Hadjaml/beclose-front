@@ -3,6 +3,7 @@
 import { ErrorState, LoadingState } from "@/shared/ui/states";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 import { useLeadProspectDetailQuery } from "../api/use-lead-prospect-detail-query";
+import { LeadOutcomePanel } from "./lead-outcome-panel";
 import { LeadProspectDetailView } from "./lead-prospect-detail-view";
 
 export function LeadProspectDetailSection({
@@ -20,5 +21,16 @@ export function LeadProspectDetailSection({
       <ErrorState title="Impossible de charger ce prospect" onRetry={() => void query.refetch()} />
     );
   }
-  return <LeadProspectDetailView prospect={query.data} />;
+  return (
+    <div className="space-y-8">
+      <LeadOutcomePanel
+        workspaceId={workspaceId}
+        leadId={leadId}
+        status={query.data.status}
+        outcome={query.data.outcome}
+        outcomeAt={query.data.outcomeAt}
+      />
+      <LeadProspectDetailView prospect={query.data} />
+    </div>
+  );
 }

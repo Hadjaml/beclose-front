@@ -330,6 +330,44 @@ describe("createLeadProspectsApi", () => {
       expect(detail.icpEvaluation.reasons).toHaveLength(4);
     }
   });
+
+  it("setOutcome() PUTs the outcome and returns the updated prospect detail", async () => {
+    const client = fakeClient((path, options) => {
+      expect(path).toBe("/organizations/workspace-1/prospects/lead-1/outcome");
+      expect(options.method).toBe("PUT");
+      expect(options.body).toEqual({ outcome: "won" });
+      return {
+        data: {
+          ...prospectWire,
+          status: "converted",
+          outcome: "won",
+          outcomeAt: "2026-09-24T10:00:00Z",
+          icpEvaluation: null,
+          qualificationEvaluation: null,
+          qualificationCriteria: null,
+          icpProfile: null,
+        },
+      };
+    });
+
+    const detail = await createLeadProspectsApi(client).setOutcome("workspace-1", "lead-1", "won");
+
+    expect(detail.status).toBe("converted");
+    expect(detail.outcome).toBe("won");
+  });
+
+  it("defaults outcome to null when the API predates outcomes", async () => {
+    const client = fakeClient(() => ({
+      data: {
+        ...prospectWire,
+        icpEvaluation: null,
+        qualificationEvaluation: null,
+        qualificationCriteria: null,
+        icpProfile: null,
+      },
+    }));
+    const detail = await createLeadProspectsApi(client).getDetail("workspace-1", "lead-1");
+    expect(detail.outcome).toBeNull();
+    expect(detail.outcomeAt).toBeNull();
+  });
 });
-
-

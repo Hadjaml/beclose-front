@@ -68,6 +68,13 @@ export const handoffReasonSchema = z.enum([
   "booking_error",
 ]);
 
+/** Commercial outcome of a *transmitted* lead, declared by hand (Beclose
+ * `PUT .../prospects/{leadId}/outcome`, 24/09/2026 — the CRM webhook that
+ * would send it automatically does not exist). Additive on `/prospects` and
+ * `/prospects/{leadId}`: `null` until declared, and for every lead that was
+ * never transmitted. */
+export const leadOutcomeSchema = z.enum(["won", "lost"]);
+
 export const leadProspectSchema = z.object({
   leadId: z.string().trim().min(1),
   status: leadStatusSchema,
@@ -87,6 +94,9 @@ export const leadProspectSchema = z.object({
   icpFit: icpFitSchema.nullable(),
   handoffReason: handoffReasonSchema.nullable(),
   nurtureFollowUpsSent: z.number().int().nonnegative(),
+  // Tolerant: absent on a Beclose build that predates outcomes.
+  outcome: leadOutcomeSchema.nullable().default(null),
+  outcomeAt: z.string().nullable().default(null),
   company: leadProspectCompanySchema,
   contact: leadProspectContactSchema,
 });
