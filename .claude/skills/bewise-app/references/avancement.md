@@ -1217,3 +1217,10 @@ seulement si rapportée ; message dédié au 503. **Correction de fond** : un
 rapport vivant peut ne pas porter `email_coverage_rate` — il valait 0 par
 défaut et aurait affiché un faux « 0 % » ; il est désormais `null` = non
 rapporté, donc masqué. Non testé contre le backend déployé (non reconstruit).
+
+**Quota Hunter (suite lot 3).** `report.hunter_calls` affiché (« Appels Hunter »,
+masqué si non rapporté) ; `stop_reason = hunter_budget_exhausted` est une raison
+d'arrêt NORMALE (« Quota Hunter atteint pour ce run, les entreprises restantes
+seront reprises au prochain »), le run reste `succeeded`. `maxHunterCalls` n'est
+pas exposé : le défaut serveur (10) suffit ; le quota Hunter (50/mois) est
+partagé par tous les clients.

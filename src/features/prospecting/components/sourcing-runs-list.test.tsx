@@ -155,3 +155,32 @@ describe("SourcingRunsList — live progress and partial reports (lot 3)", () =>
     expect(screen.getByText("Étape inconnue : warming_up")).toBeInTheDocument();
   });
 });
+
+describe("SourcingRunsList — Hunter quota", () => {
+  it("shows a reached Hunter quota as a normal stop reason, not as a failure, with the calls counter", () => {
+    render(
+      <SourcingRunsList
+        runs={[
+          sourcingRunSchema.parse({
+            ...base,
+            status: "succeeded",
+            report: { stop_reason: "hunter_budget_exhausted", hunter_calls: 25, companies_found: 9 },
+          }),
+        ]}
+      />,
+    );
+
+    expect(
+      screen.getByText(/Quota Hunter atteint pour ce run, les entreprises restantes seront reprises au prochain/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/inconnue/)).not.toBeInTheDocument();
+    expect(screen.getByText("Appels Hunter")).toBeInTheDocument();
+    expect(screen.getByText("25")).toBeInTheDocument();
+    expect(screen.getByText("Terminé")).toBeInTheDocument();
+  });
+
+  it("does not show a Hunter counter a report does not carry", () => {
+    render(<SourcingRunsList runs={[sourcingRunSchema.parse({ ...base, status: "succeeded", report: { companies_found: 1 } })]} />);
+    expect(screen.queryByText("Appels Hunter")).not.toBeInTheDocument();
+  });
+});

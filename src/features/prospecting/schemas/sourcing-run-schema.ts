@@ -23,7 +23,7 @@ export type SourcingRunStatus = z.infer<typeof sourcingRunStatusSchema>;
 
 export const sourcingRunStageValues = ["starting", "resolving_targets", "processing", "finished"] as const;
 export const sourcingRunStageSchema = tolerantEnum(sourcingRunStageValues);
-export const sourcingStopReasonValues = ["target_reached", "results_exhausted", "page_budget_exhausted"] as const;
+export const sourcingStopReasonValues = ["target_reached", "results_exhausted", "page_budget_exhausted", "hunter_budget_exhausted"] as const;
 export const sourcingStopReasonSchema = tolerantEnum(sourcingStopReasonValues);
 
 const sourcingReportWireSchema = z
@@ -43,6 +43,7 @@ const sourcingReportWireSchema = z
     companies_consulted: z.number().nullable().default(null),
     pages_fetched: z.number().nullable().default(null),
     stop_reason: sourcingStopReasonSchema.nullable().default(null),
+    hunter_calls: z.number().nullable().default(null),
     companies_retried: z.number().nullable().default(null),
     companies_recovered: z.number().nullable().default(null),
   })
@@ -60,6 +61,7 @@ const sourcingReportWireSchema = z
     companiesConsulted: raw.companies_consulted,
     pagesFetched: raw.pages_fetched,
     stopReason: raw.stop_reason,
+    hunterCalls: raw.hunter_calls,
     companiesRetried: raw.companies_retried,
     companiesRecovered: raw.companies_recovered,
   }));

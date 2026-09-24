@@ -62,6 +62,7 @@ export interface SourcingFunnelLine {
 export function sourcingFunnel(report: SourcingReport): SourcingFunnelLine[] {
   const lines: SourcingFunnelLine[] = [];
   if (report.pagesFetched !== null) lines.push({ label: "Pages consultées", value: report.pagesFetched });
+  if (report.hunterCalls !== null) lines.push({ label: "Appels Hunter", value: report.hunterCalls });
   if (report.companiesConsulted !== null) {
     lines.push({ label: "Candidats examinés", value: report.companiesConsulted });
   }
@@ -112,6 +113,8 @@ export const sourcingStopReasonLabels = {
   target_reached: "Objectif atteint",
   results_exhausted: "Résultats de la source épuisés",
   page_budget_exhausted: "Limite de pages atteinte avant l’objectif",
+  hunter_budget_exhausted:
+    "Quota Hunter atteint pour ce run, les entreprises restantes seront reprises au prochain",
 } as const satisfies Record<(typeof sourcingStopReasonValues)[number], string>;
 
 export function sourcingStopReasonLabel(reason: NonNullable<SourcingReport["stopReason"]>): string {
