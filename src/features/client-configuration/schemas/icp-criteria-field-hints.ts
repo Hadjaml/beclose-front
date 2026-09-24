@@ -17,7 +17,8 @@ export const icpFieldHints = {
   market: {
     businessModel:
       "Types de clientèle visée par vos clients (ex. « B2B », « B2C ») — décrit le modèle commercial recherché chez le prospect, pas le vôtre.",
-    geographies: "Zones géographiques ciblées pour le sourcing (ex. « France », « Île-de-France »).",
+    geographies:
+      "Zones géographiques ciblées pour le sourcing. Valeurs appliquées : « France » (aucun filtre), le nom officiel d'une région (ex. « Bretagne », « Île-de-France ») ou un code de département (ex. « 75 », « 2A »). Toute autre valeur (ex. « Lyon ») n'est PAS appliquée : le sourcing n'est alors pas restreint. Ne pas mélanger régions et départements.",
     salesMotion:
       "Manière dont ces entreprises vendent habituellement (ex. « vente directe », « cycle long », « appel d'offres ») — aide à repérer si elles ont une vraie force commerciale en place.",
   },

@@ -94,3 +94,4 @@ export {
   type SourcingBlocker,
 } from "./model/configuration-readiness";
 export { bantDraftFromActive, icpDraftFromActive } from "./model/criteria-prefill";
+export { describeGeographyScope, type GeographyScopeDescription, type GeographyScopeInput } from "./model/geography-scope";

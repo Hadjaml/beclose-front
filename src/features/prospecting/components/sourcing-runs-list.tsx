@@ -1,7 +1,9 @@
+import { describeGeographyScope } from "@/features/client-configuration";
 import { formatDateTime } from "@/shared/format/format-date-time";
 import {
   sourcingFunnel,
   sourcingRunDisplayStatus,
+  sourcingGeographySourceLabel,
   sourcingRunStatusLabel,
   sourcingStageLabel,
   sourcingStopReasonLabel,
@@ -67,6 +69,19 @@ function SourcingRunItem({ run }: { run: SourcingRun }) {
       {run.report === null || run.report.stopReason === null ? null : (
         <p className="text-sm text-text-secondary">
           Arrêt : {sourcingStopReasonLabel(run.report.stopReason)}
+        </p>
+      )}
+
+      {run.report === null || run.report.geography === null ? null : (
+        <p
+          className={`text-sm ${
+            describeGeographyScope(run.report.geography).tone === "warning" ? "text-amber-900" : "text-text-secondary"
+          }`}
+        >
+          {describeGeographyScope(run.report.geography).text}
+          {sourcingGeographySourceLabel(run.report.geography.source) === null
+            ? null
+            : ` (${sourcingGeographySourceLabel(run.report.geography.source)})`}
         </p>
       )}
 

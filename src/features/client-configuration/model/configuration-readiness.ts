@@ -1,3 +1,5 @@
+import type { GeographyScopeInput } from "./geography-scope";
+
 /**
  * What a configuration lacks before the client can be treated as set up
  * (audit A06/A08, 2026-09-24). Kept structural so it reads the parsed
@@ -14,7 +16,11 @@ export interface ReadinessInput {
   } | null;
   qualificationCriteria: unknown | null;
   /** Beclose's own verdict; absent on a build that predates it. */
-  sourcingReadiness?: { ready: boolean; blockers: readonly string[] } | null;
+  sourcingReadiness?: {
+    ready: boolean;
+    blockers: readonly string[];
+    geography?: GeographyScopeInput | null;
+  } | null;
 }
 
 export type MissingConfiguration = "icp" | "bant";

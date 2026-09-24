@@ -83,4 +83,43 @@ describe("ConfigurationStatusBanner", () => {
 
     expect(screen.getByText("Profils en place")).toBeInTheDocument();
   });
+
+  it("warns when the ICP zone is not applied (Beclose: unsupported) without blocking the sourcing", () => {
+    render(
+      <ConfigurationStatusBanner
+        workspaceId="org-1"
+        configuration={{
+          icpProfile: labelled,
+          qualificationCriteria: {},
+          sourcingReadiness: {
+            ready: true,
+            blockers: [],
+            geography: { status: "unsupported", regions: [], departements: [], unrecognized: ["Lyon"] },
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Profils en place")).toBeInTheDocument();
+    expect(screen.getByText(/La zone de l’ICP \(Lyon\) n’est pas appliquée/)).toBeInTheDocument();
+  });
+
+  it("states the zone actually applied when restricted", () => {
+    render(
+      <ConfigurationStatusBanner
+        workspaceId="org-1"
+        configuration={{
+          icpProfile: labelled,
+          qualificationCriteria: {},
+          sourcingReadiness: {
+            ready: true,
+            blockers: [],
+            geography: { status: "restricted", regions: ["53"], departements: [], unrecognized: [] },
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/Zone appliquée : régions \(codes INSEE\) 53/)).toBeInTheDocument();
+  });
 });

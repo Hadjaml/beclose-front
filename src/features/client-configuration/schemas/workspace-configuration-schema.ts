@@ -33,6 +33,24 @@ export const icpProfileVersionSchema = z.object({
   createdAt: z.string(),
 });
 
+/** What the sourcing applies from the ICP's geography. `status` stays a
+ * plain string: Beclose owns the vocabulary and an unknown one is shown as
+ * unknown (`describeGeographyScope`), never failing the configuration. */
+export const geographyScopeSchema = z.object({
+  status: z.string(),
+  regions: z.array(z.string()).default([]),
+  departements: z.array(z.string()).default([]),
+  unrecognized: z.array(z.string()).default([]),
+});
+
+/** Beclose's verdict for a default sourcing run; `null` when its build
+ * predates it. `geography` is `null` without a valid active ICP profile. */
+export const sourcingReadinessSchema = z.object({
+  ready: z.boolean(),
+  blockers: z.array(z.string()),
+  geography: geographyScopeSchema.nullable().default(null),
+});
+
 export const workspaceConfigurationSchema = z.object({
   workspaceId: workspaceIdSchema,
   name: z.string().trim().min(1),
@@ -41,7 +59,5 @@ export const workspaceConfigurationSchema = z.object({
   telegramChatId: z.string().trim().min(1).nullable(),
   qualificationCriteria: qualificationCriteriaVersionSchema.nullable(),
   icpProfile: icpProfileVersionSchema.nullable(),
-  /** Beclose's own verdict for a default sourcing run; `null` when the
-   * backend build predates it. */
-  sourcingReadiness: z.object({ ready: z.boolean(), blockers: z.array(z.string()) }).nullable(),
+  sourcingReadiness: sourcingReadinessSchema.nullable(),
 });

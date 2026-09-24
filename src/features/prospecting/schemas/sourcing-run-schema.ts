@@ -26,6 +26,17 @@ export const sourcingRunStageSchema = tolerantEnum(sourcingRunStageValues);
 export const sourcingStopReasonValues = ["target_reached", "results_exhausted", "page_budget_exhausted", "hunter_budget_exhausted"] as const;
 export const sourcingStopReasonSchema = tolerantEnum(sourcingStopReasonValues);
 
+/** What was really applied to this run (Beclose, B04). Plain strings: the
+ * vocabulary is Beclose's and shown as-is / as unknown when not recognised. */
+const sourcingGeographyWireSchema = z
+  .object({
+    status: z.string(),
+    source: z.string().nullable().default(null),
+    regions: z.array(z.string()).default([]),
+    departements: z.array(z.string()).default([]),
+    unrecognized: z.array(z.string()).default([]),
+  });
+
 const sourcingReportWireSchema = z
   .object({
     naf_codes: z.array(z.string()).default([]),
@@ -44,6 +55,7 @@ const sourcingReportWireSchema = z
     pages_fetched: z.number().nullable().default(null),
     stop_reason: sourcingStopReasonSchema.nullable().default(null),
     hunter_calls: z.number().nullable().default(null),
+    geography: sourcingGeographyWireSchema.nullable().default(null),
     companies_retried: z.number().nullable().default(null),
     companies_recovered: z.number().nullable().default(null),
   })
@@ -62,6 +74,7 @@ const sourcingReportWireSchema = z
     pagesFetched: raw.pages_fetched,
     stopReason: raw.stop_reason,
     hunterCalls: raw.hunter_calls,
+    geography: raw.geography,
     companiesRetried: raw.companies_retried,
     companiesRecovered: raw.companies_recovered,
   }));

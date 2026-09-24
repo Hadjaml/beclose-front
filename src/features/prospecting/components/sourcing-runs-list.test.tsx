@@ -184,3 +184,54 @@ describe("SourcingRunsList — Hunter quota", () => {
     expect(screen.queryByText("Appels Hunter")).not.toBeInTheDocument();
   });
 });
+
+describe("SourcingRunsList — geography applied to the run (B04)", () => {
+  it("says what zone was really applied to THIS run, and where it came from", () => {
+    render(
+      <SourcingRunsList
+        runs={[
+          sourcingRunSchema.parse({
+            ...base,
+            status: "succeeded",
+            report: { geography: { status: "restricted", source: "icp", regions: ["53"], departements: [], unrecognized: [] } },
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(/Zone appliquée : régions \(codes INSEE\) 53/)).toBeInTheDocument();
+    expect(screen.getByText(/profil ICP/)).toBeInTheDocument();
+  });
+
+  it("warns when the zone was not applied", () => {
+    render(
+      <SourcingRunsList
+        runs={[
+          sourcingRunSchema.parse({
+            ...base,
+            status: "succeeded",
+            report: { geography: { status: "unsupported", source: "icp", regions: [], departements: [], unrecognized: ["Lyon"] } },
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(/La zone de l’ICP \(Lyon\) n’est pas appliquée/)).toBeInTheDocument();
+  });
+
+  it("shows nothing about geography for a report that does not carry it, and stays neutral on an unknown source", () => {
+    render(
+      <SourcingRunsList
+        runs={[
+          sourcingRunSchema.parse({ ...base, id: "a", status: "succeeded", report: { companies_found: 1 } }),
+          sourcingRunSchema.parse({
+            ...base,
+            id: "b",
+            status: "succeeded",
+            report: { geography: { status: "national", source: "moon", regions: [], departements: [], unrecognized: [] } },
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getAllByText(/aucun filtre géographique/)).toHaveLength(1);
+    expect(screen.getByText(/source inconnue : moon/i)).toBeInTheDocument();
+  });
+});

@@ -120,3 +120,17 @@ export const sourcingStopReasonLabels = {
 export function sourcingStopReasonLabel(reason: NonNullable<SourcingReport["stopReason"]>): string {
   return describeEnumValue(sourcingStopReasonLabels, reason, "Raison d’arrêt inconnue");
 }
+
+export const sourcingGeographySourceLabels = {
+  icp: "profil ICP",
+  request: "demande de ce run",
+  none: "aucune zone définie",
+} as const;
+
+/** Where the applied zone came from; an unknown source is stated as unknown. */
+export function sourcingGeographySourceLabel(source: string | null): string | null {
+  if (source === null) return null;
+  return Object.hasOwn(sourcingGeographySourceLabels, source)
+    ? sourcingGeographySourceLabels[source as keyof typeof sourcingGeographySourceLabels]
+    : `source inconnue : ${source}`;
+}

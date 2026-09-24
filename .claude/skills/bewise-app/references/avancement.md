@@ -1235,3 +1235,12 @@ toujours dans le DOM). Prudence : aucun séparateur reconnu, séparateur en tout
 première ligne (message = simple citation) ou lignes `>` entrelacées → tout est
 affiché ; seuls les messages ENTRANTS sont découpés. L'aperçu de la liste utilise
 aussi la partie nouvelle.
+
+**B04 — zone géographique (front).** `sourcingReadiness.geography`
+(`national|restricted|unsupported`, statut inconnu = neutre) sur la page
+Configuration : avertissement NON bloquant quand la zone n'est pas appliquée
+(« La zone de l'ICP (Lyon) n'est pas appliquée : le sourcing n'est pas restreint
+géographiquement »), zone appliquée sinon. `report.geography` d'un run = ce qui
+a réellement été appliqué à CE run (+ source icp/request/none). Le libellé du
+champ « Zones géographiques » du formulaire ICP reprend le vocabulaire accepté
+par Beclose. `describeGeographyScope` est partagé (client-configuration).
