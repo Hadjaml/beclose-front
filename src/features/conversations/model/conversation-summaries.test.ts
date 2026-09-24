@@ -11,6 +11,8 @@ const message = (id: string, leadId: string, createdAt: string, content = "texte
   content,
   sentAt: null,
   createdAt,
+  evaluationStatus: null,
+  evaluationAttempts: null,
 });
 
 describe("summarizeConversations", () => {

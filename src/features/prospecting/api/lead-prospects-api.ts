@@ -37,6 +37,13 @@ export interface LeadProspectsApi {
     leadId: string,
     signal?: AbortSignal,
   ) => Promise<DraftRegenerationRequest>;
+  /** `POST .../prospects/{leadId}/reevaluation` — 202: the worker resumes the
+   * failed qualification at its next turn (under a minute). */
+  requestReevaluation: (
+    workspaceId: WorkspaceId,
+    leadId: string,
+    signal?: AbortSignal,
+  ) => Promise<{ leadId: string; status: string }>;
   /** `PUT .../prospects/{leadId}/outcome` — returns the updated detail. */
   setOutcome: (
     workspaceId: WorkspaceId,
@@ -58,6 +65,10 @@ const draftRegenerationResponseSchema = detailEnvelopeSchema(
     status: z.string(),
     remainingRegenerations: z.number().int().nonnegative(),
   }),
+);
+
+const reevaluationResponseSchema = detailEnvelopeSchema(
+  z.object({ leadId: z.string(), status: z.string() }),
 );
 
 const prospectsResponseSchema = paginatedEnvelopeSchema(leadProspectSchema);
@@ -99,6 +110,19 @@ export function createLeadProspectsApi(client: ApiClient): LeadProspectsApi {
           method: "POST",
           context: { workspaceId },
           schema: draftRegenerationResponseSchema,
+          ...(signal === undefined ? {} : { signal }),
+        },
+      );
+      return response.data;
+    },
+
+    async requestReevaluation(workspaceId, leadId, signal) {
+      const response = await client.request(
+        `/organizations/${workspaceId}/prospects/${leadId}/reevaluation`,
+        {
+          method: "POST",
+          context: { workspaceId },
+          schema: reevaluationResponseSchema,
           ...(signal === undefined ? {} : { signal }),
         },
       );

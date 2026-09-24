@@ -1305,3 +1305,11 @@ est une URL http(s) (`noopener`), sinon « Lien Google Agenda indisponible »
   avec citations + lien vers le message source, maturité, explication « BANT
   qualifié mais ICP faible », et rappel que le verdict ne change jamais le statut
   (règles provisoires). Anciennes formes toujours lues.
+
+**C09 — relancer une évaluation en échec.** `POST .../prospects/{leadId}/
+reevaluation` (202 ; 409 `REEVALUATION_NOT_NEEDED`) + `evaluationStatus`
+(`pending|done|failed|exhausted|null`, tolérant) et `evaluationAttempts` sur les
+messages ENTRANTS. `ReevaluationPanel` sur la fiche prospect : seul le message
+entrant le plus récent compte ; `failed`/`exhausted` → « Relancer l'évaluation »
+(exhausted = 3 tentatives épuisées, alerte back-office déjà envoyée) ;
+`pending` → « en cours ou à reprendre » ; null / done / inconnu → rien.

@@ -4,6 +4,7 @@ import { ErrorState, LoadingState } from "@/shared/ui/states";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 import { useLeadProspectDetailQuery } from "../api/use-lead-prospect-detail-query";
 import { DraftRegenerationPanel } from "./draft-regeneration-panel";
+import { ReevaluationPanel } from "./reevaluation-panel";
 import { LeadOutcomePanel } from "./lead-outcome-panel";
 import { LeadProspectDetailView } from "./lead-prospect-detail-view";
 
@@ -36,6 +37,7 @@ export function LeadProspectDetailSection({
         leadId={leadId}
         draftRegeneration={query.data.draftRegeneration}
       />
+      <ReevaluationPanel workspaceId={workspaceId} leadId={leadId} />
       <LeadProspectDetailView prospect={query.data} />
     </div>
   );

@@ -31,6 +31,12 @@ export const interactionStatusValues = [
  * messages list (`tolerantEnum`, transverse rule). */
 export const interactionStatusSchema = tolerantEnum(interactionStatusValues);
 
+export const evaluationStatusValues = ["pending", "done", "failed", "exhausted"] as const;
+/** Qualification status of an INBOUND message (Beclose, 24/09/2026):
+ * `failed`/`exhausted` (3 failed attempts, back-office alert already sent)
+ * can be retried; `null` for an outbound or older message. Tolerant. */
+export const evaluationStatusSchema = tolerantEnum(evaluationStatusValues);
+
 export const messageLogEntrySchema = z.object({
   id: z.string().trim().min(1),
   leadId: z.string().trim().min(1),
@@ -41,4 +47,6 @@ export const messageLogEntrySchema = z.object({
   content: z.string(),
   sentAt: z.string().nullable(),
   createdAt: z.string(),
+  evaluationStatus: evaluationStatusSchema.nullable().default(null),
+  evaluationAttempts: z.number().int().nonnegative().nullable().default(null),
 });
