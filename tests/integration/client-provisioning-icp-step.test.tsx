@@ -2,6 +2,8 @@ import { QueryClient, QueryClientProvider, useMutation } from "@tanstack/react-q
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { icpCriteriaWireSchema } from "@/features/client-configuration";
+import { icpCriteriaWire } from "../support/criteria-wire-fixtures";
 import { IcpStep } from "@/features/client-provisioning/components/steps/icp-step";
 
 /**
@@ -93,4 +95,36 @@ describe("IcpStep (client-provisioning)", () => {
     // The previously-invisible field must now show up explicitly.
     expect(screen.getByText(/purpose/)).toBeInTheDocument();
   });
+
+  it("submitting an untouched prefilled form creates a new version identical to the active one, nothing dropped", async () => {
+    const user = userEvent.setup();
+    startMock.mockClear();
+    startMock.mockResolvedValueOnce({
+      id: "v-2",
+      name: "Actif",
+      version: 4,
+      status: "active",
+      activatedAt: null,
+      createdAt: "2026-09-24T00:00:00Z",
+    });
+    const active = icpCriteriaWireSchema.parse(icpCriteriaWire);
+    const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <IcpStep
+          workspaceId="workspace-1"
+          workspaceName="Acme"
+          activeVersion={{ version: 3, name: "Actif", criteria: active }}
+          onCreated={vi.fn()}
+        />
+      </QueryClientProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /Créer/ }));
+
+    await waitFor(() => expect(startMock).toHaveBeenCalledTimes(1));
+    const [request] = startMock.mock.calls[0] as [{ name: string; criteria: unknown }];
+    expect(request.name).toBe("Actif");
+    expect(request.criteria).toEqual({ ...active, profileName: "Actif" });
+  }, 20_000);
 });

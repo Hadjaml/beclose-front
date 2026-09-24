@@ -12,7 +12,7 @@ export default async function NewClientPage({
   return (
     <ClientProvisioningWizard
       organizationId={parsed.success ? parsed.data : null}
-      requestedStep={step === "icp" ? "icp" : null}
+      requestedStep={step === "icp" || step === "bant" ? step : null}
     />
   );
 }

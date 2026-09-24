@@ -3,7 +3,9 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import {
+  type BantCriteriaWire,
   bantCriteriaFormSchema,
+  bantDraftFromActive,
   bantFieldHints,
   emptyBantCriteriaDraft,
   toBantCriteriaPayload,
@@ -29,12 +31,17 @@ import { BantTimingSection } from "./bant-timing-section";
 interface BantStepProps {
   workspaceId: WorkspaceId;
   workspaceName: string;
+  /** The active version, when a new one is being prepared from it: the form
+   * starts from its values (still a NEW version, never an edit in place). */
+  activeVersion?: { version: number; name: string; criteria: BantCriteriaWire };
   onCreated: () => void;
 }
 
-export function BantStep({ workspaceId, workspaceName, onCreated }: BantStepProps) {
+export function BantStep({ workspaceId, workspaceName, activeVersion, onCreated }: BantStepProps) {
   const form = useStepForm(
-    { ...emptyBantCriteriaDraft, profileName: `Grille BANT ${workspaceName}` },
+    activeVersion === undefined
+      ? { ...emptyBantCriteriaDraft, profileName: `Grille BANT ${workspaceName}` }
+      : bantDraftFromActive(activeVersion),
     bantCriteriaFormSchema,
   );
   const { draft, errors, updateField } = form;
@@ -68,7 +75,11 @@ export function BantStep({ workspaceId, workspaceName, onCreated }: BantStepProp
   return (
     <StepFormLayout
       title="Créer la grille BANT"
-      description="Si l'opportunité mérite d'être transmise. Dernière étape : cette version devient active dès sa création."
+      description={
+        activeVersion === undefined
+          ? "Si l'opportunité mérite d'être transmise. Dernière étape : cette version devient active dès sa création."
+          : `Formulaire prérempli avec la version ${activeVersion.version} active. Enregistrer crée la version ${activeVersion.version + 1} et la rend active ; la version actuelle est conservée, rien n’est modifié en place.`
+      }
       onSubmit={handleSubmit}
       onBack={null}
       submitLabel={isBusy ? "Création…" : "Créer"}

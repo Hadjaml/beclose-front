@@ -1,7 +1,17 @@
+import Link from "next/link";
+import { resumeOnboardingHref } from "@/shared/workspace/onboarding-route";
 import type { WorkspaceConfiguration } from "../model/workspace-configuration";
 import { BantCriteriaView } from "./bant-criteria-view";
 import { ConfigurationStatusBanner } from "./configuration-status-banner";
 import { IcpCriteriaView } from "./icp-criteria-view";
+
+function CorrectionLink({ href, children }: { href: string; children: string }) {
+  return (
+    <Link href={href} className="mt-3 inline-block text-sm font-semibold text-brand-blue-violet hover:underline">
+      {children}
+    </Link>
+  );
+}
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
@@ -44,6 +54,9 @@ export function WorkspaceConfigurationView({
             ) : (
               <div className="mt-2">
                 <BantCriteriaView criteria={configuration.qualificationCriteria.criteria} />
+                <CorrectionLink href={resumeOnboardingHref(configuration.workspaceId, "bant")}>
+                  Corriger : nouvelle version de la grille BANT
+                </CorrectionLink>
               </div>
             )}
           </dd>
@@ -61,6 +74,9 @@ export function WorkspaceConfigurationView({
             ) : (
               <div className="mt-2">
                 <IcpCriteriaView criteria={configuration.icpProfile.criteria} />
+                <CorrectionLink href={resumeOnboardingHref(configuration.workspaceId, "icp")}>
+                  Corriger : nouvelle version du profil ICP
+                </CorrectionLink>
               </div>
             )}
           </dd>

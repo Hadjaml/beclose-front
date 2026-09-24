@@ -51,8 +51,8 @@ export {
 
 // Real-shape schemas + form-facing schemas for the client-provisioning flow
 // (organization -> ICP profile -> BANT criteria, EF-601/602, 2026-09-23).
-export type { BantCriteriaWire } from "./schemas/bant-criteria-wire-schema";
-export type { IcpCriteriaWire } from "./schemas/icp-criteria-wire-schema";
+export { bantCriteriaWireSchema, type BantCriteriaWire } from "./schemas/bant-criteria-wire-schema";
+export { icpCriteriaWireSchema, type IcpCriteriaWire } from "./schemas/icp-criteria-wire-schema";
 export {
   emptyIcpCriteriaDraft,
   icpCriteriaFormSchema,
@@ -92,3 +92,4 @@ export {
   type ReadinessInput,
   type SourcingBlocker,
 } from "./model/configuration-readiness";
+export { bantDraftFromActive, icpDraftFromActive } from "./model/criteria-prefill";

@@ -1133,3 +1133,24 @@ ce que je ne pouvais pas faire ici). Chaque correctif a d'abord eu un test qui
   organisation, la sortie d'un profil inutilisable). Non bloquant tant que la
   configuration charge ou est illisible (Beclose reste l'autorité). **Règle
   dupliquée côté front** : à remplacer par un signal explicite de l'API.
+
+## 2026-09-24 (nuit) — Corriger un ICP/BANT sans tout ressaisir
+
+Demande d'Orion. **Toujours une NOUVELLE version** (API append-only voulue) :
+le formulaire est simplement prérempli avec la version active lue sur
+`/configuration` (`icpDraftFromActive` / `bantDraftFromActive`, dans
+`client-configuration/model/criteria-prefill.ts`). Le wizard accepte
+`?step=icp|bant` (`resumeOnboardingHref(id, step)`) ; sans politique existante
+c'est une première création, non préremplie. Points d'entrée : liens
+« Corriger : nouvelle version … » sur la page Configuration, et les liens
+« Corriger le profil ICP » / « Nouvelle version du profil ICP » déjà posés par
+A08. Après enregistrement : retour à la page Configuration de la même
+organisation. **Piège trouvé par le test de fidélité** : `custom_criteria` (BANT)
+n'a pas de champ dans le formulaire — une nouvelle version l'aurait
+silencieusement perdu. Il est maintenant porté tel quel (`customCriteria` dans
+le schéma de formulaire, non éditable). Les maps libres (niveaux de maturité,
+règles de qualification, délais de relance) redeviennent des paires
+éditables ; les tableaux sont copiés (le brouillon ne mute jamais le cache).
+Tests : aller-retour `payload == version active` (secteurs par tier, niveaux,
+règles, délais, custom_criteria) ; formulaire ICP/BANT soumis intact = version
+identique ; wizard `step=icp|bant` prérempli.

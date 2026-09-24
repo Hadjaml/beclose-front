@@ -2,7 +2,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { bantCriteriaWireSchema, icpCriteriaWireSchema } from "@/features/client-configuration";
 import { ClientProvisioningWizard } from "@/features/client-provisioning";
+import { bantCriteriaWire, icpCriteriaWire } from "../support/criteria-wire-fixtures";
 
 /**
  * Audit A06 (2026-09-24): reloading in the middle of the onboarding sent the
@@ -58,7 +60,7 @@ function configuration(overrides: Partial<Record<"icpProfile" | "qualificationCr
 
 const someVersion = { version: 1, createdAt: "2026-09-24T00:00:00Z", criteria: {} };
 
-function renderWizard(organizationId: string | null, requestedStep: "icp" | null = null) {
+function renderWizard(organizationId: string | null, requestedStep: "icp" | "bant" | null = null) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
@@ -132,16 +134,39 @@ describe("ClientProvisioningWizard resumed from the URL", () => {
     expect(screen.queryByRole("heading", { name: "Créer une organisation" })).not.toBeInTheDocument();
   });
 
-  it("step=icp asks for a new ICP version even when the profile exists (way out of an unusable profile, audit A08)", () => {
-    configurationQueryMock.mockReturnValue(
-      configuration({
-        icpProfile: { ...someVersion, name: "Profil ICP Acme" },
-        qualificationCriteria: someVersion,
-      }),
-    );
+  const activeIcp = { name: "ICP actif", version: 3, createdAt: "2026-09-24T00:00:00Z", criteria: icpCriteriaWireSchema.parse(icpCriteriaWire) };
+  const activeBant = { version: 2, createdAt: "2026-09-24T00:00:00Z", criteria: bantCriteriaWireSchema.parse(bantCriteriaWire) };
+
+  it("step=icp opens a NEW ICP version prefilled from the active one, nested values included (audit A08)", () => {
+    configurationQueryMock.mockReturnValue(configuration({ icpProfile: activeIcp, qualificationCriteria: activeBant }));
     renderWizard("org-1", "icp");
 
     expect(screen.getByRole("heading", { name: "Créer le profil ICP" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Connexions" })).not.toBeInTheDocument();
+    expect(screen.getByText(/prérempli avec la version 3 active.*crée la version 4/)).toBeInTheDocument();
+    expect(screen.getByLabelText("Nom de cette version")).toHaveValue("ICP actif");
+    expect(screen.getByLabelText("Objet de ce profil")).toHaveValue(icpCriteriaWire.purpose);
+    // Nested: sectors per tier and maturity levels come back, not just top-level fields.
+    expect(screen.getByDisplayValue("Rénovation")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Industrie")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Équipe commerciale")).toBeInTheDocument();
+  });
+
+  it("step=bant opens a NEW BANT version prefilled from the active grid", () => {
+    configurationQueryMock.mockReturnValue(configuration({ icpProfile: activeIcp, qualificationCriteria: activeBant }));
+    renderWizard("org-1", "bant");
+
+    expect(screen.getByRole("heading", { name: "Créer la grille BANT" })).toBeInTheDocument();
+    expect(screen.getByText(/prérempli avec la version 2 active.*crée la version 3/)).toBeInTheDocument();
+    expect(screen.getByLabelText("Nom de cette version")).toHaveValue(bantCriteriaWire.profile_name);
+    expect(screen.getByDisplayValue(bantCriteriaWire.budget.definition)).toBeInTheDocument();
+  });
+
+  it("without a requested step, a first-time step is NOT prefilled", () => {
+    configurationQueryMock.mockReturnValue(configuration());
+    renderWizard("org-1");
+
+    expect(screen.getByLabelText("Nom de cette version")).toHaveValue("Profil ICP Acme");
+    expect(screen.getByLabelText("Objet de ce profil")).toHaveValue("");
   });
 });

@@ -2,6 +2,8 @@ import { QueryClient, QueryClientProvider, useMutation } from "@tanstack/react-q
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { bantCriteriaWireSchema } from "@/features/client-configuration";
+import { bantCriteriaWire } from "../support/criteria-wire-fixtures";
 import { BantStep } from "@/features/client-provisioning/components/steps/bant-step";
 
 /** Same bug as icp-step (see that test file's comment): `profileName` was
@@ -76,4 +78,36 @@ describe("BantStep (client-provisioning)", () => {
     expect(screen.getByText("Informations manquantes ou invalides")).toBeInTheDocument();
     expect(screen.getByText(/budget.*definition/)).toBeInTheDocument();
   });
+
+  it("submitting an untouched prefilled form creates a new version identical to the active one, nothing dropped", async () => {
+    const user = userEvent.setup();
+    startMock.mockClear();
+    startMock.mockResolvedValueOnce({
+      id: "v-2",
+      name: "Actif",
+      version: 4,
+      status: "active",
+      activatedAt: null,
+      createdAt: "2026-09-24T00:00:00Z",
+    });
+    const active = bantCriteriaWireSchema.parse(bantCriteriaWire);
+    const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <BantStep
+          workspaceId="workspace-1"
+          workspaceName="Acme"
+          activeVersion={{ version: 3, name: "Actif", criteria: active }}
+          onCreated={vi.fn()}
+        />
+      </QueryClientProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /Créer/ }));
+
+    await waitFor(() => expect(startMock).toHaveBeenCalledTimes(1));
+    const [request] = startMock.mock.calls[0] as [{ name: string; criteria: unknown }];
+    expect(request.name).toBe("Actif");
+    expect(request.criteria).toEqual({ ...active, profileName: "Actif" });
+  }, 20_000);
 });

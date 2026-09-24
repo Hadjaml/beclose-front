@@ -3,8 +3,10 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import {
+  type IcpCriteriaWire,
   emptyIcpCriteriaDraft,
   icpCriteriaFormSchema,
+  icpDraftFromActive,
   icpFieldHints,
   toIcpCriteriaPayload,
   useCreateIcpProfileVersionMutation,
@@ -29,12 +31,17 @@ import { IcpSignalsSection } from "./icp-signals-section";
 interface IcpStepProps {
   workspaceId: WorkspaceId;
   workspaceName: string;
+  /** The active version, when a new one is being prepared from it: the form
+   * starts from its values (still a NEW version, never an edit in place). */
+  activeVersion?: { version: number; name: string; criteria: IcpCriteriaWire };
   onCreated: () => void;
 }
 
-export function IcpStep({ workspaceId, workspaceName, onCreated }: IcpStepProps) {
+export function IcpStep({ workspaceId, workspaceName, activeVersion, onCreated }: IcpStepProps) {
   const form = useStepForm(
-    { ...emptyIcpCriteriaDraft, profileName: `Profil ICP ${workspaceName}` },
+    activeVersion === undefined
+      ? { ...emptyIcpCriteriaDraft, profileName: `Profil ICP ${workspaceName}` }
+      : icpDraftFromActive(activeVersion),
     icpCriteriaFormSchema,
   );
   const { draft, errors, updateField } = form;
@@ -68,7 +75,11 @@ export function IcpStep({ workspaceId, workspaceName, onCreated }: IcpStepProps)
   return (
     <StepFormLayout
       title="Créer le profil ICP"
-      description="Qui cibler. Cette version devient active dès sa création — indépendante de la grille BANT qui suit."
+      description={
+        activeVersion === undefined
+          ? "Qui cibler. Cette version devient active dès sa création — indépendante de la grille BANT qui suit."
+          : `Formulaire prérempli avec la version ${activeVersion.version} active. Enregistrer crée la version ${activeVersion.version + 1} et la rend active ; la version actuelle est conservée, rien n’est modifié en place.`
+      }
       onSubmit={handleSubmit}
       onBack={null}
       submitLabel={isBusy ? "Création…" : "Créer et continuer"}

@@ -9,9 +9,10 @@ import { z } from "zod";
  * (`bant-criteria-wire-schema.ts`, which parses already-stored snake_case).
  *
  * `customCriteria` (free-form `dict[str, Any] | None` on Beclose's side) has
- * no field in this form — genuinely unstructured data with no agent
- * consuming it yet; left `null` on create, same as `nurtureRules` being
- * optional.
+ * no editable field in this form — genuinely unstructured data. It is only
+ * carried through: `null` on a first creation, and the active version's
+ * value when a new version is prefilled from it, so that versioning never
+ * silently drops what an organization already had.
  */
 
 const criterionBaseFormSchema = z.object({
@@ -96,6 +97,7 @@ export const bantCriteriaFormSchema = z.object({
   handoffRules: handoffRulesFormSchema,
   nurtureRules: nurtureRulesFormSchema.nullable(),
   conversationPolicy: conversationPolicyFormSchema,
+  customCriteria: z.record(z.string(), z.unknown()).nullable(),
 });
 export type BantCriteriaFormValue = z.infer<typeof bantCriteriaFormSchema>;
 
@@ -147,6 +149,7 @@ export const emptyBantCriteriaDraft: BantCriteriaFormValue = {
     preferContextualQuestions: false,
     explicitBudgetQuestionOnlyWhenNeeded: false,
   },
+  customCriteria: null,
 };
 
 /** Folds the list-of-pairs editing shape back into the plain

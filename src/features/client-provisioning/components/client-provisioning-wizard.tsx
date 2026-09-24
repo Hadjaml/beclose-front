@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useWorkspaceConfigurationQuery } from "@/features/client-configuration";
 import { ErrorState, LoadingState } from "@/shared/ui/states";
 import { WizardProgress } from "@/shared/ui/forms";
-import { resumeOnboardingHref } from "@/shared/workspace/onboarding-route";
+import { resumeOnboardingHref, type PolicyStep } from "@/shared/workspace/onboarding-route";
 import type { WorkspaceId } from "@/shared/workspace/workspace";
 import {
   clientProvisioningSteps,
@@ -28,8 +28,8 @@ export function ClientProvisioningWizard({
   requestedStep = null,
 }: {
   organizationId: WorkspaceId | null;
-  /** `"icp"`: a new version of the ICP profile although one exists. */
-  requestedStep?: "icp" | null;
+  /** A new version of that policy although one exists, prefilled from it. */
+  requestedStep?: PolicyStep | null;
 }) {
   const router = useRouter();
   // Set right after the creation succeeds, before the URL below catches up,
@@ -93,7 +93,7 @@ function ExistingOrganizationSteps({
   requestedStep,
 }: {
   workspaceId: WorkspaceId;
-  requestedStep: "icp" | null;
+  requestedStep: PolicyStep | null;
 }) {
   const router = useRouter();
   const query = useWorkspaceConfigurationQuery(workspaceId);
@@ -114,10 +114,19 @@ function ExistingOrganizationSteps({
     hasIcpProfile: configuration.icpProfile !== null,
     hasBantCriteria: configuration.qualificationCriteria !== null,
   });
-  const revisingIcp = requestedStep === "icp";
-  const progress = revisingIcp
-    ? { currentStep: "icp" as const, statuses: { ...derived.statuses, icp: "IN_PROGRESS" as const } }
-    : derived;
+  // A requested step wins over the derived one, but only for a policy that
+  // exists: otherwise it is a normal first creation.
+  const revising: PolicyStep | null =
+    (requestedStep === "icp" && configuration.icpProfile !== null) ||
+    (requestedStep === "bant" && configuration.qualificationCriteria !== null)
+      ? requestedStep
+      : null;
+  const progress =
+    revising === null
+      ? derived
+      : { currentStep: revising, statuses: { ...derived.statuses, [revising]: "IN_PROGRESS" as const } };
+  const openConfiguration = () => router.push(`/backoffice/workspaces/${workspaceId}/configuration`);
+  const { icpProfile, qualificationCriteria } = configuration;
 
   return (
     <WizardFrame currentStep={progress.currentStep} statuses={progress.statuses}>
@@ -128,13 +137,27 @@ function ExistingOrganizationSteps({
         <IcpStep
           workspaceId={workspaceId}
           workspaceName={configuration.name}
-          onCreated={
-            revisingIcp ? () => router.push(`/backoffice/workspaces/${workspaceId}/configuration`) : () => {}
-          }
+          {...(revising === "icp" && icpProfile !== null
+            ? { activeVersion: { version: icpProfile.version, name: icpProfile.name, criteria: icpProfile.criteria } }
+            : {})}
+          onCreated={revising === "icp" ? openConfiguration : () => {}}
         />
       ) : null}
       {progress.currentStep === "bant" ? (
-        <BantStep workspaceId={workspaceId} workspaceName={configuration.name} onCreated={() => {}} />
+        <BantStep
+          workspaceId={workspaceId}
+          workspaceName={configuration.name}
+          {...(revising === "bant" && qualificationCriteria !== null
+            ? {
+                activeVersion: {
+                  version: qualificationCriteria.version,
+                  name: qualificationCriteria.criteria.profileName,
+                  criteria: qualificationCriteria.criteria,
+                },
+              }
+            : {})}
+          onCreated={revising === "bant" ? openConfiguration : () => {}}
+        />
       ) : null}
       {progress.currentStep === "connections" ? (
         <ConnectionsStep
