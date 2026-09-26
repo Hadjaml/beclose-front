@@ -27,7 +27,22 @@ describe("createWorkspaceIntegrationStatusApi", () => {
         lastFailureAt: null,
         lastFailureReason: null,
       },
+      notion: null,
     });
+  });
+
+  it("get() carries the Notion block when Beclose sends it, and null when it does not", async () => {
+    const withNotion = fakeClient(() => ({
+      data: {
+        google: null,
+        notion: { connected: false, status: "reconnect_required", lastSuccessAt: null, lastFailureAt: "2026-09-25T08:00:00Z", lastFailureReason: "unauthorized", pendingSyncs: 3, exhaustedSyncs: 1 },
+      },
+    }));
+    const { notion } = await createWorkspaceIntegrationStatusApi(withNotion).get("workspace-1");
+    expect(notion).toMatchObject({ status: "reconnect_required", lastFailureReason: "unauthorized", pendingSyncs: 3, exhaustedSyncs: 1 });
+
+    const without = await createWorkspaceIntegrationStatusApi(fakeClient(() => ({ data: { google: null } }))).get("workspace-1");
+    expect(without.notion).toBeNull();
   });
 
   it("get() carries the health fields Beclose added (status, last success/failure, reason)", async () => {

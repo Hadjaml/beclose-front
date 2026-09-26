@@ -1341,3 +1341,19 @@ entrant le plus récent compte ; `failed`/`exhausted` → « Relancer l'évaluat
   l'API n'expose que `/auth/{login,logout,me}` et le rôle back-office n'a que
   `SELECT/INSERT` sur `staff_users` (`is_active` existe mais rien ne le modifie).
   À faire par quelqu'un ayant un accès base (Vega).
+
+**Notion (connecteur, contrat de Vega : `GET /integrations` → `data.notion`).**
+Bloc `null` = pas de connexion → « Notion non connecté » + commande
+`uv run python -m workers.connect_notion_cli <organizationId>` (id pré-rempli,
+bouton Copier, composant `CliCommandBlock` partagé avec Gmail). Statuts
+tolérants (`notionConnectionHealth`) : healthy = connecté ; unknown = « non
+encore vérifié » (jamais connecté) ; degraded = incident transitoire, envois
+repris automatiquement ; reconnect_required = seul cas qui demande de relancer la
+connexion (jeton refusé, base non partagée ou supprimée) ; inconnu = « Statut
+inconnu : x ». Raison d'échec en français (`unauthorized`, `database_unreachable`,
+`schema_mismatch`, `rate_limited`, `error` ; inconnue = neutre). Compteurs « en
+attente de copie » / « échecs définitifs » (reprises épuisées : ne repartent pas
+seuls). Étape Connexions + onglet Intégrations (carte Gmail + carte Notion).
+Bloc absent (backend sans le connecteur) = `null` = « non connecté ».
+Route de la fiche prospect pour le lien Notion (répondu à Vega) :
+`/backoffice/workspaces/<organizationId>/prospecting/<leadId>`.

@@ -200,3 +200,64 @@ describe("ConnectionsStep — Gmail health from Beclose's status", () => {
     expect(screen.queryByText("Gmail connecté")).not.toBeInTheDocument();
   });
 });
+
+describe("ConnectionsStep — Notion", () => {
+  const withNotion = (notion: Record<string, unknown> | null) => ({
+    isPending: false,
+    isError: false,
+    isSuccess: true,
+    data: {
+      workspaceId: "workspace-1",
+      google: { connected: true, expiresAt: null, scopes: [], status: "healthy", lastSuccessAt: null, lastFailureAt: null, lastFailureReason: null },
+      notion:
+        notion === null
+          ? null
+          : { connected: true, status: "healthy", lastSuccessAt: null, lastFailureAt: null, lastFailureReason: null, pendingSyncs: 0, exhaustedSyncs: 0, ...notion },
+    },
+  });
+
+  it("not connected: shows the exact CLI command with the real organization id", () => {
+    integrationStatusQueryMock.mockReturnValue(withNotion(null));
+    renderStep(null);
+
+    expect(screen.getByText("Notion non connecté")).toBeInTheDocument();
+    expect(screen.getByText("uv run python -m workers.connect_notion_cli workspace-1")).toBeInTheDocument();
+  });
+
+  it("healthy: connected, no command", () => {
+    integrationStatusQueryMock.mockReturnValue(withNotion({ status: "healthy" }));
+    renderStep(null);
+
+    expect(screen.getByText("Notion connecté")).toBeInTheDocument();
+    expect(screen.queryByText(/connect_notion_cli/)).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["unknown", "Non encore vérifié"],
+    ["degraded", "Incident transitoire"],
+  ])("status %s is stated as '%s' with no reconnection command", (status, label) => {
+    integrationStatusQueryMock.mockReturnValue(withNotion({ status }));
+    renderStep(null);
+
+    expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/connect_notion_cli/)).not.toBeInTheDocument();
+  });
+
+  it("reconnect_required shows the command and the failure reason in French", () => {
+    integrationStatusQueryMock.mockReturnValue(
+      withNotion({ status: "reconnect_required", connected: false, lastFailureReason: "database_unreachable" }),
+    );
+    renderStep(null);
+
+    expect(screen.getByText("uv run python -m workers.connect_notion_cli workspace-1")).toBeInTheDocument();
+    expect(screen.getByText(/base Notion introuvable ou non partagée/)).toBeInTheDocument();
+  });
+
+  it("shows the pending and final-failure counters when there are any", () => {
+    integrationStatusQueryMock.mockReturnValue(withNotion({ status: "healthy", pendingSyncs: 4, exhaustedSyncs: 2 }));
+    renderStep(null);
+
+    expect(screen.getByText(/4 en attente de copie/)).toBeInTheDocument();
+    expect(screen.getByText(/2 échecs définitifs/)).toBeInTheDocument();
+  });
+});

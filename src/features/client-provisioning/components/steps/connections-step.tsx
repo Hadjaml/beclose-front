@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { googleConnectionHealth, useWorkspaceIntegrationStatusQuery } from "@/features/integrations";
+import {
+  googleConnectionHealth,
+  notionConnectionHealth,
+  notionFailureReasonLabel,
+  useWorkspaceIntegrationStatusQuery,
+} from "@/features/integrations";
 import { useUpdateClientMutation } from "@/features/clients";
 import { ErrorState, LoadingState } from "@/shared/ui/states";
 import { MutationErrorBanner, StepFormLayout, TextField } from "@/shared/ui/forms";
@@ -16,10 +21,8 @@ import type { WorkspaceId } from "@/shared/workspace/workspace";
  * for either — this only makes both steps visible and non-forgettable.
  */
 
-function GmailStatus({ workspaceId }: { workspaceId: WorkspaceId }) {
-  const query = useWorkspaceIntegrationStatusQuery(workspaceId);
+function CliCommandBlock({ command }: { command: string }) {
   const [copied, setCopied] = useState(false);
-  const command = `uv run python -m workers.connect_gmail_cli ${workspaceId}`;
 
   async function copyCommand() {
     try {
@@ -31,6 +34,87 @@ function GmailStatus({ workspaceId }: { workspaceId: WorkspaceId }) {
       setCopied(false);
     }
   }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <code className="rounded-app-md bg-surface px-3 py-2 text-sm text-text-primary">{command}</code>
+      <button
+        type="button"
+        onClick={() => void copyCommand()}
+        className="rounded-app-md border border-border px-3 py-2 text-sm font-semibold text-text-secondary hover:bg-surface-muted hover:text-text-primary"
+      >
+        {copied ? "Copié" : "Copier"}
+      </button>
+    </div>
+  );
+}
+
+function NotionStatus({ workspaceId }: { workspaceId: WorkspaceId }) {
+  const query = useWorkspaceIntegrationStatusQuery(workspaceId);
+  const command = `uv run python -m workers.connect_notion_cli ${workspaceId}`;
+
+  if (query.isPending) return <LoadingState label="Vérification de la connexion Notion…" />;
+  if (query.isError) {
+    return (
+      <ErrorState title="Impossible de vérifier la connexion Notion" onRetry={() => void query.refetch()} />
+    );
+  }
+
+  const notion = query.data.notion ?? null;
+  const health = notionConnectionHealth(notion);
+  const failureReason = notionFailureReasonLabel(notion?.lastFailureReason ?? null);
+
+  const counters =
+    notion === null || (notion.pendingSyncs === 0 && notion.exhaustedSyncs === 0) ? null : (
+      <p className="mt-2 text-sm text-text-secondary">
+        {notion.pendingSyncs} en attente de copie · {notion.exhaustedSyncs} échec
+        {notion.exhaustedSyncs > 1 ? "s" : ""} définitif{notion.exhaustedSyncs > 1 ? "s" : ""}
+      </p>
+    );
+
+  if (health.kind === "healthy") {
+    return (
+      <div className="rounded-app-lg border border-emerald-200 bg-emerald-50 p-4" role="status">
+        <p className="text-sm font-semibold text-emerald-950">Notion connecté</p>
+        <p className="mt-1 text-sm text-emerald-800">Les prospects du client sont copiés dans sa base Notion.</p>
+        {counters}
+      </div>
+    );
+  }
+
+  if (!health.needsConnection) {
+    return (
+      <div className="rounded-app-lg border border-border bg-surface-muted p-4" role="status">
+        <p className="text-sm font-semibold text-text-primary">{health.label}</p>
+        <p className="mt-1 text-sm text-text-secondary">{health.description}</p>
+        {failureReason === null ? null : (
+          <p className="mt-1 text-xs text-text-tertiary">Dernier échec : {failureReason}</p>
+        )}
+        {counters}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 rounded-app-lg border border-amber-200 bg-amber-50 p-4">
+      <p className="text-sm font-semibold text-amber-900">
+        {health.kind === "reconnect_required" ? "Reconnexion nécessaire" : "Notion non connecté"}
+      </p>
+      <p className="text-sm text-amber-800">
+        {health.kind === "reconnect_required"
+          ? health.description
+          : "Sans cette connexion, les prospects ne sont pas copiés dans Notion. À lancer une fois, depuis un poste où Beclose est installé :"}
+      </p>
+      {failureReason === null ? null : <p className="text-xs text-amber-900">Dernier échec : {failureReason}</p>}
+      <CliCommandBlock command={command} />
+      {counters}
+    </div>
+  );
+}
+
+function GmailStatus({ workspaceId }: { workspaceId: WorkspaceId }) {
+  const query = useWorkspaceIntegrationStatusQuery(workspaceId);
+  const command = `uv run python -m workers.connect_gmail_cli ${workspaceId}`;
 
   if (query.isPending) return <LoadingState label="Vérification de la connexion Gmail…" />;
   if (query.isError) {
@@ -72,18 +156,7 @@ function GmailStatus({ workspaceId }: { workspaceId: WorkspaceId }) {
         Sans cette connexion, les messages restent en attente de validation mais ne partent
         jamais. À lancer une fois, depuis un poste où Beclose est installé :
       </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <code className="rounded-app-md bg-surface px-3 py-2 text-sm text-text-primary">
-          {command}
-        </code>
-        <button
-          type="button"
-          onClick={() => void copyCommand()}
-          className="rounded-app-md border border-border px-3 py-2 text-sm font-semibold text-text-secondary hover:bg-surface-muted hover:text-text-primary"
-        >
-          {copied ? "Copié" : "Copier"}
-        </button>
-      </div>
+      <CliCommandBlock command={command} />
     </div>
   );
 }
@@ -239,7 +312,7 @@ export function ConnectionsStep({
   return (
     <StepFormLayout
       title="Connexions"
-      description="Dernière étape : Gmail et le groupe Telegram du client se configurent en dehors de cette interface, mais ne doivent pas se perdre en route."
+      description="Dernière étape : Gmail, Notion et le groupe Telegram du client se configurent en dehors de cette interface, mais ne doivent pas se perdre en route."
       onSubmit={(event) => {
         event.preventDefault();
         onFinish();
@@ -250,6 +323,10 @@ export function ConnectionsStep({
       <div className="space-y-2">
         <h2 className="text-base font-semibold text-text-primary">Gmail</h2>
         <GmailStatus workspaceId={workspaceId} />
+      </div>
+      <div className="space-y-2">
+        <h2 className="text-base font-semibold text-text-primary">Notion</h2>
+        <NotionStatus workspaceId={workspaceId} />
       </div>
       <div className="space-y-2">
         <h2 className="text-base font-semibold text-text-primary">Groupe Telegram du client</h2>

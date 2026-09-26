@@ -43,3 +43,9 @@ export {
   type GoogleConnectionHealth,
   type GoogleConnectionKind,
 } from "./model/google-connection-health";
+export {
+  notionConnectionHealth,
+  notionFailureReasonLabel,
+  type NotionConnectionHealth,
+  type NotionConnectionKind,
+} from "./model/notion-connection-health";
